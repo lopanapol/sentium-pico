@@ -15,6 +15,10 @@ current_emotional_impact = 0
 target_x = 64
 target_y = 64
 
+-- game state
+game_state = "splash"  -- can be "splash" or "game"
+splash_timer = 0
+
 -- mouse cursor tracking
 mouse_cursor = {
   x = 64,
@@ -525,6 +529,24 @@ end
 
 -- main pico-8 functions
 function _update()
+  if game_state == "splash" then
+    -- Handle splash screen
+    splash_timer += 1
+    
+    -- Skip splash on any input
+    if btnp(4) or btnp(5) or stat(36) > 0 then
+      game_state = "game"
+    end
+    
+    -- Auto-advance after 3 seconds (180 frames at 60fps)
+    if splash_timer > 180 then
+      game_state = "game"
+    end
+    
+    return
+  end
+  
+  -- Game logic (existing code)
   -- Update mouse cursor tracking - ALWAYS try to get mouse coordinates
   local mx = stat(32)
   local my = stat(33)
@@ -605,12 +627,97 @@ function _update()
 end
 
 function _draw()
+  if game_state == "splash" then
+    -- Draw splash screen
+    draw_splash_screen()
+    return
+  end
+  
+  -- Game drawing (existing code)
   cls(0) -- Clear screen to black
   draw_background()
   draw_energy_cubes()
   draw_pixel()
   draw_ui()
   draw_cursor()
+end
+
+function draw_splash_screen()
+  -- Orange background
+  cls(9) -- Orange color
+  
+  -- Draw large "SENTIUM" text (3x size)
+  draw_large_text("sentium", 30, 30, 0) -- Black color, centered position
+  
+  -- Add a subtitle                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+  local subtitle = "consciousness simulation"
+  local sub_width = #subtitle * 4
+  local sub_x = (128 - sub_width) / 2
+  print(subtitle, sub_x, 75, 0)
+  
+  -- Add instruction text
+  local instruction = "press any key to start"
+  local inst_width = #instruction * 4
+  local inst_x = (128 - inst_width) / 2
+  print(instruction, inst_x, 95, 0)
+end
+
+function draw_large_text(text, x, y, color)
+  -- Draw text at 3x scale by drawing each character as 3x3 blocks
+  local char_width = 12 -- 4 pixels * 3 scale
+  local char_height = 15 -- 5 pixels * 3 scale
+  
+  for i = 1, #text do
+    local char = sub(text, i, i)
+    local char_x = x + (i - 1) * char_width
+    
+    -- Draw each character at 3x scale using rectfill
+    draw_large_char(char, char_x, y, color)
+  end
+end
+
+function draw_large_char(char, x, y, color)
+  -- Simple 3x scaled character drawing
+  -- This creates blocky 3x3 pixel versions of each letter
+  
+  if char == "s" then
+    -- Draw 'S' shape
+    rectfill(x, y, x+8, y+2, color)      -- top bar
+    rectfill(x, y, x+2, y+6, color)      -- left top
+    rectfill(x, y+6, x+8, y+8, color)    -- middle bar
+    rectfill(x+6, y+6, x+8, y+12, color) -- right bottom
+    rectfill(x, y+12, x+8, y+14, color)  -- bottom bar
+  elseif char == "e" then
+    -- Draw 'E' shape
+    rectfill(x, y, x+2, y+14, color)     -- left bar
+    rectfill(x, y, x+8, y+2, color)      -- top bar
+    rectfill(x, y+6, x+6, y+8, color)    -- middle bar
+    rectfill(x, y+12, x+8, y+14, color)  -- bottom bar
+  elseif char == "n" then
+    -- Draw 'N' shape
+    rectfill(x, y, x+2, y+14, color)     -- left bar
+    rectfill(x+6, y, x+8, y+14, color)   -- right bar
+    rectfill(x+2, y+4, x+6, y+10, color) -- diagonal middle
+  elseif char == "t" then
+    -- Draw 'T' shape
+    rectfill(x, y, x+8, y+2, color)      -- top bar
+    rectfill(x+3, y, x+5, y+14, color)   -- center stem
+  elseif char == "i" then
+    -- Draw 'I' shape
+    rectfill(x+2, y, x+6, y+2, color)    -- top bar
+    rectfill(x+3, y, x+5, y+14, color)   -- center stem
+    rectfill(x+2, y+12, x+6, y+14, color) -- bottom bar
+  elseif char == "u" then
+    -- Draw 'U' shape
+    rectfill(x, y, x+2, y+12, color)     -- left bar
+    rectfill(x+6, y, x+8, y+12, color)   -- right bar
+    rectfill(x, y+12, x+8, y+14, color)  -- bottom bar
+  elseif char == "m" then
+    -- Draw 'M' shape
+    rectfill(x, y, x+2, y+14, color)     -- left bar
+    rectfill(x+6, y, x+8, y+14, color)   -- right bar
+    rectfill(x+2, y, x+6, y+6, color)    -- top middle section
+  end
 end
 
 __gfx__
