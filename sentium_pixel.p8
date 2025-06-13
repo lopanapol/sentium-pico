@@ -668,11 +668,9 @@ end
 function draw_simple_symbol(x, y, color)
   -- Draw simple symbol: extra bold circle with thick vertical line
   
-  -- Draw an extra bold circle outline (4 circles for thickness)
-  circ(x, y, 8, color)
-  circ(x, y, 7, color)
-  circ(x, y, 6, color)
-  circ(x, y, 5, color)
+  -- Draw a solid black circle with hollow center
+  circfill(x, y, 8, color)  -- Outer filled circle
+  circfill(x, y, 5, 9)      -- Inner circle filled with background color (orange)
   
   -- Draw a thick vertical line through the center
   line(x-1, y-12, x-1, y+12, color)
