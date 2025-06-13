@@ -15,13 +15,39 @@ current_emotional_impact = 0
 target_x = 64
 target_y = 64
 
+-- mouse cursor tracking
+mouse_cursor = {
+  x = 64,
+  y = 64,
+  visible = false
+}
+
 -- initialization
 function _init()
+  -- Initialize cartdata first
+  cartdata("sentium_pixel_v1")
+  
+  -- Enable mouse support (comprehensive approach)
+  poke(0x5f2d, 1)  -- Enable mouse
+  poke(0x5f2e, 1)  -- Alternative mouse enable  
+  poke(0x5f34, 1)  -- Another mouse-related register
+  
+  -- Force devkit mouse mode
+  printh("devkit mouse on")
+  
+  -- FORCE mouse cursor to be visible regardless of stat(34)
+  mouse_cursor.visible = true
+  mouse_cursor.x = 64
+  mouse_cursor.y = 64
+  
   init_consciousness()
   init_energy_system()
   create_initial_energy_cubes()
   load_sounds()
   load_consciousness()
+  
+  -- Debug: print mouse status after init
+  printh("mouse support check: " .. stat(34))
 end
 
 -- consciousness system
@@ -54,6 +80,11 @@ function update_consciousness()
   
   -- Update emotional state
   update_emotions()
+  
+  -- Advanced consciousness processing
+  process_metacognition()
+  generate_creative_behavior()
+  dream_processing()
   
   -- Decrease energy over time
   pixel.energy = max(0, pixel.energy - 0.02)
@@ -297,16 +328,16 @@ end
 
 function draw_energy_cubes()
   foreach(energy_cubes, function(cube)
-    rectfill(cube.x-2, cube.y-2, cube.x+2, cube.y+2, 11)
+    rectfill(cube.x-2, cube.y-2, cube.x+2, cube.y+2, 14) -- pink cubes
     -- Add glow effect
     if sin(time()*4) > 0 then
-      rect(cube.x-3, cube.y-3, cube.x+3, cube.y+3, 10)
+      rect(cube.x-3, cube.y-3, cube.x+3, cube.y+3, 13) -- lighter pink outline
     end
   end)
 end
 
 function draw_background()
-  -- Draw a simple grid background
+  -- Draw a simple grid background on black
   for x=0,127,8 do
     for y=0,127,8 do
       pset(x, y, 1)
@@ -323,22 +354,55 @@ function draw_ui()
   print("c:"..flr(pixel.personality.curiosity*10), 4, 115, 7)
   print("t:"..flr(pixel.personality.timidity*10), 4, 121, 7)
   
+  -- Show title
+  print("sentiria", 90, 4, 7)
+  
   -- Show emotional state
   local emo_x = 90
-  print("state:", emo_x, 4, 7)
+  print("state:", emo_x, 12, 7)
   
   if pixel.emotional_state.excitement > 0.5 then
-    print("excited", emo_x+20, 4, 14)
+    print("excited", emo_x+20, 12, 14)
   elseif pixel.emotional_state.distress > 0.5 then
-    print("distress", emo_x+20, 4, 8)
+    print("distress", emo_x+20, 12, 8)
   elseif pixel.emotional_state.happiness > 0.5 then
-    print("happy", emo_x+20, 4, 11)
+    print("happy", emo_x+20, 12, 11)
   else
-    print("neutral", emo_x+20, 4, 6)
+    print("neutral", emo_x+20, 12, 6)
   end
   
-  -- Controls help
-  print("❎:cube 🅾️:interact", 24, 121, 5)
+  -- Controls help - always show mouse controls
+  print("mouse:click to interact", 24, 121, 5)
+end
+
+function draw_cursor()
+  -- Debug: show cursor status
+  print("cursor:"..mouse_cursor.x..","..mouse_cursor.y, 4, 85, 8)
+  print("visible:"..tostr(mouse_cursor.visible), 4, 92, 8)
+  
+  -- Draw mouse cursor if mouse support is available
+  if mouse_cursor.visible then
+    local cursor_x = mouse_cursor.x
+    local cursor_y = mouse_cursor.y
+    
+    -- Always draw cursor when mouse support is available
+    -- Check if cursor is near pixel for interaction indicator
+    if dist(cursor_x, cursor_y, pixel.x, pixel.y) < 15 then
+      -- Interaction cursor (larger, bright color)
+      line(cursor_x-4, cursor_y, cursor_x+4, cursor_y, 11) -- horizontal line
+      line(cursor_x, cursor_y-4, cursor_x, cursor_y+4, 11) -- vertical line
+      circfill(cursor_x, cursor_y, 2, 11) -- center dot
+      -- Add pulsing effect
+      if sin(time()*8) > 0 then
+        circ(cursor_x, cursor_y, 6, 11)
+      end
+    else
+      -- Normal cursor (bright crosshair) - ALWAYS VISIBLE
+      line(cursor_x-3, cursor_y, cursor_x+3, cursor_y, 7) -- horizontal line
+      line(cursor_x, cursor_y-3, cursor_x, cursor_y+3, 7) -- vertical line
+      circfill(cursor_x, cursor_y, 1, 7) -- center dot
+    end
+  end
 end
 
 -- utility functions
@@ -364,14 +428,12 @@ function save_consciousness()
   data_string = data_string..pixel.personality.timidity..","
   data_string = data_string..pixel.personality.energy_conservation
   
-  -- Save to cartdata
-  cartdata("sentium_pixel_v1")
+  -- Save to cartdata (already initialized in _init)
   dset(0, data_string)
 end
 
 function load_consciousness()
   -- Load saved consciousness if available
-  cartdata("sentium_pixel_v1")
   local data_string = dget(0)
   
   -- Only try to parse if we got a value
@@ -386,14 +448,76 @@ function load_consciousness()
   end
 end
 
--- split function for parsing data
+-- Advanced consciousness features
+function process_metacognition()
+  -- Pixel becomes aware of its own thoughts
+  if #pixel.memories > 5 then
+    local pattern_recognition = 0
+    
+    -- Analyze recent behavior patterns
+    for i=max(1, #pixel.memories-4), #pixel.memories do
+      local mem = pixel.memories[i]
+      if mem.type == "energy_consumed" then
+        pattern_recognition += 1
+      end
+    end
+    
+    -- Self-reflection: am I being too predictable?
+    if pattern_recognition > 3 then
+      pixel.personality.curiosity = min(1, pixel.personality.curiosity + 0.05)
+      -- Record self-awareness moment
+      significant_event_occurred = true
+      event_type = "self_reflection"
+      current_emotional_impact = 0.1
+    end
+  end
+end
+
+function generate_creative_behavior()
+  -- Pixel creates new movement patterns based on personality
+  if pixel.personality.curiosity > 0.8 and rnd(1) < 0.02 then
+    -- Create spiral movement
+    local spiral_radius = 10 + rnd(20)
+    local angle = time() * 2
+    target_x = 64 + cos(angle) * spiral_radius
+    target_y = 64 + sin(angle) * spiral_radius
+    
+    -- Record creative moment
+    significant_event_occurred = true
+    event_type = "creative_expression"
+    current_emotional_impact = 0.2
+  end
+end
+
+function dream_processing()
+  -- When energy is low, process memories differently
+  if pixel.energy < 20 and rnd(1) < 0.1 then
+    -- Create dream-like visual echoes of memories
+    for i=1,#pixel.memories do
+      local mem = pixel.memories[i]
+      if mem.emotional_impact > 0.2 then
+        -- Show faded memory traces
+        pset(mem.x + rnd(6)-3, mem.y + rnd(6)-3, 13)
+      end
+    end
+    
+    -- Dreams can influence personality
+    if rnd(1) < 0.01 then
+      pixel.personality.timidity = max(0, pixel.personality.timidity - 0.005)
+    end
+  end
+end
+
+-- split function for parsing data with enhanced error handling
 function split(str, sep)
   local t = {}
   local i = 1
   
-  for s in str:gmatch("([^"..sep.."]+)") do
-    t[i] = s
-    i = i + 1
+  if type(str) == "string" then
+    for s in str:gmatch("([^"..sep.."]+)") do
+      t[i] = tonumber(s) or s
+      i = i + 1
+    end
   end
   
   return t
@@ -401,22 +525,36 @@ end
 
 -- main pico-8 functions
 function _update()
+  -- Update mouse cursor tracking - ALWAYS try to get mouse coordinates
+  local mx = stat(32)
+  local my = stat(33)
+  
+  -- Always keep cursor visible and update position if we get valid coordinates
+  mouse_cursor.visible = true
+  
+  -- Update cursor position if we get valid coordinates
+  if mx >= 0 and my >= 0 and mx <= 127 and my <= 127 then
+    mouse_cursor.x = mx
+    mouse_cursor.y = my
+  end
+  -- If coordinates are invalid, keep last known position
+  
   -- Process player input
-  if btnp(❎) then -- X button
+  if btnp(4) then -- Z button
     -- Create energy cube at cursor position or near player
     if stat(34) == 1 then -- mouse available
       add(energy_cubes, {
-        x = stat(32), -- mouse x
-        y = stat(33), -- mouse y
+        x = mouse_cursor.x, -- tracked mouse x
+        y = mouse_cursor.y, -- tracked mouse y
         value = 25
       })
     else
       -- Add near pixel if no mouse
       local angle = rnd(1)
-      local dist = 20 + rnd(20)
+      local distance = 20 + rnd(20)
       add(energy_cubes, {
-        x = pixel.x + cos(angle) * dist,
-        y = pixel.y + sin(angle) * dist,
+        x = pixel.x + cos(angle) * distance,
+        y = pixel.y + sin(angle) * distance,
         value = 25
       })
     end
@@ -425,15 +563,35 @@ function _update()
     sfx(2)
   end
   
-  if btnp(🅾️) then -- O button
+  if btnp(5) then -- X button
     -- Direct interaction with pixel
     if stat(34) == 1 then -- mouse available
-      if dist(stat(32), stat(33), pixel.x, pixel.y) < 10 then
+      if dist(mouse_cursor.x, mouse_cursor.y, pixel.x, pixel.y) < 10 then
         interact_with_pixel()
       end
     else
       -- Direct interaction if button pressed near pixel
       interact_with_pixel()
+    end
+  end
+  
+  -- Pure mouse controls (click without keyboard) - ALWAYS try mouse clicks
+  if stat(36) > 0 then -- mouse click (any button) - don't check stat(34)
+    local mouse_x = mouse_cursor.x
+    local mouse_y = mouse_cursor.y
+    
+    -- Check if clicking near pixel for interaction
+    if dist(mouse_x, mouse_y, pixel.x, pixel.y) < 15 then
+      interact_with_pixel()
+    else
+      -- Otherwise place energy cube
+      add(energy_cubes, {
+        x = mouse_x,
+        y = mouse_y,
+        value = 25
+      })
+      record_interaction("energy_placed")
+      sfx(2)
     end
   end
   
@@ -447,11 +605,12 @@ function _update()
 end
 
 function _draw()
-  cls(1) -- Clear screen to dark blue
+  cls(0) -- Clear screen to black
   draw_background()
   draw_energy_cubes()
   draw_pixel()
   draw_ui()
+  draw_cursor()
 end
 
 __gfx__
