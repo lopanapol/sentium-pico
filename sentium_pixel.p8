@@ -648,7 +648,7 @@ function draw_splash_screen()
   
   -- Draw simple centered symbol instead of text
   local symbol_x = 64 -- Center of screen
-  local symbol_y = 50 -- Vertically centered
+  local symbol_y = 40 -- Moved up (was 50)
   
   draw_simple_symbol(symbol_x, symbol_y, 0) -- Black color, centered
   
@@ -668,14 +668,16 @@ end
 function draw_simple_symbol(x, y, color)
   -- Draw simple symbol: extra bold circle with thick vertical line
   
-  -- Draw a solid black circle with hollow center
-  circfill(x, y, 8, color)  -- Outer filled circle
-  circfill(x, y, 5, 9)      -- Inner circle filled with background color (orange)
+  -- Draw a bigger, thicker solid black circle with hollow center
+  circfill(x, y, 12, color)  -- Outer filled circle (bigger)
+  circfill(x, y, 7, 9)       -- Inner circle filled with background color (orange)
   
-  -- Draw a thick vertical line through the center
-  line(x-1, y-12, x-1, y+12, color)
-  line(x, y-12, x, y+12, color)
-  line(x+1, y-12, x+1, y+12, color)
+  -- Draw a much thicker vertical line through the center (5 pixels wide to match circle thickness)
+  line(x-2, y-16, x-2, y+16, color)
+  line(x-1, y-16, x-1, y+16, color)
+  line(x, y-16, x, y+16, color)
+  line(x+1, y-16, x+1, y+16, color)
+  line(x+2, y-16, x+2, y+16, color)
 end
 
 function draw_large_text(text, x, y, color)
