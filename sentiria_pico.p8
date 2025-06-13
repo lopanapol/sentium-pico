@@ -354,29 +354,29 @@ function draw_ui()
   rectfill(4, 4, 4 + pixel.energy/10, 6, 11)
   rect(3, 3, 14, 7, 5)
   
+  -- Add energy label
+  print("energy", 18, 4, 7)
+  
   -- Draw personality indicators
-  print("c:"..flr(pixel.personality.curiosity*10), 4, 115, 7)
-  print("t:"..flr(pixel.personality.timidity*10), 4, 121, 7)
+  print("curiosity:"..flr(pixel.personality.curiosity*10), 4, 115, 7)
+  print("timidity:"..flr(pixel.personality.timidity*10), 4, 121, 7)
   
-  -- Show title
-  print("sentiria", 90, 4, 7)
-  
-  -- Show emotional state
-  local emo_x = 90
-  print("state:", emo_x, 12, 7)
+  -- Show emotional state (value only)
+  local emo_x = 100
+  local emo_y = 4
   
   if pixel.emotional_state.excitement > 0.5 then
-    print("excited", emo_x+20, 12, 14)
+    print("excited", emo_x, emo_y, 14)
   elseif pixel.emotional_state.distress > 0.5 then
-    print("distress", emo_x+20, 12, 8)
+    print("distress", emo_x, emo_y, 8)
   elseif pixel.emotional_state.happiness > 0.5 then
-    print("happy", emo_x+20, 12, 11)
+    print("happy", emo_x, emo_y, 11)
   else
-    print("neutral", emo_x+20, 12, 6)
+    print("neutral", emo_x, emo_y, 6)
   end
   
   -- Controls help - always show mouse controls
-  print("mouse:click to interact", 24, 121, 5)
+  print("use mouse to interact", 24, 121, 5)
 end
 
 function draw_cursor()
@@ -529,8 +529,8 @@ function _update()
     -- Handle splash screen
     splash_timer += 1
     
-    -- Skip splash on any input
-    if btnp(4) or btnp(5) or stat(36) > 0 then
+    -- Skip splash on mouse click
+    if stat(36) > 0 then
       game_state = "game"
     end
     
@@ -556,42 +556,6 @@ function _update()
     mouse_cursor.y = my
   end
   -- If coordinates are invalid, keep last known position
-  
-  -- Process player input
-  if btnp(4) then -- Z button
-    -- Create energy cube at cursor position or near player
-    if stat(34) == 1 then -- mouse available
-      add(energy_cubes, {
-        x = mouse_cursor.x, -- tracked mouse x
-        y = mouse_cursor.y, -- tracked mouse y
-        value = 25
-      })
-    else
-      -- Add near pixel if no mouse
-      local angle = rnd(1)
-      local distance = 20 + rnd(20)
-      add(energy_cubes, {
-        x = pixel.x + cos(angle) * distance,
-        y = pixel.y + sin(angle) * distance,
-        value = 25
-      })
-    end
-    -- Record interaction
-    record_interaction("energy_placed")
-    sfx(2)
-  end
-  
-  if btnp(5) then -- X button
-    -- Direct interaction with pixel
-    if stat(34) == 1 then -- mouse available
-      if dist(mouse_cursor.x, mouse_cursor.y, pixel.x, pixel.y) < 10 then
-        interact_with_pixel()
-      end
-    else
-      -- Direct interaction if button pressed near pixel
-      interact_with_pixel()
-    end
-  end
   
   -- Pure mouse controls (click without keyboard) - ALWAYS try mouse clicks
   if stat(36) > 0 then -- mouse click (any button) - don't check stat(34)
@@ -648,11 +612,17 @@ function draw_splash_screen()
   
   draw_simple_symbol(symbol_x, symbol_y, 0) -- Black color, centered
   
+  -- Add main title under logo
+  local title = "sentium"
+  local title_width = #title * 4
+  local title_x = (128 - title_width) / 2
+  print(title, title_x, 65, 0)
+  
   -- Add a subtitle
   local subtitle = "consciousness simulation"
   local sub_width = #subtitle * 4
   local sub_x = (128 - sub_width) / 2
-  print(subtitle, sub_x, 75, 0)
+  print(subtitle, sub_x, 80, 0)
   
   -- Add instruction text
   local instruction = "sentiria pico v1.0.0"
