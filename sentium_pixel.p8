@@ -666,18 +666,26 @@ function draw_splash_screen()
 end
 
 function draw_simple_symbol(x, y, color)
-  -- Draw simple symbol: extra bold circle with thick vertical line
+  -- Draw simple symbol: extra bold circle with thick vertical line and dashes
   
   -- Draw a bigger, thicker solid black circle with hollow center
   circfill(x, y, 12, color)  -- Outer filled circle (bigger)
   circfill(x, y, 7, 9)       -- Inner circle filled with background color (orange)
   
-  -- Draw a much thicker vertical line through the center (5 pixels wide to match circle thickness)
-  line(x-2, y-16, x-2, y+16, color)
-  line(x-1, y-16, x-1, y+16, color)
-  line(x, y-16, x, y+16, color)
-  line(x+1, y-16, x+1, y+16, color)
-  line(x+2, y-16, x+2, y+16, color)
+  -- Draw a much longer vertical line through the center (5 pixels wide)
+  line(x-2, y-20, x-2, y+20, color)
+  line(x-1, y-20, x-1, y+20, color)
+  line(x, y-20, x, y+20, color)
+  line(x+1, y-20, x+1, y+20, color)
+  line(x+2, y-20, x+2, y+20, color)
+  
+  -- Add horizontal dash at top extending to the left
+  line(x-8, y-20, x-3, y-20, color)
+  line(x-8, y-19, x-3, y-19, color)
+  
+  -- Add horizontal dash at bottom extending to the right
+  line(x+3, y+20, x+8, y+20, color)
+  line(x+3, y+19, x+8, y+19, color)
 end
 
 function draw_large_text(text, x, y, color)
