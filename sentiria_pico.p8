@@ -313,8 +313,8 @@ function draw_pixel()
   
   -- Emotional indicators
   if pixel.emotional_state.excitement > 0.7 then
-    -- Add pulsing effect for excitement
-    circfill(pixel.x, pixel.y, 2 + sin(time()*2), 14)
+    -- Static excitement indicator (no pulsing)
+    circfill(pixel.x, pixel.y, 3, 14)
   end
   
   if pixel.emotional_state.distress > 0.7 then
@@ -333,10 +333,6 @@ end
 function draw_energy_cubes()
   foreach(energy_cubes, function(cube)
     rectfill(cube.x-2, cube.y-2, cube.x+2, cube.y+2, 14) -- pink cubes
-    -- Add glow effect
-    if sin(time()*4) > 0 then
-      rect(cube.x-3, cube.y-3, cube.x+3, cube.y+3, 13) -- lighter pink outline
-    end
   end)
 end
 
@@ -374,9 +370,6 @@ function draw_ui()
   else
     print("neutral", emo_x, emo_y, 6)
   end
-  
-  -- Controls help - always show mouse controls
-  print("use mouse to interact", 24, 121, 5)
 end
 
 function draw_cursor()
@@ -392,10 +385,8 @@ function draw_cursor()
       line(cursor_x-4, cursor_y, cursor_x+4, cursor_y, 11) -- horizontal line
       line(cursor_x, cursor_y-4, cursor_x, cursor_y+4, 11) -- vertical line
       circfill(cursor_x, cursor_y, 2, 11) -- center dot
-      -- Add pulsing effect
-      if sin(time()*8) > 0 then
-        circ(cursor_x, cursor_y, 6, 11)
-      end
+      -- Static interaction ring (no pulsing)
+      circ(cursor_x, cursor_y, 6, 11)
     else
       -- Normal cursor (bright crosshair) - ALWAYS VISIBLE
       line(cursor_x-3, cursor_y, cursor_x+3, cursor_y, 7) -- horizontal line
