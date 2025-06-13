@@ -682,10 +682,14 @@ function draw_simple_symbol(x, y, color)
   -- Add horizontal dash at top extending to the left
   line(x-8, y-20, x-3, y-20, color)
   line(x-8, y-19, x-3, y-19, color)
+  line(x-8, y-18, x-3, y-18, color)
+  line(x-8, y-17, x-3, y-17, color)
   
   -- Add horizontal dash at bottom extending to the right
   line(x+3, y+20, x+8, y+20, color)
   line(x+3, y+19, x+8, y+19, color)
+  line(x+3, y+18, x+8, y+18, color)
+  line(x+3, y+17, x+8, y+17, color)
 end
 
 function draw_large_text(text, x, y, color)
@@ -699,50 +703,6 @@ function draw_large_text(text, x, y, color)
     
     -- Draw each character at 3x scale using rectfill
     draw_large_char(char, char_x, y, color)
-  end
-end
-
-function draw_large_char(char, x, y, color)
-  -- Simple 3x scaled character drawing
-  -- This creates blocky 3x3 pixel versions of each letter
-  
-  if char == "s" then
-    -- Draw 'S' shape
-    rectfill(x, y, x+8, y+2, color)      -- top bar
-    rectfill(x, y, x+2, y+6, color)      -- left top
-    rectfill(x, y+6, x+8, y+8, color)    -- middle bar
-    rectfill(x+6, y+6, x+8, y+12, color) -- right bottom
-    rectfill(x, y+12, x+8, y+14, color)  -- bottom bar
-  elseif char == "e" then
-    -- Draw 'E' shape
-    rectfill(x, y, x+2, y+14, color)     -- left bar
-    rectfill(x, y, x+8, y+2, color)      -- top bar
-    rectfill(x, y+6, x+6, y+8, color)    -- middle bar
-    rectfill(x, y+12, x+8, y+14, color)  -- bottom bar
-  elseif char == "n" then
-    -- Draw 'N' shape
-    rectfill(x, y, x+2, y+14, color)     -- left bar
-    rectfill(x+6, y, x+8, y+14, color)   -- right bar
-    rectfill(x+2, y+4, x+6, y+10, color) -- diagonal middle
-  elseif char == "t" then
-    -- Draw 'T' shape
-    rectfill(x, y, x+8, y+2, color)      -- top bar
-    rectfill(x+3, y, x+5, y+14, color)   -- center stem
-  elseif char == "i" then
-    -- Draw 'I' shape
-    rectfill(x+2, y, x+6, y+2, color)    -- top bar
-    rectfill(x+3, y, x+5, y+14, color)   -- center stem
-    rectfill(x+2, y+12, x+6, y+14, color) -- bottom bar
-  elseif char == "u" then
-    -- Draw 'U' shape
-    rectfill(x, y, x+2, y+12, color)     -- left bar
-    rectfill(x+6, y, x+8, y+12, color)   -- right bar
-    rectfill(x, y+12, x+8, y+14, color)  -- bottom bar
-  elseif char == "m" then
-    -- Draw 'M' shape
-    rectfill(x, y, x+2, y+14, color)     -- left bar
-    rectfill(x+6, y, x+8, y+14, color)   -- right bar
-    rectfill(x+2, y, x+6, y+6, color)    -- top middle section
   end
 end
 
