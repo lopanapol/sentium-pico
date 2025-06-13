@@ -380,10 +380,6 @@ function draw_ui()
 end
 
 function draw_cursor()
-  -- Debug: show cursor status
-  print("cursor:"..mouse_cursor.x..","..mouse_cursor.y, 4, 85, 8)
-  print("visible:"..tostr(mouse_cursor.visible), 4, 92, 8)
-  
   -- Draw mouse cursor if mouse support is available
   if mouse_cursor.visible then
     local cursor_x = mouse_cursor.x
@@ -659,7 +655,7 @@ function draw_splash_screen()
   print(subtitle, sub_x, 75, 0)
   
   -- Add instruction text
-  local instruction = "press any key to start"
+  local instruction = "sentiria pico v1.0.0"
   local inst_width = #instruction * 4
   local inst_x = (128 - inst_width) / 2
   print(instruction, inst_x, 95, 0)
