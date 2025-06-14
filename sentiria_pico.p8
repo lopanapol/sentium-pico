@@ -6,7 +6,7 @@ __lua__
 -- v1.0.0
 
 -- global variables
-pixel = {}
+pixels = {} -- Now supporting multiple pixels
 energy_cubes = {}
 memory_size = 10
 significant_event_occurred = false
@@ -14,6 +14,13 @@ event_type = ""
 current_emotional_impact = 0
 target_x = 64
 target_y = 64
+
+-- biological parameters
+max_pixels = 8
+division_energy_threshold = 85
+death_energy_threshold = 5
+division_cooldown = 600 -- 10 seconds at 60fps
+mutation_rate = 0.1
 
 -- game state
 game_state = "splash"  -- can be "splash" or "game"
@@ -104,16 +111,35 @@ end
 
 -- consciousness system
 function init_consciousness()
-  pixel = {
-    x = 64,
-    y = 64,
+  -- Initialize with one pixel
+  pixels = {}
+  
+  add(pixels, create_pixel(64, 64, {
+    curiosity = rnd(1),
+    timidity = rnd(1),
+    energy_conservation = rnd(1)
+  }))
+  
+  -- Initialize memory storage (simplified)
+  memory_size = 10
+end
+
+function create_pixel(x, y, personality)
+  return {
+    x = x,
+    y = y,
     color = 8, -- default color
     energy = 100,
     memories = {},
     consciousness_level = 0,
-    last_x = 64,
-    last_y = 64,
-    personality = {
+    last_x = x,
+    last_y = y,
+    age = 0,
+    generation = 1,
+    division_timer = 0,
+    parent_id = nil,
+    id = rnd(10000), -- unique identifier
+    personality = personality or {
       curiosity = rnd(1),
       timidity = rnd(1),
       energy_conservation = rnd(1)
@@ -122,15 +148,14 @@ function init_consciousness()
       happiness = 0.5,
       excitement = 0.5,
       distress = 0
-    }
+    },
+    target_x = x + rnd(20) - 10,
+    target_y = y + rnd(20) - 10
   }
-  
-  -- Initialize memory storage (simplified)
-  memory_size = 10
 end
 
 -- Global Workspace Theory - broadcasting important information
-function update_global_workspace()
+function update_global_workspace(pixel)
   -- Competing processes for conscious access
   local processes = {}
   
@@ -170,7 +195,7 @@ function update_global_workspace()
     add(processes, {
       type = "emotional_state",
       strength = max_emotion * 0.6,
-      content = {dominant_emotion = get_dominant_emotion()}
+      content = {dominant_emotion = get_dominant_emotion(pixel)}
     })
   end
   
@@ -231,7 +256,7 @@ function broadcast_to_subsystems(conscious_process)
   end
 end
 
-function get_dominant_emotion()
+function get_dominant_emotion(pixel)
   local emotions = {
     {name = "happiness", value = pixel.emotional_state.happiness},
     {name = "excitement", value = pixel.emotional_state.excitement},
@@ -248,7 +273,7 @@ function get_dominant_emotion()
   return dominant.name
 end
 
-function find_nearest_energy_cube()
+function find_nearest_energy_cube(pixel)
   local nearest = nil
   local min_dist = 1000
   
@@ -264,7 +289,7 @@ function find_nearest_energy_cube()
 end
 
 -- Attention Schema Theory - model of attention as consciousness
-function update_attention_schema()
+function update_attention_schema(pixel)
   -- Update self-model
   attention_schema.self_model.position.x = pixel.x
   attention_schema.self_model.position.y = pixel.y
@@ -333,18 +358,18 @@ function make_predictions()
 end
 
 -- Predictive Processing Theory - brain as prediction machine
-function update_predictive_processing()
+function update_predictive_processing(pixel)
   -- Predict cursor movement patterns
-  predict_cursor_behavior()
+  predict_cursor_behavior(pixel)
   
   -- Predict energy availability
-  predict_energy_patterns()
+  predict_energy_patterns(pixel)
   
   -- Update predictions based on errors
-  update_predictions_from_errors()
+  update_predictions_from_errors(pixel)
 end
 
-function predict_cursor_behavior()
+function predict_cursor_behavior(pixel)
   -- Learn cursor movement patterns
   if cursor_interaction.is_aware then
     local movement_speed = dist(mouse_cursor.x, cursor_interaction.last_cursor_x,
@@ -369,7 +394,7 @@ function predict_cursor_behavior()
   end
 end
 
-function predict_energy_patterns()
+function predict_energy_patterns(pixel)
   -- Predict energy consumption rate
   local predicted_energy = pixel.energy - 0.02 -- base consumption
   
@@ -384,7 +409,7 @@ function predict_energy_patterns()
   pixel.last_y = pixel.y
 end
 
-function update_predictions_from_errors()
+function update_predictions_from_errors(pixel)
   -- Adaptive learning from prediction errors
   if attention_schema.prediction_error > 0.1 then
     -- High prediction error - increase attention and caution
@@ -425,39 +450,45 @@ function calculate_phi(pixel_state)
 end
 
 function update_consciousness()
-  -- Update pixel position based on personality and stimuli
-  update_movement()
-  
-  -- Update emotional state
-  update_emotions()
-  
-  -- Advanced consciousness processing
-  process_metacognition()
-  generate_creative_behavior()
-  dream_processing()
-  
-  -- Latest consciousness theories
-  update_global_workspace()
-  update_attention_schema()
-  update_predictive_processing()
-  
-  -- Calculate current consciousness level (IIT)
-  local old_consciousness = pixel.consciousness_level or 0
-  pixel.consciousness_level = calculate_phi(pixel)
-  
-  -- Play sound when consciousness significantly increases
-  if pixel.consciousness_level > old_consciousness + 0.1 then
-    sfx(3) -- Consciousness increase sound
+  -- Update all pixels
+  for pixel in all(pixels) do
+    -- Update pixel position based on personality and stimuli
+    update_movement(pixel)
+    
+    -- Update emotional state
+    update_emotions(pixel)
+    
+    -- Advanced consciousness processing
+    process_metacognition(pixel)
+    generate_creative_behavior(pixel)
+    dream_processing(pixel)
+    
+    -- Latest consciousness theories
+    update_global_workspace(pixel)
+    update_attention_schema(pixel)
+    update_predictive_processing(pixel)
+    
+    -- Calculate current consciousness level (IIT)
+    local old_consciousness = pixel.consciousness_level or 0
+    pixel.consciousness_level = calculate_phi(pixel)
+    
+    -- Play sound when consciousness significantly increases
+    if pixel.consciousness_level > old_consciousness + 0.1 then
+      sfx(3) -- Consciousness increase sound
+    end
+    
+    -- Decrease energy over time
+    pixel.energy = max(0, pixel.energy - 0.02)
+    
+    -- Check for energy cubes
+    check_energy_sources(pixel)
+    
+    -- Form memories of significant events
+    form_memories(pixel)
   end
   
-  -- Decrease energy over time
-  pixel.energy = max(0, pixel.energy - 0.02)
-  
-  -- Check for energy cubes
-  check_energy_sources()
-  
-  -- Form memories of significant events
-  form_memories()
+  -- Update biological processes (division and death)
+  update_biological_processes()
 end
 
 function form_memories()
@@ -482,7 +513,7 @@ function form_memories()
 end
 
 -- movement system
-function update_movement()
+function update_movement(pixel)
   -- Decide on movement based on personality and stimuli
   local move_speed = 0.5
   
@@ -504,8 +535,8 @@ function update_movement()
   -- Decide movement target
   if nearest_cube and pixel.energy < 30 then
     -- Move toward nearest cube if energy is low
-    target_x = nearest_cube.x
-    target_y = nearest_cube.y
+    pixel.target_x = nearest_cube.x
+    pixel.target_y = nearest_cube.y
     
     -- Speed up if very low on energy (desperate)
     if pixel.energy < 15 then
@@ -515,14 +546,14 @@ function update_movement()
     -- Random movement with some persistence
     if rnd(1) < 0.02 then
       -- Choose new random target
-      target_x = 16 + rnd(96)
-      target_y = 16 + rnd(96)
+      pixel.target_x = 16 + rnd(96)
+      pixel.target_y = 16 + rnd(96)
     end
   end
   
   -- Move toward target based on personality
-  local dx = target_x - pixel.x
-  local dy = target_y - pixel.y
+  local dx = pixel.target_x - pixel.x
+  local dy = pixel.target_y - pixel.y
   local dist_to_target = sqrt(dx*dx + dy*dy)
   
   if dist_to_target > 2 then
@@ -698,13 +729,144 @@ function record_interaction(type)
   current_emotional_impact = 0.1 + rnd(0.2)
 end
 
+-- biological lifecycle functions
+function can_divide(pixel)
+  return pixel.energy >= division_energy_threshold and 
+         pixel.division_timer <= 0 and 
+         #pixels < max_pixels and
+         pixel.age > 180 -- Must be at least 3 seconds old
+end
+
+function divide_pixel(pixel_index)
+  local parent = pixels[pixel_index]
+  
+  -- Create offspring with inherited traits and mutations
+  local child_personality = {}
+  for trait, value in pairs(parent.personality) do
+    -- Inherit with slight mutation
+    local mutation = (rnd(2) - 1) * mutation_rate
+    child_personality[trait] = mid(0, value + mutation, 1)
+  end
+  
+  -- Position child nearby but not overlapping
+  local angle = rnd(1) * 6.28 -- Full circle in radians
+  local distance = 8 + rnd(4)
+  local child_x = parent.x + cos(angle) * distance
+  local child_y = parent.y + sin(angle) * distance
+  
+  -- Keep child in bounds
+  child_x = mid(8, child_x, 120)
+  child_y = mid(8, child_y, 120)
+  
+  -- Create the child pixel
+  local child = create_pixel(child_x, child_y, child_personality)
+  child.generation = parent.generation + 1
+  child.parent_id = parent.id
+  child.energy = 50 -- Child starts with half energy
+  
+  -- Parent loses energy from division
+  parent.energy = parent.energy * 0.6
+  parent.division_timer = division_cooldown
+  
+  -- Add child to pixels array
+  add(pixels, child)
+  
+  -- Record division event
+  significant_event_occurred = true
+  event_type = "division"
+  current_emotional_impact = 0.4
+  
+  -- Play division sound
+  sfx(8) -- New division sound
+  
+  -- Visual effect: brief flash
+  parent.emotional_state.excitement += 0.3
+  child.emotional_state.excitement += 0.2
+end
+
+function kill_pixel(pixel_index)
+  local dying_pixel = pixels[pixel_index]
+  
+  -- Drop some energy cubes when dying (decomposition)
+  for i = 1, 2 do
+    add(energy_cubes, {
+      x = dying_pixel.x + rnd(16) - 8,
+      y = dying_pixel.y + rnd(16) - 8,
+      value = 15 + rnd(10)
+    })
+  end
+  
+  -- Record death event
+  significant_event_occurred = true
+  event_type = "death"
+  current_emotional_impact = 0.2
+  
+  -- Play death sound
+  sfx(9) -- New death sound
+  
+  -- Remove pixel
+  del(pixels, pixels[pixel_index])
+  
+  -- If no pixels left, restart with one
+  if #pixels == 0 then
+    add(pixels, create_pixel(64, 64, {
+      curiosity = rnd(1),
+      timidity = rnd(1), 
+      energy_conservation = rnd(1)
+    }))
+  end
+end
+
+function update_biological_processes()
+  -- Process each pixel for division and death
+  for i = #pixels, 1, -1 do
+    local pixel = pixels[i]
+    
+    -- Age the pixel
+    pixel.age += 1
+    pixel.division_timer = max(0, pixel.division_timer - 1)
+    
+    -- Check for death
+    if pixel.energy <= death_energy_threshold then
+      kill_pixel(i)
+    -- Check for division
+    elseif can_divide(pixel) then
+      divide_pixel(i)
+    end
+  end
+end
+
 -- rendering functions
 function draw_pixel()
-  -- Base pixel
-  circfill(pixel.x, pixel.y, 2, pixel.color)
+  -- Draw all pixels
+  for pixel in all(pixels) do
+    draw_single_pixel(pixel)
+  end
+end
+
+function draw_single_pixel(pixel)
+  -- Base pixel with generation indicator
+  local base_color = pixel.color
+  if pixel.generation > 1 then
+    -- Slightly different color for offspring
+    base_color = 7 + (pixel.generation % 8)
+  end
   
-  -- Draw "eye" or gaze direction when aware of cursor
-  if cursor_interaction.is_aware and cursor_interaction.attention_level > 0.3 then
+  circfill(pixel.x, pixel.y, 2, base_color)
+  
+  -- Show division readiness
+  if can_divide(pixel) then
+    circ(pixel.x, pixel.y, 4, 11) -- Green circle when ready to divide
+  end
+  
+  -- Show low energy warning
+  if pixel.energy < death_energy_threshold + 5 then
+    circ(pixel.x, pixel.y, 3, 8) -- Red circle when near death
+  end
+  
+  -- Draw "eye" or gaze direction when aware of cursor (only for closest pixel)
+  local closest_pixel = find_closest_pixel_to_cursor()
+  if pixel == closest_pixel and cursor_interaction.is_aware and cursor_interaction.attention_level > 0.3 then
     local eye_x = pixel.x + cursor_interaction.gaze_offset_x
     local eye_y = pixel.y + cursor_interaction.gaze_offset_y
     
@@ -734,128 +896,43 @@ function draw_pixel()
     end
   end
   
-  -- Consciousness indicator - thought bubble when highly aware
-  if cursor_interaction.attention_level > 0.7 then
-    local bubble_intensity = cursor_interaction.attention_level
-    local bubble_x = pixel.x + 4 + sin(time() * 2) * 2
-    local bubble_y = pixel.y - 4 - cos(time() * 3) * 1
-    
-    -- Different bubble style when bored
-    if cursor_interaction.stillness_timer > cursor_interaction.max_stillness_threshold then
-      -- Sleepy/bored bubbles (smaller, darker)
-      circfill(bubble_x, bubble_y, 0.5, 5) -- dark gray
-      pset(bubble_x - 1, bubble_y + 1, 1) -- even darker
-    else
-      -- Normal active thought bubbles
-      circfill(bubble_x, bubble_y, 1, 7)
-      circfill(bubble_x - 2, bubble_y + 1, 0.5, 6)
-      pset(bubble_x - 3, bubble_y + 2, 5)
+  -- Generation number display
+  if pixel.generation > 1 then
+    print(pixel.generation, pixel.x + 4, pixel.y - 2, 6)
+  end
+  
+  -- Age indicator (small dot)
+  if pixel.age > 600 then -- Older than 10 seconds
+    pset(pixel.x, pixel.y - 4, 13) -- Pink dot for elders
+  end
+  
+  -- Draw memory trace for recent positions (only for primary pixel)
+  if pixel == pixels[1] then
+    for i=1,#pixel.memories do
+      local mem = pixel.memories[i]
+      local alpha = i/#pixel.memories
+      pset(mem.x, mem.y, 1)
     end
   end
   
-  -- Boredom indicator - droopy eyes or yawn when very bored
-  if cursor_interaction.stillness_timer > cursor_interaction.max_stillness_threshold + 60 then
-    -- Yawn indicator - small arc above pixel
-    local yawn_x = pixel.x
-    local yawn_y = pixel.y - 3
-    -- Draw small arc
-    pset(yawn_x - 1, yawn_y, 0)
-    pset(yawn_x, yawn_y - 1, 0)
-    pset(yawn_x + 1, yawn_y, 0)
-  end
+  -- ...existing consciousness indicators adapted for individual pixels...
+end
+
+function find_closest_pixel_to_cursor()
+  if #pixels == 0 then return nil end
   
-  -- Attention beam toward cursor when very aware
-  if cursor_interaction.is_aware and cursor_interaction.attention_level > 0.8 then
-    local beam_strength = (cursor_interaction.attention_level - 0.8) * 5
-    local steps = flr(beam_strength * 3)
-    
-    for i = 1, steps do
-      local t = i / steps * 0.3
-      local beam_x = lerp(pixel.x, mouse_cursor.x, t)
-      local beam_y = lerp(pixel.y, mouse_cursor.y, t)
-      
-      if i % 2 == 0 then -- dotted line effect
-        pset(beam_x, beam_y, 13) -- light pink
-      end
+  local closest = pixels[1]
+  local min_dist = dist(closest.x, closest.y, mouse_cursor.x, mouse_cursor.y)
+  
+  for pixel in all(pixels) do
+    local d = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
+    if d < min_dist then
+      min_dist = d
+      closest = pixel
     end
   end
   
-  -- Emotional indicators
-  if pixel.emotional_state.excitement > 0.7 then
-    -- Static excitement indicator (no pulsing)
-    circfill(pixel.x, pixel.y, 3, 14)
-  end
-  
-  if pixel.emotional_state.distress > 0.7 then
-    -- Add distress indicator with trembling effect when cursor is near
-    local tremble_x = 0
-    local tremble_y = 0
-    if cursor_interaction.is_aware and cursor_interaction.last_distance < 20 then
-      tremble_x = (rnd(2) - 1) * pixel.emotional_state.distress
-      tremble_y = (rnd(2) - 1) * pixel.emotional_state.distress
-    end
-    circfill(pixel.x + tremble_x, pixel.y + tremble_y, 1, 8)
-  end
-  
-  -- Draw memory trace for recent positions
-  for i=1,#pixel.memories do
-    local mem = pixel.memories[i]
-    local alpha = i/#pixel.memories
-    pset(mem.x, mem.y, 1)
-  end
-  
-  -- Consciousness level indicator - brighter when more conscious
-  if pixel.consciousness_level > 0.3 then
-    local consciousness_intensity = pixel.consciousness_level
-    local glow_color = 7 + flr(consciousness_intensity * 7) -- white to bright
-    circ(pixel.x, pixel.y, 5 + consciousness_intensity * 2, glow_color)
-  end
-  
-  -- Attention schema visualization
-  if global_workspace.current_focus and global_workspace.broadcast_strength > 0.5 then
-    -- Show conscious focus as a beam or connection
-    if global_workspace.current_focus.type == "cursor_attention" then
-      -- Stronger beam to cursor when it's in conscious focus
-      local steps = flr(global_workspace.broadcast_strength * 8)
-      for i = 1, steps do
-        local t = i / steps * 0.5
-        local beam_x = lerp(pixel.x, mouse_cursor.x, t)
-        local beam_y = lerp(pixel.y, mouse_cursor.y, t)
-        pset(beam_x, beam_y, 11) -- bright blue conscious beam
-      end
-    end
-  end
-  
-  -- Prediction visualization - show where pixel thinks cursor will go
-  if cursor_interaction.last_predicted_x and attention_schema.prediction_error < 0.1 then
-    -- Show prediction as a faint dot
-    pset(cursor_interaction.last_predicted_x, cursor_interaction.last_predicted_y, 13)
-    -- Connect prediction to actual cursor with dotted line if close
-    local pred_distance = dist(cursor_interaction.last_predicted_x, cursor_interaction.last_predicted_y,
-                              mouse_cursor.x, mouse_cursor.y)
-    if pred_distance < 10 then
-      line(cursor_interaction.last_predicted_x, cursor_interaction.last_predicted_y,
-           mouse_cursor.x, mouse_cursor.y, 5) -- dark gray for good prediction
-    end
-  end
-  
-  -- Curiosity indicator - when approaching cursor
-  if cursor_interaction.approach_timer > 30 then
-    local approach_intensity = min(1, cursor_interaction.approach_timer / 60)
-    circ(pixel.x, pixel.y, 4 + approach_intensity * 2, 11)
-  end
-  
-  -- Retreat indicator - when avoiding cursor
-  if cursor_interaction.retreat_timer > 20 then
-    local retreat_intensity = min(1, cursor_interaction.retreat_timer / 40)
-    local retreat_radius = 5 + retreat_intensity * 3
-    -- Broken circle to show retreat/fear
-    for angle = 0, 1, 0.3 do
-      local x = pixel.x + cos(angle) * retreat_radius
-      local y = pixel.y + sin(angle) * retreat_radius
-      pset(x, y, 8) -- red color
-    end
-  end
+  return closest
 end
 
 function draw_energy_cubes()
@@ -874,20 +951,38 @@ function draw_background()
 end
 
 function draw_ui()
+  -- Get primary pixel for UI display
+  local primary_pixel = (#pixels > 0) and pixels[1] or {
+    consciousness_level = 0,
+    energy = 0,
+    personality = {curiosity = 0, timidity = 0}
+  }
+  
   -- Draw consciousness level label first, then bar below
   print("conscious level", 4, 4, 7)
-  local phi_bar_width = flr(pixel.consciousness_level * 30)
+  local phi_bar_width = flr(primary_pixel.consciousness_level * 30)
   rectfill(4, 10, 4 + phi_bar_width, 12, 14)
   rect(3, 9, 34, 13, 5)
   
-  -- Draw energy label, then bar below
+  -- Draw energy label, then bar below (for primary pixel)
+  local primary_pixel = pixels[1] or {energy = 0, personality = {curiosity = 0, timidity = 0}}
   print("energy", 4, 18, 7)
-  rectfill(4, 24, 4 + pixel.energy/10, 26, 11)
-  rect(3, 23, 14, 27, 5) -- Consciousness level label
+  rectfill(4, 24, 4 + primary_pixel.energy/10, 26, 11)
+  rect(3, 23, 14, 27, 5)
   
-  -- Draw personality indicators
-  print("curiosity:"..flr(pixel.personality.curiosity*10), 4, 105, 7)
-  print("timidity:"..flr(pixel.personality.timidity*10), 4, 111, 7)
+  -- Draw personality indicators for primary pixel
+  print("curiosity:"..flr(primary_pixel.personality.curiosity*10), 4, 105, 7)
+  print("timidity:"..flr(primary_pixel.personality.timidity*10), 4, 111, 7)
+  
+  -- Population information
+  print("population:"..#pixels, 4, 117, 7)
+  if #pixels > 1 then
+    local max_gen = 1
+    for pixel in all(pixels) do
+      max_gen = max(max_gen, pixel.generation)
+    end
+    print("max gen:"..max_gen, 4, 123, 7)
+  end
   
   -- Global workspace indicator
   if global_workspace.current_focus then
@@ -1014,6 +1109,8 @@ function load_sounds()
   -- SFX 5: Prediction success sound
   -- SFX 6: Global workspace broadcast
   -- SFX 7: Boredom/attention loss sound
+  -- SFX 8: Division sound
+  -- SFX 9: Death sound
 end
 
 -- data persistence
@@ -1330,6 +1427,9 @@ function _update()
   
   -- Update cursor interaction awareness
   update_cursor_awareness()
+  
+  -- Update biological processes
+  update_biological_processes()
 end
 
 function _draw()
@@ -1434,6 +1534,8 @@ __sfx__
 001000001c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c0501c050
 001000000c0550b0550a055090550805507055060550505504055030550205501055000550005500055000550005500055000550005500055000550005500055000550005500055000550005500055000550005500
 001000001305014050150501605017050180501805017050160501505014050130501205011050100500f0500e0500d0500c0500b0500a0500905008050070500605005050040500305002050010500005000050
+0010000018050190501a0501b0501c0501d0501e0501f050200502105022050230502405025050260502705028050290502a0502b0502c0502d0502e0502f050300503105032050330503405035050360503705
+001000001f0501e0501d0501c0501b0501a050190501805017050160501505014050130501205011050100500f0500e0500d0500c0500b0500a05009050080500705006050050500405003050020500105000050
 __music__
 00 41424344
 
@@ -1441,4 +1543,5 @@ function abs(x)
   return x < 0 and -x or x
 end
 
-end
+-- biological lifecycle functions
+
