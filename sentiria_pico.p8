@@ -1088,11 +1088,11 @@ function draw_ui()
   -- Population information
   print("population:"..#pixels, 4, 117, 7)
   if #pixels > 1 then
-    local max_gen = 1
+    local current_max_gen = 1
     for pixel in all(pixels) do
-      max_gen = max(max_gen, pixel.generation)
+      current_max_gen = max(current_max_gen, pixel.generation)
     end
-    print("max gen:"..max_gen, 4, 123, 7)
+    print("max gen:"..max_generation, 4, 123, 7) -- Show generation limit, not current max
   end
   
   -- Show emotional state (value only) - calculate average across all pixels
