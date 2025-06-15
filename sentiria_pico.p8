@@ -1068,11 +1068,6 @@ function draw_single_pixel(pixel)
   local radius = flr(pixel.size)
   circfill(pixel.x, pixel.y, radius, base_color)
   
-  -- Show generation number
-  local gen_str = tostr(pixel.generation)
-  print(gen_str, pixel.x - 2, pixel.y - 8, 0) -- Black background
-  print(gen_str, pixel.x - 3, pixel.y - 9, 7) -- White text
-  
   -- Show division progress as growing size
   if pixel.division_progress > 50 then
     -- Bacterium preparing to divide - show elongation
@@ -1097,11 +1092,6 @@ function draw_single_pixel(pixel)
     -- Low energy - warning color
     circ(pixel.x, pixel.y, radius + 1, 8) -- Red warning
   end
-  
-  -- Show bacterium number
-  local num_str = tostr(pixel.number)
-  print(num_str, pixel.x - 2, pixel.y - 8, 0) -- Black shadow
-  print(num_str, pixel.x - 3, pixel.y - 9, 7) -- White text
   
   -- Draw "eye" or gaze direction when aware of cursor (only for closest pixel)
   local closest_pixel = find_closest_pixel_to_cursor()
