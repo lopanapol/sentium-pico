@@ -858,7 +858,6 @@ function draw_ui()
   rect(3, 29, 14, 33, 5)
   print("curiosity:"..flr(primary_pixel.personality.curiosity*10), 4, 105, 7)
   print("timidity:"..flr(primary_pixel.personality.timidity*10), 4, 111, 7)
-  print("population:"..#pixels, 4, 117, 7)
   print("generation:"..cur_gen, 4, 123, 7)
   local gen_counts = {}
   for pixel in all(pixels) do
