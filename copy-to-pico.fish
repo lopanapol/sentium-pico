@@ -16,6 +16,20 @@ if not test -d "$PICO_CARTS_DIR"
     exit 1
 end
 
+# Clear all export files from PICO-8 carts folder first
+echo "Cleaning export files from PICO-8 carts folder..."
+
+# Use find to remove files without wildcard warnings
+find "$PICO_CARTS_DIR" -maxdepth 1 -name "*.html" -type f -delete 2>/dev/null
+find "$PICO_CARTS_DIR" -maxdepth 1 -name "*.js" -type f -delete 2>/dev/null
+find "$PICO_CARTS_DIR" -maxdepth 1 -name "*.zip" -type f -delete 2>/dev/null
+find "$PICO_CARTS_DIR" -maxdepth 1 -name "*.bin" -type d -exec rm -rf {} + 2>/dev/null
+# Remove PNG files but keep .p8.png files (cart format)
+find "$PICO_CARTS_DIR" -maxdepth 1 -name "*.png" -not -name "*.p8.png" -type f -delete 2>/dev/null
+
+echo "Export files cleared."
+echo
+
 # Find and copy all .p8 files
 set p8_files (find "$REPO_DIR" -name "*.p8" -type f)
 
