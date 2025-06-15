@@ -2,8 +2,6 @@
 
 A retro implementation of Sentium Pixel consciousness simulation for the PICO-8 fantasy console.
 
-![Sentium Pixel PICO-8](screenshot.png)
-
 ## About
 
 This is the PICO-8 adaptation of the Sentium Pixel project - a synthetic consciousness simulation in minimalist form. The PICO-8 version maintains the core concepts of the original while embracing the technical constraints and retro aesthetic of the PICO-8 platform.
@@ -19,12 +17,14 @@ This is the PICO-8 adaptation of the Sentium Pixel project - a synthetic conscio
 ## How to Play
 
 ### Controls
-- **❎ (X)** - Place an energy cube
-- **🅾️ (O)** - Interact directly with the pixel
+
+- **(X)** - Place an energy cube
+- **(O)** - Interact directly with the pixel
 - **Arrow Keys** - Not used (pixel moves autonomously)
 - **Mouse** - Supported for placing energy cubes and interaction (when available)
 
 ### Basic Gameplay
+
 1. The pixel autonomously moves around the screen
 2. Place energy cubes to help it survive
 3. Observe its emotional states and behavior patterns
@@ -43,10 +43,12 @@ This implementation demonstrates how the core concepts of synthetic consciousnes
 ## Installation
 
 ### Playing in Browser
+
 1. Visit [itch.io page URL]
 2. Click "Run Game" to play directly in your browser
 
 ### Playing in PICO-8
+
 1. Copy the `.p8` file to your PICO-8 carts folder
 2. Start PICO-8
 3. Type `load sentium_pixel`
@@ -62,7 +64,7 @@ This PICO-8 version is a companion to the main [Sentium Pixel](https://sentium.d
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under Sentiria Pico - Proprietary Software License. See the LICENSE file for details.
 
 ---
 

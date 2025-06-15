@@ -16,6 +16,10 @@ target_x = 64
 target_y = 64
 pixel_counter = 0 -- For numbering pixels
 
+-- save system
+save_notification_timer = 0
+save_notification_text = ""
+
 -- biological parameters (bacteria-like)
 max_pixels = 32 -- Allows exponential growth: 1->2->4->8->16->32
 max_generation = 20 -- Max generation limit increased to 20
@@ -62,6 +66,9 @@ cursor_interaction = {
 
 -- initialization
 function _init()
+  -- Clear console on startup
+  cls()
+  
   -- Initialize cartdata first
   cartdata("sentium_pixel_v1")
   
@@ -71,7 +78,7 @@ function _init()
   poke(0x5f34, 1)  -- Another mouse-related register
   
   -- Force devkit mouse mode
-  printh("devkit mouse on")
+  -- printh("devkit mouse on")
   
   -- FORCE mouse cursor to be visible regardless of stat(34)
   mouse_cursor.visible = true
@@ -112,10 +119,17 @@ function _init()
   init_energy_system()
   create_initial_energy_cubes()
   load_sounds()
-  load_consciousness()
+  
+  -- Try to load saved game state first
+  local loaded = load_game_state()
+  
+  -- If no save data, initialize fresh consciousness
+  if not loaded then
+    init_consciousness()
+  end
   
   -- Debug: print mouse status after init
-  printh("mouse support check: " .. stat(34))
+  -- printh("mouse support check: " .. stat(34))
 end
 
 -- consciousness system
@@ -915,6 +929,9 @@ function divide_pixel(pixel_index)
     sfx(8) -- Division sound
     parent.emotional_state.excitement = min(1, parent.emotional_state.excitement + 0.3)
     child.emotional_state.excitement = min(1, child.emotional_state.excitement + 0.2)
+    
+    -- Save state after division (significant event)
+    save_game_state()
   end
 end
 
@@ -1025,6 +1042,9 @@ function update_generation_system()
         -- Boost division progress slightly
         pixel.division_progress = min(100, pixel.division_progress + 10)
       end
+      
+      -- Save state after generation advance
+      save_game_state()
     end
   end
 end
@@ -1284,6 +1304,25 @@ function draw_ui()
     local diffuse_x = 128 - (#diffuse_text * 4) -- Right-align
     print(diffuse_text, diffuse_x, focus_y + 6, 11)
   end
+  
+  -- Show save notification
+  if save_notification_timer > 0 then
+    local text_color = 11
+    if save_notification_text == "saved" then
+      text_color = 12 -- green-ish
+    elseif save_notification_text == "resumed" then
+      text_color = 14 -- pink
+    elseif save_notification_text == "cleared" then
+      text_color = 8 -- red
+    end
+    
+    local text = save_notification_text
+    local text_x = 128 - (#text * 4) - 4 -- Right-align with padding
+    print(text, text_x, 40, text_color)
+  end
+  
+  -- Show controls at bottom (removed)
+  -- print("x=save z+x=clear", 4, 122, 5)
 end
 
 function draw_cursor()
@@ -1355,40 +1394,171 @@ function load_sounds()
   -- SFX 9: Death sound
 end
 
--- data persistence
-function save_consciousness()
-  -- Save core personality and memories to cart data
+-- data persistence - comprehensive save system
+function save_game_state()
+  -- Save all critical game state for proper resume functionality
   if #pixels == 0 then return end
   
-  local pixel = pixels[1] -- Use primary pixel
-  local data_string = ""
+  -- Save game metadata
+  dset(0, 1) -- Save exists flag
+  dset(1, current_generation)
+  dset(2, pixel_counter)
+  dset(3, #pixels) -- Number of pixels to restore
+  dset(4, #energy_cubes) -- Number of energy cubes
+  dset(5, generation_timer)
   
-  -- Add personality traits
-  data_string = data_string..pixel.personality.curiosity..","
-  data_string = data_string..pixel.personality.timidity..","
-  data_string = data_string..pixel.personality.energy_conservation
+  -- Save pixels (up to 8 pixels, using 8 slots each)
+  local pixel_count = min(#pixels, 8)
+  for i = 1, pixel_count do
+    local pixel = pixels[i]
+    local base_slot = 10 + (i - 1) * 8
+    
+    dset(base_slot, pixel.x)
+    dset(base_slot + 1, pixel.y)
+    dset(base_slot + 2, pixel.energy)
+    dset(base_slot + 3, pixel.generation)
+    dset(base_slot + 4, pixel.personality.curiosity)
+    dset(base_slot + 5, pixel.personality.timidity)
+    dset(base_slot + 6, pixel.personality.energy_conservation)
+    dset(base_slot + 7, pixel.number)
+  end
   
-  -- Save to cartdata (already initialized in _init)
-  dset(0, data_string)
+  -- Save energy cubes (up to 8 cubes, using 3 slots each)
+  local cube_count = min(#energy_cubes, 8)
+  for i = 1, cube_count do
+    local cube = energy_cubes[i]
+    local base_slot = 80 + (i - 1) * 3
+    
+    dset(base_slot, cube.x)
+    dset(base_slot + 1, cube.y)
+    dset(base_slot + 2, cube.value)
+  end
+  
+  -- Save consciousness state (simplified)
+  dset(100, cursor_interaction.attention_level or 0)
+  dset(101, global_workspace.broadcast_strength or 0)
+  
+  -- Show save notification
+  show_save_notification("saved")
+  
+  -- printh("game state saved - generation: " .. current_generation .. ", pixels: " .. #pixels)
 end
 
-function load_consciousness()
-  -- Load saved consciousness if available
-  if #pixels == 0 then return end
+function show_save_notification(message)
+  save_notification_text = message
+  save_notification_timer = 120 -- Show for 2 seconds
+end
+
+function clear_save_data()
+  -- Clear all saved data and restart fresh
+  for i = 0, 120 do
+    dset(i, 0)
+  end
   
-  local data_string = dget(0)
+  -- Reset game state
+  pixels = {}
+  energy_cubes = {}
+  current_generation = 1
+  pixel_counter = 0
+  generation_timer = 0
   
-  -- Only try to parse if we got a value
-  if data_string and data_string > 0 then
-    -- Parse data string and restore personality
-    local values = split(data_string, ",")
-    if #values >= 3 then
-      local pixel = pixels[1] -- Use primary pixel
-      pixel.personality.curiosity = values[1]
-      pixel.personality.timidity = values[2]
-      pixel.personality.energy_conservation = values[3]
+  -- Reinitialize
+  init_consciousness()
+  create_initial_energy_cubes()
+  
+  show_save_notification("cleared")
+  -- printh("save data cleared - fresh start")
+end
+
+function load_game_state()
+  -- Load saved game state if available
+  local save_exists = dget(0)
+  
+  if not save_exists or save_exists == 0 then
+    -- printh("no save data found - starting fresh")
+    return false
+  end
+  
+  -- Load game metadata
+  current_generation = dget(1) or 1
+  pixel_counter = dget(2) or 0
+  local saved_pixel_count = dget(3) or 0
+  local saved_cube_count = dget(4) or 0
+  generation_timer = dget(5) or 0
+  
+  -- Clear existing state
+  pixels = {}
+  energy_cubes = {}
+  
+  -- Load pixels
+  for i = 1, min(saved_pixel_count, 8) do
+    local base_slot = 10 + (i - 1) * 8
+    
+    local x = dget(base_slot) or 64
+    local y = dget(base_slot + 1) or 64
+    local energy = dget(base_slot + 2) or 60
+    local generation = dget(base_slot + 3) or 1
+    local curiosity = dget(base_slot + 4) or 0.5
+    local timidity = dget(base_slot + 5) or 0.5
+    local energy_conservation = dget(base_slot + 6) or 0.5
+    local number = dget(base_slot + 7) or i
+    
+    -- Create pixel with loaded data
+    local pixel = create_pixel(x, y, {
+      curiosity = curiosity,
+      timidity = timidity,
+      energy_conservation = energy_conservation
+    })
+    
+    -- Override values that create_pixel sets
+    pixel.energy = energy
+    pixel.generation = generation
+    pixel.number = number
+    
+    add(pixels, pixel)
+  end
+  
+  -- Load energy cubes
+  for i = 1, min(saved_cube_count, 8) do
+    local base_slot = 80 + (i - 1) * 3
+    
+    local x = dget(base_slot) or 64
+    local y = dget(base_slot + 1) or 64
+    local value = dget(base_slot + 2) or 20
+    
+    add(energy_cubes, {
+      x = x,
+      y = y,
+      value = value
+    })
+  end
+  
+  -- Load consciousness state
+  cursor_interaction.attention_level = dget(100) or 0
+  global_workspace.broadcast_strength = dget(101) or 0
+  
+  -- Ensure minimum state
+  if #pixels == 0 then
+    -- printh("no valid pixels loaded - creating default")
+    add(pixels, create_pixel(64, 64, {
+      curiosity = 0.5,
+      timidity = 0.4,
+      energy_conservation = 0.5
+    }))
+  end
+  
+  if #energy_cubes < 3 then
+    local needed = 3 - #energy_cubes
+    for i = 1, needed do
+      add_energy_cube()
     end
   end
+  
+  -- Show load notification
+  show_save_notification("resumed")
+  
+  -- printh("game state loaded - generation: " .. current_generation .. ", pixels: " .. #pixels)
+  return true
 end
 
 -- Advanced consciousness features
@@ -1664,6 +1834,8 @@ function _update()
     
     if clicked_pixel then
       interact_with_pixel(clicked_pixel)
+      -- Save after significant interaction
+      save_game_state()
     else
       -- Otherwise place energy cube
       add(energy_cubes, {
@@ -1676,9 +1848,26 @@ function _update()
     end
   end
   
-  -- Auto-save consciousness occasionally
-  if rnd(1) < 0.001 then
-    save_consciousness()
+  -- Manual save with keyboard shortcut (X button)
+  if btnp(5) then -- X button in PICO-8
+    save_game_state()
+    sfx(1) -- Play sound for manual save
+  end
+  
+  -- Clear save data with keyboard shortcut (Z+X together)
+  if btn(4) and btnp(5) then -- Z+X buttons held together
+    clear_save_data()
+    sfx(0) -- Play different sound for clear
+  end
+  
+  -- Update save notification timer
+  if save_notification_timer > 0 then
+    save_notification_timer -= 1
+  end
+  
+  -- Auto-save game state periodically (every 10 seconds)
+  if t() % 600 == 0 then -- 600 frames = 10 seconds at 60fps
+    save_game_state()
   end
   
   -- Update generation timer
