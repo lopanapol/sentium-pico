@@ -94,6 +94,6 @@ if test $total_copied -gt 0
 else
     echo "No export files found to copy"
     echo "Make sure you have exported your cartridge using commands like:"
-    echo "  > EXPORT SENTIRIA_PICO.HTML"
-    echo "  > EXPORT SENTIRIA_PICO.BIN"
+    echo "  > EXPORT SENTIUM-PICO.HTML"
+    echo "  > EXPORT SENTIUM-PICO.BIN"
 end

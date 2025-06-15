@@ -1314,7 +1314,7 @@ function draw_splash_screen()
   local sub_width = #subtitle * 4
   local sub_x = (128 - sub_width) / 2
   print(subtitle, sub_x, 80, 0)
-  local instruction = "sentiria pico v1.0.0"
+  local instruction = "sentium pico v1.0.0"
   local inst_width = #instruction * 4
   local inst_x = (128 - inst_width) / 2
   print(instruction, inst_x, 95, 0)

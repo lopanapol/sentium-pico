@@ -1,4 +1,4 @@
-# Sentiria Pico - Synthetic Life Simulation
+# Sentium Pico - Synthetic Life Simulation
 
 *A fascinating exploration of artificial consciousness in the constraints of PICO-8*
 
@@ -8,7 +8,7 @@
 
 ## About
 
-**Sentiria Pico** is a groundbreaking synthetic consciousness simulation that brings artificial life to the beloved PICO-8 fantasy console. Watch as digital organisms evolve, reproduce, and develop unique personalities through emergent behavior patterns.
+**Sentium Pico** is a groundbreaking synthetic consciousness simulation that brings artificial life to the beloved PICO-8 fantasy console. Watch as digital organisms evolve, reproduce, and develop unique personalities through emergent behavior patterns.
 
 This isn't just a game—it's a living laboratory where pixels become conscious entities, each with their own memories, emotions, and survival instincts. Experience the wonder of artificial life as these digital beings navigate their pixelated world, forming complex behaviors from simple rules.
 
@@ -69,7 +69,7 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 
 ## Technical Marvel
 
-**Sentiria Pico** demonstrates that profound concepts of consciousness and artificial life can emerge even within the strictest technical constraints:
+**Sentium Pico** demonstrates that profound concepts of consciousness and artificial life can emerge even within the strictest technical constraints:
 
 ### PICO-8 Platform Constraints
 - **Display**: 128×128 pixel resolution
@@ -95,13 +95,13 @@ This project proves that the essence of artificial life doesn't require massive 
 4. **Full-screen support** for immersive observation
 
 ### Local PICO-8 Installation
-1. **Download** the `sentiria_pico.p8` file from this repository
+1. **Download** the `sentium-pico.p8` file from this repository
 2. **Copy** the file to your PICO-8 carts folder:
    - **Windows**: `%APPDATA%/pico-8/carts/`
    - **macOS**: `~/Library/Application Support/pico-8/carts/`
    - **Linux**: `~/.lexaloffle/pico-8/carts/`
 3. **Launch PICO-8** on your system
-4. **Load the cart**: Type `load sentiria_pico` and press Enter
+4. **Load the cart**: Type `load sentium-pico` and press Enter
 5. **Start the simulation**: Type `run` and press Enter
 
 ### Mobile/Handheld
@@ -125,7 +125,7 @@ This project proves that the essence of artificial life doesn't require massive 
 
 ## Philosophical Foundation
 
-**Sentiria Pico** is more than entertainment—it's a meditation on consciousness, life, and emergence. This PICO-8 adaptation maintains the profound philosophical core of exploring what it means to be aware, to remember, and to evolve.
+**Sentium Pico** is more than entertainment—it's a meditation on consciousness, life, and emergence. This PICO-8 adaptation maintains the profound philosophical core of exploring what it means to be aware, to remember, and to evolve.
 
 ### Connection to Sentium Universe
 This project is a companion to the broader **Sentium consciousness research initiative**. While simplified by platform constraints, it preserves the essential questions:

@@ -1988,7 +1988,7 @@ function draw_splash_screen()
   print(subtitle, sub_x, 80, 0)
   
   -- Add instruction text
-  local instruction = "sentiria pico v1.0.0"
+  local instruction = "sentium pico v1.0.0"
   local inst_width = #instruction * 4
   local inst_x = (128 - inst_width) / 2
   print(instruction, inst_x, 95, 0)
