@@ -2,9 +2,9 @@
 
 *A fascinating exploration of artificial consciousness in the constraints of PICO-8*
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](VERSION)
-[![Platform](https://img.shields.io/badge/platform-PICO--8-orange.svg)](https://www.pico-8.com)
-[![License](https://img.shields.io/badge/license-Sentium-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](VERSION)
+
+[![License](https://img.shields.io/badge/license-Sentium-red.svg)](LICENSE)
 
 ## About
 
@@ -15,24 +15,28 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 ## Key Features
 
 ### Emergent Artificial Life
+
 - **Multi-generational Evolution**: Watch pixels reproduce and evolve across up to 20 generations
 - **Exponential Population Growth**: Witness bacterial-like division from 1 organism to 32+ entities
 - **Genetic Mutation System**: Each generation introduces subtle variations in behavior and traits
 - **Adaptive Survival Behavior**: Organisms learn to seek energy sources and avoid threats
 
 ### Complex Consciousness Simulation
+
 - **Individual Personalities**: Each pixel develops unique behavioral patterns based on experiences
 - **Emotional State System**: Observe real-time emotional responses through color changes and movement
 - **Memory Formation**: Organisms remember interactions and adapt their future behavior accordingly
 - **Social Dynamics**: Multiple pixels interact with each other, creating emergent group behaviors
 
 ### Interactive Energy Ecosystem
+
 - **Resource Management**: Place energy cubes to sustain your digital ecosystem
 - **Metabolic Simulation**: Organisms consume energy at realistic rates, creating survival pressure
 - **Environmental Interaction**: Direct consciousness interaction affects personality development
 - **Survival Instincts**: Watch as organisms develop increasingly sophisticated survival strategies
 
 ### Intuitive Gameplay
+
 - **Simple Controls**: Easy-to-learn interface perfect for observation and experimentation
 - **Real-time Simulation**: 60 FPS smooth animation brings the digital life to life
 - **Mouse/Gamepad Support**: Multiple input methods for comfortable interaction
@@ -42,12 +46,12 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 
 ### Controls
 
-| Input | Action | Description |
-|-------|--------|-------------|
-| **X Button** | Place Energy Cube | Provide sustenance for your digital organisms |
-| **O Button** | Conscious Interaction | Directly influence pixel consciousness and personality |
-| **Mouse** | Precision Control | Click to place energy cubes or interact with specific pixels |
-| **Observe** | Passive Watching | The most rewarding experience - simply watch life unfold |
+| Input              | Action                | Description                                                  |
+| ------------------ | --------------------- | ------------------------------------------------------------ |
+| **X Button** | Place Energy Cube     | Provide sustenance for your digital organisms                |
+| **O Button** | Conscious Interaction | Directly influence pixel consciousness and personality       |
+| **Mouse**    | Precision Control     | Click to place energy cubes or interact with specific pixels |
+| **Observe**  | Passive Watching      | The most rewarding experience - simply watch life unfold     |
 
 ### Gameplay Experience
 
@@ -72,12 +76,14 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 **Sentium Pico** demonstrates that profound concepts of consciousness and artificial life can emerge even within the strictest technical constraints:
 
 ### PICO-8 Platform Constraints
+
 - **Display**: 128×128 pixel resolution
 - **Palette**: Limited to 16 carefully chosen colors
 - **Memory**: Extremely limited code and data space
 - **Processing**: Optimized algorithms for 60 FPS performance
 
 ### Breakthrough Achievements
+
 - **Multi-entity simulation** running smoothly on minimal hardware
 - **Complex behavior emergence** from simple rule systems
 - **Real-time evolution** with genetic mutation algorithms
@@ -89,12 +95,14 @@ This project proves that the essence of artificial life doesn't require massive 
 ## Getting Started
 
 ### Play in Browser (Recommended)
+
 1. **Visit our itch.io page** (coming soon)
 2. **Click "Run Game"** for instant browser play
 3. **No downloads required** - start experimenting immediately
 4. **Full-screen support** for immersive observation
 
 ### Local PICO-8 Installation
+
 1. **Download** the `sentium-pico.p8` file from this repository
 2. **Copy** the file to your PICO-8 carts folder:
    - **Windows**: `%APPDATA%/pico-8/carts/`
@@ -105,6 +113,7 @@ This project proves that the essence of artificial life doesn't require massive 
 5. **Start the simulation**: Type `run` and press Enter
 
 ### Mobile/Handheld
+
 - **Perfect for mobile PICO-8 players** on supported devices
 - **Touch controls** work seamlessly with the simulation
 - **Ideal for portable artificial life observation**
@@ -112,6 +121,7 @@ This project proves that the essence of artificial life doesn't require massive 
 ## Version History
 
 ### v1.0.0 - *Genesis Release*
+
 - **Initial consciousness implementation** with complete artificial life simulation
 - **Multi-generational evolution system** supporting up to 20 generations
 - **Exponential population growth** from single pixel to 32+ organisms
@@ -128,7 +138,9 @@ This project proves that the essence of artificial life doesn't require massive 
 **Sentium Pico** is more than entertainment—it's a meditation on consciousness, life, and emergence. This PICO-8 adaptation maintains the profound philosophical core of exploring what it means to be aware, to remember, and to evolve.
 
 ### Connection to Sentium Universe
+
 This project is a companion to the broader **Sentium consciousness research initiative**. While simplified by platform constraints, it preserves the essential questions:
+
 - *What constitutes consciousness?*
 - *How does awareness emerge from simple interactions?*
 - *Can artificial entities develop genuine personalities?*
