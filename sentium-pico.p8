@@ -528,6 +528,26 @@ function create_initial_energy_cubes()
     add_energy_cube()
   end
 end
+
+function create_center_energy_cubes()
+  -- Create 3 energy cubes positioned around the center of the screen
+  local center_x = 64
+  local center_y = 64
+  local positions = {
+    {x = center_x - 15, y = center_y - 10},
+    {x = center_x + 15, y = center_y - 10},
+    {x = center_x, y = center_y + 15}
+  }
+  
+  for i = 1, 3 do
+    add(energy_cubes, {
+      x = positions[i].x,
+      y = positions[i].y,
+      value = 20 + flr(rnd(15))
+    })
+  end
+end
+
 function add_energy_cube()
   local x = 10 + rnd(108)
   local y = 10 + rnd(108)
@@ -828,7 +848,7 @@ function draw_ui()
     personality = {curiosity = 0, timidity = 0},
     emo_state = {happiness = 0, excitement = 0, distress = 0}
   }
-  print("conscious level", 4, 4, 7)
+  print("conscious", 4, 4, 7)
   local phi_bar_width = min(30, flr(primary_pixel.consc_level * 30))
   rectfill(4, 10, 4 + phi_bar_width, 12, 14)
   rect(3, 9, 34, 13, 5)
@@ -1058,17 +1078,9 @@ function load_game_state()
     pixel.number = number
     add(pixels, pixel)
   end
-  for i = 1, min(saved_cube_count, 8) do
-    local base_slot = 80 + (i - 1) * 3
-    local x = dget(base_slot) or 64
-    local y = dget(base_slot + 1) or 64
-    local value = dget(base_slot + 2) or 20
-    add(energy_cubes, {
-      x = x,
-      y = y,
-      value = value
-    })
-  end
+  -- Clear all energy cubes and create 3 new ones in the center
+  energy_cubes = {}
+  create_center_energy_cubes()
   cursor_interaction.attention_level = dget(100) or 0
   global_workspace.broadcast_strength = dget(101) or 0
   if #pixels == 0 then
@@ -1077,12 +1089,6 @@ function load_game_state()
       timidity = 0.4,
       energy_cons = 0.5
     }))
-  end
-  if #energy_cubes < 3 then
-    local needed = 3 - #energy_cubes
-    for i = 1, needed do
-      add_energy_cube()
-    end
   end
   show_save_notification("resumed")
   return true
