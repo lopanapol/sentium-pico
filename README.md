@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](VERSION)
 [![Platform](https://img.shields.io/badge/platform-PICO--8-orange.svg)](https://www.pico-8.com)
-[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Sentium-green.svg)](LICENSE)
 
 ## About
 
@@ -138,7 +138,17 @@ Experience these deep questions through the immediacy of pixel-based life.
 
 ## License
 
-This project is licensed under the **Sentiria Pico Proprietary Software License**. See the [LICENSE](LICENSE) file for complete details.
+This project is licensed under the **Sentium License** - a custom license that promotes ethical use while allowing modification and distribution. Key provisions include:
+
+- **Free use** for personal, educational, and non-commercial purposes
+- **Attribution required** for all redistributions and modifications
+- **Ethical use clause** - cannot be used to harm living beings
+- **Profit-sharing requirement** - 10% donation to charity for commercial use generating significant profit
+- **Open modification** - changes must be documented and shared under compatible license
+
+See the [LICENSE](LICENSE) file for complete terms and conditions.
+
+**Copyright (c) 2025 Napol Thanarangkaun (lopanapol@gmail.com)**
 
 ---
 

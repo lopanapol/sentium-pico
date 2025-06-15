@@ -2,7 +2,7 @@
 
 # Script to help export Sentium Pixel PICO-8 cart for itch.io
 
-set CART_NAME "sentium_pixel"
+set CART_NAME "sentiria_pico"
 set VERSION (cat VERSION 2>/dev/null || echo "1.0.0")
 set SCRIPT_DIR (dirname (status -f))
 

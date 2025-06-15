@@ -9,31 +9,31 @@ __lua__
 pixels = {} -- Now supporting multiple pixels
 energy_cubes = {}
 memory_size = 10
-sig_event = false
+significant_event_occurred = false
 event_type = ""
-emotion_impact = 0
+current_emotional_impact = 0
 target_x = 64
 target_y = 64
 pixel_counter = 0 -- For numbering pixels
 
 -- save system
-save_timer = 0
-save_text = ""
+save_notification_timer = 0
+save_notification_text = ""
 
 -- biological parameters (bacteria-like)
 max_pixels = 32 -- Allows exponential growth: 1->2->4->8->16->32
-max_gen = 20 -- Max generation limit increased to 20
-div_energy = 25 -- Much lower threshold for faster bacterial division
-death_energy = 0 -- Disabled death - bacteria persist across generations
-div_cooldown = 30 -- Super fast division cooldown (0.5 seconds) for rapid exponential growth
+max_generation = 20 -- Max generation limit increased to 20
+division_energy_threshold = 25 -- Much lower threshold for faster bacterial division
+death_energy_threshold = 0 -- Disabled death - bacteria persist across generations
+division_cooldown = 30 -- Super fast division cooldown (0.5 seconds) for rapid exponential growth
 mutation_rate = 0.05 -- Lower mutation rate for more stable traits
 metabolic_rate = 0.2 -- Reduced energy consumption rate per frame
 growth_rate = 1.2 -- Much faster energy accumulation rate when near food
 
 -- generation system
-cur_gen = 1
-gen_timer = 0
-gen_interval = 600 -- 10 seconds at 60fps
+current_generation = 1
+generation_timer = 0
+generation_interval = 600 -- 10 seconds at 60fps
 
 -- game state
 game_state = "splash"  -- can be "splash" or "game"
@@ -93,7 +93,7 @@ function _init()
     current_focus = nil,
     competing_processes = {},
     broadcast_strength = 0,
-    consc_thresh = 0.3
+    consciousness_threshold = 0.3
   }
   
   -- Initialize attention schema
@@ -142,16 +142,16 @@ function init_consciousness()
   add(pixels, create_pixel(64, 64, {
     curiosity = 0.5 + rnd(0.3),
     timidity = 0.4 + rnd(0.3),
-    energy_cons = 0.5 + rnd(0.3)
+    energy_conservation = 0.5 + rnd(0.3)
   }))
   
   -- Initialize memory system
   memory_size = 10
   
   -- Initialize global consciousness tracking
-  sig_event = false
+  significant_event_occurred = false
   event_type = ""
-  emotion_impact = 0
+  current_emotional_impact = 0
   
   -- Debug: Verify first pixel has number 1
   if #pixels > 0 and pixels[1].number != 1 then
@@ -184,7 +184,7 @@ function create_pixel(x, y, personality)
   local validated_personality = personality or {}
   validated_personality.curiosity = mid(0, validated_personality.curiosity or rnd(1), 1)
   validated_personality.timidity = mid(0, validated_personality.timidity or rnd(1), 1)
-  validated_personality.energy_cons = mid(0, validated_personality.energy_cons or rnd(1), 1)
+  validated_personality.energy_conservation = mid(0, validated_personality.energy_conservation or rnd(1), 1)
   
   return {
     x = x,
@@ -192,17 +192,17 @@ function create_pixel(x, y, personality)
     color = 8, -- default white color
     energy = 80 + rnd(20), -- Higher initial energy for faster start
     memories = {},
-    consc_level = 0,
+    consciousness_level = 0,
     last_x = x,
     last_y = y,
     age = 0,
-    generation = cur_gen, -- Use current global generation
+    generation = current_generation, -- Use current global generation
     division_timer = 0,
     parent_id = nil,
     id = pixel_counter * 1000 + flr(rnd(1000)), -- mathematically unique identifier
     number = pixel_counter, -- Sequential display number (guaranteed unique)
     personality = validated_personality,
-    emo_state = {
+    emotional_state = {
       happiness = 0.5, -- neutral starting state
       excitement = 0.5,
       distress = 0
@@ -211,9 +211,9 @@ function create_pixel(x, y, personality)
     target_y = mid(8, y + rnd(20) - 10, 120),
     -- Bacterial properties
     size = 1 + rnd(0.5), -- Variable size
-    div_progress = 0, -- How close to division (0-100)
-    metab_eff = 0.8 + rnd(0.4), -- How efficiently it uses energy
-    repro_drive = 0.7 + rnd(0.3), -- How likely to attempt division
+    division_progress = 0, -- How close to division (0-100)
+    metabolism_efficiency = 0.8 + rnd(0.4), -- How efficiently it uses energy
+    reproduction_drive = 0.7 + rnd(0.3), -- How likely to attempt division
     stuck_timer = 0 -- Track how long pixel has been motionless
   }
 end
@@ -252,12 +252,12 @@ function update_global_workspace(pixel)
   end
   
   -- Emotional state process
-  local max_emotion = max(pixel.emo_state.happiness, 
-                         pixel.emo_state.excitement, 
-                         pixel.emo_state.distress)
+  local max_emotion = max(pixel.emotional_state.happiness, 
+                         pixel.emotional_state.excitement, 
+                         pixel.emotional_state.distress)
   if max_emotion > 0.5 then
     add(processes, {
-      type = "emo_state",
+      type = "emotional_state",
       strength = max_emotion * 0.6,
       content = {dominant_emotion = get_dominant_emotion(pixel)}
     })
@@ -276,7 +276,7 @@ function update_global_workspace(pixel)
     end
   end
   
-  if winner and max_strength > global_workspace.consc_thresh then
+  if winner and max_strength > global_workspace.consciousness_threshold then
     -- Play sound when something enters conscious focus
     if global_workspace.current_focus == nil or 
        global_workspace.current_focus.type != winner.type then
@@ -310,7 +310,7 @@ function broadcast_to_subsystems(conscious_process, pixel)
       end
     end
     
-  elseif conscious_process.type == "emo_state" then
+  elseif conscious_process.type == "emotional_state" then
     -- Emotional state influences movement and color more strongly
     if conscious_process.content.dominant_emotion == "distress" then
       -- Erratic movement when distressed
@@ -322,9 +322,9 @@ end
 
 function get_dominant_emotion(pixel)
   local emotions = {
-    {name = "happiness", value = pixel.emo_state.happiness},
-    {name = "excitement", value = pixel.emo_state.excitement},
-    {name = "distress", value = pixel.emo_state.distress}
+    {name = "happiness", value = pixel.emotional_state.happiness},
+    {name = "excitement", value = pixel.emotional_state.excitement},
+    {name = "distress", value = pixel.emotional_state.distress}
   }
   
   local dominant = emotions[1]
@@ -485,7 +485,7 @@ end
 -- Integrated Information Theory (IIT) - PhD-level consciousness measure
 function calculate_phi(pixel_state)
   -- Validate input state
-  if not pixel_state or not pixel_state.memories or not pixel_state.emo_state then
+  if not pixel_state or not pixel_state.memories or not pixel_state.emotional_state then
     return 0 -- Safe fallback for invalid state
   end
   
@@ -523,7 +523,7 @@ function calculate_phi(pixel_state)
   local emotional_sum = 0
   local active_emotions = 0
   
-  for emotion_name, value in pairs(pixel_state.emo_state) do
+  for emotion_name, value in pairs(pixel_state.emotional_state) do
     emotional_sum += value
     if value > 0.1 then
       active_emotions += 1
@@ -583,11 +583,11 @@ function update_consciousness()
     update_predictive_processing(pixel)
     
     -- Calculate current consciousness level (IIT)
-    local old_consciousness = pixel.consc_level or 0
-    pixel.consc_level = calculate_phi(pixel)
+    local old_consciousness = pixel.consciousness_level or 0
+    pixel.consciousness_level = calculate_phi(pixel)
     
     -- Play sound when consciousness significantly increases
-    if pixel.consc_level > old_consciousness + 0.1 then
+    if pixel.consciousness_level > old_consciousness + 0.1 then
       sfx(3) -- Consciousness increase sound
     end
     
@@ -607,7 +607,7 @@ end
 
 function form_memories(pixel)
   -- Simple memory formation for significant events
-  if sig_event then
+  if significant_event_occurred then
     if #pixel.memories >= memory_size then
       -- Remove oldest memory
       del(pixel.memories, pixel.memories[1])
@@ -618,11 +618,11 @@ function form_memories(pixel)
       type = event_type,
       x = pixel.x,
       y = pixel.y,
-      emotional_impact = emotion_impact
+      emotional_impact = current_emotional_impact
     })
     
     -- Reset event flags
-    sig_event = false
+    significant_event_occurred = false
   end
 end
 
@@ -696,12 +696,12 @@ function update_movement(pixel)
     
     -- Apply personality modifiers
     local timidity_factor = 1 - pixel.personality.timidity * 0.5
-    local energy_cons = pixel.personality.energy_cons
+    local energy_conservation = pixel.personality.energy_conservation
     
     -- Adjust speed based on personality and energy
     local final_speed = move_speed * timidity_factor
     
-    if pixel.energy > 70 and energy_cons > 0.7 then
+    if pixel.energy > 70 and energy_conservation > 0.7 then
       -- Conservative with energy when high
       final_speed *= 0.7
     end
@@ -750,27 +750,27 @@ end
 
 function update_emotions(pixel)
   -- Gradually return to baseline with enhanced decay
-  pixel.emo_state.excitement *= 0.985 -- Slightly faster decay for excitement
-  pixel.emo_state.happiness *= 0.99
+  pixel.emotional_state.excitement *= 0.985 -- Slightly faster decay for excitement
+  pixel.emotional_state.happiness *= 0.99
   
   -- Additional excitement decay based on time and activity
   if cursor_interaction.stillness_timer > 120 then -- After 2 seconds of stillness
-    pixel.emo_state.excitement *= 0.97 -- Faster decay when bored
+    pixel.emotional_state.excitement *= 0.97 -- Faster decay when bored
   end
   
   -- Update distress based on energy
   if pixel.energy < 30 then
-    pixel.emo_state.distress = (30 - pixel.energy) / 30
+    pixel.emotional_state.distress = (30 - pixel.energy) / 30
   else
-    pixel.emo_state.distress *= 0.95
+    pixel.emotional_state.distress *= 0.95
   end
   
   -- Update pixel color based on emotional state
-  if pixel.emo_state.distress > 0.7 then
+  if pixel.emotional_state.distress > 0.7 then
     pixel.color = 8 -- red
-  elseif pixel.emo_state.excitement > 0.7 then
+  elseif pixel.emotional_state.excitement > 0.7 then
     pixel.color = 14 -- pink
-  elseif pixel.emo_state.happiness > 0.7 then
+  elseif pixel.emotional_state.happiness > 0.7 then
     pixel.color = 11 -- light blue
   else
     pixel.color = 7 -- white
@@ -812,21 +812,21 @@ function check_energy_sources(pixel)
     local cube = energy_cubes[i]
     if dist(pixel.x, pixel.y, cube.x, cube.y) < (4 + pixel.size) then
       -- Bacterial consumption: efficiency varies by bacterium
-      local absorbed_energy = cube.value * pixel.metab_eff
+      local absorbed_energy = cube.value * pixel.metabolism_efficiency
       pixel.energy = min(100, pixel.energy + absorbed_energy)
       
       -- Record memory of energy consumption
-      sig_event = true
+      significant_event_occurred = true
       event_type = "nutrient_consumed"
-      emotion_impact = 0.3 + rnd(0.2)
+      current_emotional_impact = 0.3 + rnd(0.2)
       
       -- Update emotional state (bacteria getting excited about food!)
-      pixel.emo_state.happiness += 0.2
-      pixel.emo_state.excitement += 0.1
+      pixel.emotional_state.happiness += 0.2
+      pixel.emotional_state.excitement += 0.1
       
       -- Growth response to feeding
       pixel.size = min(2.5, pixel.size + 0.08)
-      pixel.div_progress = min(100, pixel.div_progress + 10)
+      pixel.division_progress = min(100, pixel.division_progress + 10)
       
       -- Remove the cube
       del(energy_cubes, cube)
@@ -860,19 +860,19 @@ function interact_with_pixel(pixel)
   if cursor_interaction.is_aware then
     emotional_impact *= 1.3
     -- Record that this was an anticipated interaction
-    sig_event = true
+    significant_event_occurred = true
     event_type = "anticipated_interaction"
-    emotion_impact = emotional_impact
+    current_emotional_impact = emotional_impact
   else
     -- Surprise interaction - stronger emotional response
     emotional_impact *= 1.5
-    pixel.emo_state.excitement += 0.2 -- extra surprise excitement
+    pixel.emotional_state.excitement += 0.2 -- extra surprise excitement
     event_type = "surprise_interaction"
   end
   
   -- Update emotional state
-  pixel.emo_state.excitement += emotional_impact
-  pixel.emo_state.excitement = min(pixel.emo_state.excitement, 1)
+  pixel.emotional_state.excitement += emotional_impact
+  pixel.emotional_state.excitement = min(pixel.emotional_state.excitement, 1)
   
   -- Personality development through interaction
   if cursor_interaction.attention_level > 0.5 then
@@ -890,27 +890,27 @@ function interact_with_pixel(pixel)
   cursor_interaction.retreat_timer = 0 -- reset retreat timer
   
   -- Record interaction in memory
-  sig_event = true
-  emotion_impact = emotional_impact
+  significant_event_occurred = true
+  current_emotional_impact = emotional_impact
   
   -- Visual feedback
   sfx(0) -- Play interaction sound
 end
 
 function record_interaction(type)
-  sig_event = true
+  significant_event_occurred = true
   event_type = type
-  emotion_impact = 0.1 + rnd(0.2)
+  current_emotional_impact = 0.1 + rnd(0.2)
 end
 
 -- biological lifecycle functions
 function can_divide(pixel)
-  return pixel.energy >= div_energy and 
+  return pixel.energy >= division_energy_threshold and 
          pixel.division_timer <= 0 and 
          #pixels < max_pixels and
          pixel.age > 20 and -- Bacteria can divide very quickly (0.33 seconds)
-         pixel.div_progress >= 50 and -- Lower progress requirement for faster division
-         cur_gen < max_gen -- Check global generation limit
+         pixel.division_progress >= 50 and -- Lower progress requirement for faster division
+         current_generation < max_generation -- Check global generation limit
 end
 
 function divide_pixel(pixel_index)
@@ -963,13 +963,13 @@ function divide_pixel(pixel_index)
   
   -- Inherit some bacterial properties with slight variations
   child.size = parent.size * (0.9 + rnd(0.2))
-  child.metab_eff = parent.metab_eff * (0.95 + rnd(0.1))
-  child.repro_drive = parent.repro_drive * (0.95 + rnd(0.1))
+  child.metabolism_efficiency = parent.metabolism_efficiency * (0.95 + rnd(0.1))
+  child.reproduction_drive = parent.reproduction_drive * (0.95 + rnd(0.1))
   
   -- Reset division-related properties
-  parent.division_timer = div_cooldown
-  parent.div_progress = 0
-  child.div_progress = 0
+  parent.division_timer = division_cooldown
+  parent.division_progress = 0
+  child.division_progress = 0
   parent.size = parent.size * 0.9 -- Parent shrinks slightly after division
   
   -- Prevent infinite population growth
@@ -977,14 +977,14 @@ function divide_pixel(pixel_index)
     add(pixels, child)
     
     -- Record successful division event
-    sig_event = true
+    significant_event_occurred = true
     event_type = "division"
-    emotion_impact = 0.4
+    current_emotional_impact = 0.4
     
     -- Audio-visual feedback
     sfx(8) -- Division sound
-    parent.emo_state.excitement = min(1, parent.emo_state.excitement + 0.3)
-    child.emo_state.excitement = min(1, child.emo_state.excitement + 0.2)
+    parent.emotional_state.excitement = min(1, parent.emotional_state.excitement + 0.3)
+    child.emotional_state.excitement = min(1, child.emotional_state.excitement + 0.2)
     
     -- Save state after division (significant event)
     save_game_state()
@@ -1018,9 +1018,9 @@ function kill_pixel(pixel_index)
   end
   
   -- Record death event for consciousness studies
-  sig_event = true
+  significant_event_occurred = true
   event_type = "death"
-  emotion_impact = 0.2
+  current_emotional_impact = 0.2
   
   -- Audio feedback
   sfx(9) -- Death sound
@@ -1034,9 +1034,9 @@ function kill_pixel(pixel_index)
     add(pixels, create_pixel(64 + rnd(8) - 4, 64 + rnd(8) - 4, {
       curiosity = 0.3 + rnd(0.4),
       timidity = 0.3 + rnd(0.4), 
-      energy_cons = 0.3 + rnd(0.4)
+      energy_conservation = 0.3 + rnd(0.4)
     }))
-    -- The new pixel will automatically get cur_gen from create_pixel
+    -- The new pixel will automatically get current_generation from create_pixel
   end
 end
 
@@ -1050,18 +1050,18 @@ function update_biological_processes()
     pixel.division_timer = max(0, pixel.division_timer - 1)
     
     -- Bacterial metabolism: consume energy over time
-    local energy_cost = metabolic_rate * pixel.metab_eff
+    local energy_cost = metabolic_rate * pixel.metabolism_efficiency
     pixel.energy = max(0, pixel.energy - energy_cost)
     
     -- Growth phase: build up to division
-    if pixel.energy > div_energy * 0.6 then
+    if pixel.energy > division_energy_threshold * 0.6 then
       -- Bacteria grows when it has sufficient energy
-      local growth_amount = pixel.repro_drive * 1.5
-      pixel.div_progress = min(100, pixel.div_progress + growth_amount)
+      local growth_amount = pixel.reproduction_drive * 1.5
+      pixel.division_progress = min(100, pixel.division_progress + growth_amount)
       pixel.size = min(2.5, pixel.size + 0.02) -- Gradually increase size faster
     else
       -- Slow degradation when energy is low
-      pixel.div_progress = max(0, pixel.div_progress - 0.2)
+      pixel.division_progress = max(0, pixel.division_progress - 0.2)
       pixel.size = max(0.5, pixel.size - 0.005)
     end
     
@@ -1073,30 +1073,30 @@ function update_biological_processes()
 end
 
 function update_generation_system()
-  gen_timer += 1
+  generation_timer += 1
   
   -- Increase generation every 10 seconds
-  if gen_timer >= gen_interval then
-    if cur_gen < max_gen then
-      cur_gen += 1
-      gen_timer = 0
+  if generation_timer >= generation_interval then
+    if current_generation < max_generation then
+      current_generation += 1
+      generation_timer = 0
       
       -- Don't create new bacteria automatically - rely on cell division
       -- Record significant event
-      sig_event = true
+      significant_event_occurred = true
       event_type = "generation_advance"
-      emotion_impact = 0.5
+      current_emotional_impact = 0.5
       
       -- Visual/audio feedback
       sfx(3) -- Generation advance sound
       
       -- Boost all pixels' reproduction drive and excitement for faster division
       for pixel in all(pixels) do
-        pixel.emo_state.excitement = min(1, pixel.emo_state.excitement + 0.2)
+        pixel.emotional_state.excitement = min(1, pixel.emotional_state.excitement + 0.2)
         -- Increase division drive for exponential growth
-        pixel.repro_drive = min(1, pixel.repro_drive + 0.2)
+        pixel.reproduction_drive = min(1, pixel.reproduction_drive + 0.2)
         -- Boost division progress significantly
-        pixel.div_progress = min(100, pixel.div_progress + 20)
+        pixel.division_progress = min(100, pixel.division_progress + 20)
       end
       
       -- Save state after generation advance
@@ -1123,9 +1123,9 @@ function draw_single_pixel(pixel)
   circfill(pixel.x, pixel.y, radius, base_color)
   
   -- Show division progress as growing size
-  if pixel.div_progress > 50 then
+  if pixel.division_progress > 50 then
     -- Bacterium preparing to divide - show elongation
-    local elongation = (pixel.div_progress - 50) / 50
+    local elongation = (pixel.division_progress - 50) / 50
     oval(pixel.x - radius - elongation, pixel.y - radius, 
          pixel.x + radius + elongation, pixel.y + radius, base_color)
   end
@@ -1146,12 +1146,12 @@ function draw_single_pixel(pixel)
   end
   
   -- Show metabolic activity
-  if pixel.energy > div_energy * 0.8 then
+  if pixel.energy > division_energy_threshold * 0.8 then
     -- High activity - bright aura
     for i=1,3 do
       circ(pixel.x, pixel.y, radius + i, 7)
     end
-  elseif pixel.energy < death_energy + 10 then
+  elseif pixel.energy < death_energy_threshold + 10 then
     -- Low energy - warning color
     circ(pixel.x, pixel.y, radius + 1, 8) -- Red warning
   end
@@ -1167,11 +1167,11 @@ function draw_single_pixel(pixel)
     
     -- Add slight iris color based on emotional state
     local iris_color = 5 -- dark blue default
-    if pixel.emo_state.excitement > 0.6 then
+    if pixel.emotional_state.excitement > 0.6 then
       iris_color = 12 -- light blue
-    elseif pixel.emo_state.distress > 0.6 then
+    elseif pixel.emotional_state.distress > 0.6 then
       iris_color = 8 -- red
-    elseif pixel.emo_state.happiness > 0.6 then
+    elseif pixel.emotional_state.happiness > 0.6 then
       iris_color = 11 -- light green
     end
     
@@ -1240,15 +1240,15 @@ end
 function draw_ui()
   -- Get primary pixel for UI display
   local primary_pixel = (#pixels > 0) and pixels[1] or {
-    consc_level = 0,
+    consciousness_level = 0,
     energy = 0,
     personality = {curiosity = 0, timidity = 0},
-    emo_state = {happiness = 0, excitement = 0, distress = 0}
+    emotional_state = {happiness = 0, excitement = 0, distress = 0}
   }
   
   -- Draw consciousness level label first, then bar below
   print("conscious level", 4, 4, 7)
-  local phi_bar_width = min(30, flr(primary_pixel.consc_level * 30))
+  local phi_bar_width = min(30, flr(primary_pixel.consciousness_level * 30))
   rectfill(4, 10, 4 + phi_bar_width, 12, 14)
   rect(3, 9, 34, 13, 5)
   
@@ -1264,7 +1264,7 @@ function draw_ui()
   
   -- Population information
   print("population:"..#pixels, 4, 117, 7)
-  print("current gen:"..cur_gen, 4, 123, 7)
+  print("current gen:"..current_generation, 4, 123, 7)
   
   -- Show count per generation
   local gen_counts = {}
@@ -1273,7 +1273,7 @@ function draw_ui()
   end
   
   local y_offset = 129
-  for gen = 1, cur_gen do
+  for gen = 1, current_generation do
     if gen_counts[gen] then
       local generation_colors = {7, 12, 11, 3, 9, 10, 4, 2, 8, 14, 13, 1, 5, 6, 15}
       local color = generation_colors[gen] or 7
@@ -1292,9 +1292,9 @@ function draw_ui()
   
   if #pixels > 0 then
     for pixel in all(pixels) do
-      avg_excitement += pixel.emo_state.excitement
-      avg_distress += pixel.emo_state.distress
-      avg_happiness += pixel.emo_state.happiness
+      avg_excitement += pixel.emotional_state.excitement
+      avg_distress += pixel.emotional_state.distress
+      avg_happiness += pixel.emotional_state.happiness
     end
     avg_excitement /= #pixels
     avg_distress /= #pixels
@@ -1359,7 +1359,7 @@ function draw_ui()
       focus_color = 11
     elseif global_workspace.current_focus.type == "energy_seeking" then
       focus_color = 14
-    elseif global_workspace.current_focus.type == "emo_state" then
+    elseif global_workspace.current_focus.type == "emotional_state" then
       focus_color = 8
     end
     local status_text = global_workspace.current_focus.type
@@ -1372,17 +1372,17 @@ function draw_ui()
   end
   
   -- Show save notification
-  if save_timer > 0 then
+  if save_notification_timer > 0 then
     local text_color = 11
-    if save_text == "saved" then
+    if save_notification_text == "saved" then
       text_color = 12 -- green-ish
-    elseif save_text == "resumed" then
+    elseif save_notification_text == "resumed" then
       text_color = 14 -- pink
-    elseif save_text == "cleared" then
+    elseif save_notification_text == "cleared" then
       text_color = 8 -- red
     end
     
-    local text = save_text
+    local text = save_notification_text
     local text_x = 128 - (#text * 4) - 4 -- Right-align with padding
     print(text, text_x, 40, text_color)
   end
@@ -1467,11 +1467,11 @@ function save_game_state()
   
   -- Save game metadata
   dset(0, 1) -- Save exists flag
-  dset(1, cur_gen)
+  dset(1, current_generation)
   dset(2, pixel_counter)
   dset(3, #pixels) -- Number of pixels to restore
   dset(4, #energy_cubes) -- Number of energy cubes
-  dset(5, gen_timer)
+  dset(5, generation_timer)
   
   -- Save pixels (up to 8 pixels, using 8 slots each)
   local pixel_count = min(#pixels, 8)
@@ -1485,7 +1485,7 @@ function save_game_state()
     dset(base_slot + 3, pixel.generation)
     dset(base_slot + 4, pixel.personality.curiosity)
     dset(base_slot + 5, pixel.personality.timidity)
-    dset(base_slot + 6, pixel.personality.energy_cons)
+    dset(base_slot + 6, pixel.personality.energy_conservation)
     dset(base_slot + 7, pixel.number)
   end
   
@@ -1507,12 +1507,12 @@ function save_game_state()
   -- Show save notification
   show_save_notification("saved")
   
-  -- printh("game state saved - generation: " .. cur_gen .. ", pixels: " .. #pixels)
+  -- printh("game state saved - generation: " .. current_generation .. ", pixels: " .. #pixels)
 end
 
 function show_save_notification(message)
-  save_text = message
-  save_timer = 120 -- Show for 2 seconds
+  save_notification_text = message
+  save_notification_timer = 120 -- Show for 2 seconds
 end
 
 function clear_save_data()
@@ -1524,9 +1524,9 @@ function clear_save_data()
   -- Reset game state
   pixels = {}
   energy_cubes = {}
-  cur_gen = 1
+  current_generation = 1
   pixel_counter = 0
-  gen_timer = 0
+  generation_timer = 0
   
   -- Reinitialize
   init_consciousness()
@@ -1546,11 +1546,11 @@ function load_game_state()
   end
   
   -- Load game metadata
-  cur_gen = dget(1) or 1
+  current_generation = dget(1) or 1
   pixel_counter = dget(2) or 0
   local saved_pixel_count = dget(3) or 0
   local saved_cube_count = dget(4) or 0
-  gen_timer = dget(5) or 0
+  generation_timer = dget(5) or 0
   
   -- Clear existing state
   pixels = {}
@@ -1566,14 +1566,14 @@ function load_game_state()
     local generation = dget(base_slot + 3) or 1
     local curiosity = dget(base_slot + 4) or 0.5
     local timidity = dget(base_slot + 5) or 0.5
-    local energy_cons = dget(base_slot + 6) or 0.5
+    local energy_conservation = dget(base_slot + 6) or 0.5
     local number = dget(base_slot + 7) or i
     
     -- Create pixel with loaded data
     local pixel = create_pixel(x, y, {
       curiosity = curiosity,
       timidity = timidity,
-      energy_cons = energy_cons
+      energy_conservation = energy_conservation
     })
     
     -- Override values that create_pixel sets
@@ -1609,7 +1609,7 @@ function load_game_state()
     add(pixels, create_pixel(64, 64, {
       curiosity = 0.5,
       timidity = 0.4,
-      energy_cons = 0.5
+      energy_conservation = 0.5
     }))
   end
   
@@ -1623,7 +1623,7 @@ function load_game_state()
   -- Show load notification
   show_save_notification("resumed")
   
-  -- printh("game state loaded - generation: " .. cur_gen .. ", pixels: " .. #pixels)
+  -- printh("game state loaded - generation: " .. current_generation .. ", pixels: " .. #pixels)
   return true
 end
 
@@ -1645,9 +1645,9 @@ function process_metacognition(pixel)
     if pattern_recognition > 3 then
       pixel.personality.curiosity = min(1, pixel.personality.curiosity + 0.05)
       -- Record self-awareness moment
-      sig_event = true
+      significant_event_occurred = true
       event_type = "self_reflection"
-      emotion_impact = 0.1
+      current_emotional_impact = 0.1
     end
   end
 end
@@ -1662,9 +1662,9 @@ function generate_creative_behavior(pixel)
     pixel.target_y = 64 + sin(angle) * spiral_radius
     
     -- Record creative moment
-    sig_event = true
+    significant_event_occurred = true
     event_type = "creative_expression"
-    emotion_impact = 0.2
+    current_emotional_impact = 0.2
   end
 end
 
@@ -1774,17 +1774,17 @@ function update_cursor_awareness()
     
     if cursor_distance < 20 then
       -- Very close - excitement and possible timidity
-      pixel.emo_state.excitement += 0.02 * boredom_factor
+      pixel.emotional_state.excitement += 0.02 * boredom_factor
       if pixel.personality.timidity > 0.5 then
-        pixel.emo_state.distress += 0.01 * boredom_factor
+        pixel.emotional_state.distress += 0.01 * boredom_factor
         cursor_interaction.retreat_timer += 1
       else
-        pixel.emo_state.happiness += 0.01 * boredom_factor
+        pixel.emotional_state.happiness += 0.01 * boredom_factor
         cursor_interaction.approach_timer += 1
       end
     elseif cursor_distance < 35 then
       -- Medium distance - curiosity
-      pixel.emo_state.excitement += 0.01 * boredom_factor
+      pixel.emotional_state.excitement += 0.01 * boredom_factor
       cursor_interaction.curiosity_triggered = true
     end
     
@@ -1927,8 +1927,8 @@ function _update()
   end
   
   -- Update save notification timer
-  if save_timer > 0 then
-    save_timer -= 1
+  if save_notification_timer > 0 then
+    save_notification_timer -= 1
   end
   
   -- Auto-save game state periodically (every 10 seconds)
