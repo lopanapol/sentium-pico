@@ -905,7 +905,7 @@ function draw_ui()
       awareness_color = 6
     elseif cursor_interaction.attention_level > 0.8 then
       awareness_text = "focused"
-      awareness_color = 14
+      awareness_color = 10
     elseif cursor_interaction.attention_level > 0.5 then
       awareness_text = "watching"
       awareness_color = 12
@@ -919,13 +919,9 @@ function draw_ui()
     rectfill(emo_x, emo_y + 16, emo_x + bar_width, emo_y + 17, bar_color)
     rect(emo_x - 1, emo_y + 15, emo_x + 21, emo_y + 18, 5)
   end
-  if attention_schema.prediction_error > 0.05 then
-    print("prediction error", emo_x, emo_y + 24, 8)
-  end
+  -- Removed prediction error display
   local focus_y = 116
-  local focus_label = "focus:"
-  local label_x = 128 - (#focus_label * 4)
-  print(focus_label, label_x, focus_y, 7)
+  -- Removed focus label display
   if global_workspace.current_focus then
     local focus_color = 11
     if global_workspace.current_focus.type == "cursor_attention" then
