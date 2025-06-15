@@ -44,7 +44,15 @@ cursor_interaction = {
   stillness_timer = 0,
   max_stillness_threshold = 300,
   last_predicted_x = nil,
-  last_predicted_y = nil
+  last_predicted_y = nil,
+  particle_trail = {},
+  influence_radius = 60,
+  magnetism_strength = 0.3,
+  collective_excitement = 0,
+  cursor_heat = 0,
+  interaction_particles = {},
+  force_lines = {},
+  cursor_pulse = 0
 }
 function _init()
   cls()
@@ -758,22 +766,73 @@ end
 function draw_single_pixel(pixel)
   local generation_colors = {7, 12, 11, 3, 9, 10, 4, 2, 8, 14, 13, 1, 5, 6, 15}
   local base_color = generation_colors[pixel.generation] or 7
-  local radius = flr(pixel.size)
-  circfill(pixel.x, pixel.y, radius, base_color)
+  
+  -- Enhanced size based on cursor interaction
+  local cursor_attention = pixel.cursor_attention or 0
+  local size_modifier = cursor_attention * 0.5
+  local radius = flr(pixel.size + size_modifier)
+  
+  -- Dynamic color based on cursor proximity and emotional state
+  local interaction_color = base_color
+  if cursor_attention > 0.3 then
+    local heat_level = cursor_interaction.cursor_heat
+    if pixel.emo_state.excitement > 0.6 then
+      interaction_color = 12  -- bright red when excited
+    elseif pixel.emo_state.happiness > 0.6 then
+      interaction_color = 11  -- bright green when happy
+    elseif pixel.emo_state.distress > 0.6 then
+      interaction_color = 8   -- red when distressed
+    else
+      -- Heat-based color shifting
+      if heat_level > 0.7 then
+        interaction_color = 14  -- yellow when cursor is very active
+      elseif heat_level > 0.4 then
+        interaction_color = 10  -- brown-orange for moderate activity
+      end
+    end
+  end
+  
+  circfill(pixel.x, pixel.y, radius, interaction_color)
+  
+  -- Pulsing effect when highly interactive
+  if cursor_attention > 0.7 then
+    local pulse = sin(time() * 6 + pixel.x * 0.1) * cursor_attention * 2
+    circ(pixel.x, pixel.y, radius + 1 + pulse, 14)
+  end
+  
+  -- Energy ripples when cursor nearby
+  if cursor_attention > 0.5 then
+    local ripple_count = flr(cursor_attention * 3)
+    for i = 1, ripple_count do
+      local ripple_phase = time() * 3 + i * 2
+      local ripple_radius = radius + 3 + sin(ripple_phase) * 2
+      local ripple_alpha = (1 - (i / ripple_count)) * cursor_attention
+      if ripple_alpha > 0.3 then
+        circ(pixel.x, pixel.y, ripple_radius, 13)
+      end
+    end
+  end
+  
   if pixel.div_progress > 50 then
     local elongation = (pixel.div_progress - 50) / 50
     oval(pixel.x - radius - elongation, pixel.y - radius, 
-         pixel.x + radius + elongation, pixel.y + radius, base_color)
+         pixel.x + radius + elongation, pixel.y + radius, interaction_color)
   end
+  
   if can_divide(pixel) then
     local pulse = sin(pixel.age * 0.2) * 0.5 + 0.5
     circ(pixel.x, pixel.y, radius + 2 + pulse, 11)
   end
+  
   if pixel.stuck_timer and pixel.stuck_timer > 60 then
-    line(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y, 12)
+    -- Enhanced stuck indicator with pulsing line
+    local line_alpha = sin(time() * 4) * 0.3 + 0.7
+    local line_color = cursor_attention > 0.3 and 14 or 12
+    line(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y, line_color)
     local pulse = sin(pixel.age * 0.3) * 1 + 1
-    circ(pixel.x, pixel.y, radius + 3 + pulse, 12)
+    circ(pixel.x, pixel.y, radius + 3 + pulse, line_color)
   end
+  
   if pixel.energy > div_energy * 0.8 then
     for i=1,3 do
       circ(pixel.x, pixel.y, radius + i, 7)
@@ -781,11 +840,17 @@ function draw_single_pixel(pixel)
   elseif pixel.energy < death_energy + 10 then
     circ(pixel.x, pixel.y, radius + 1, 8)
   end
+  
+  -- Enhanced eye drawing with better cursor tracking
   local closest_pixel = find_closest_pixel_to_cursor()
   if pixel == closest_pixel and cursor_interaction.is_aware and cursor_interaction.attention_level > 0.3 then
     local eye_x = pixel.x + cursor_interaction.gaze_offset_x
     local eye_y = pixel.y + cursor_interaction.gaze_offset_y
-    pset(eye_x, eye_y, 0)
+    
+    -- Dynamic eye size based on attention
+    local eye_size = 1 + cursor_interaction.attention_level * 0.5
+    circfill(eye_x, eye_y, eye_size, 0)
+    
     local iris_color = 5
     if pixel.emo_state.excitement > 0.6 then
       iris_color = 12
@@ -794,20 +859,43 @@ function draw_single_pixel(pixel)
     elseif pixel.emo_state.happiness > 0.6 then
       iris_color = 11
     end
+    
+    -- Enhanced iris with better positioning
     local iris_positions = {
       {eye_x-1, eye_y}, {eye_x+1, eye_y}, 
       {eye_x, eye_y-1}, {eye_x, eye_y+1}
     }
     for pos in all(iris_positions) do
-      if pos[1] >= pixel.x-2 and pos[1] <= pixel.x+2 and 
-         pos[2] >= pixel.y-2 and pos[2] <= pixel.y+2 then
+      if pos[1] >= pixel.x-3 and pos[1] <= pixel.x+3 and 
+         pos[2] >= pixel.y-3 and pos[2] <= pixel.y+3 then
         pset(pos[1], pos[2], iris_color)
       end
     end
+    
+    -- Eye highlight for high attention
+    if cursor_interaction.attention_level > 0.8 then
+      pset(eye_x, eye_y-1, 7)
+    end
   end
+  
+  -- Trail effect when moving under cursor influence
+  if cursor_attention > 0.4 and (abs(pixel.x - (pixel.last_x or pixel.x)) > 0.5 or 
+                                 abs(pixel.y - (pixel.last_y or pixel.y)) > 0.5) then
+    local trail_length = flr(cursor_attention * 3)
+    for i = 1, trail_length do
+      local trail_x = pixel.x - (pixel.x - (pixel.last_x or pixel.x)) * i * 0.3
+      local trail_y = pixel.y - (pixel.y - (pixel.last_y or pixel.y)) * i * 0.3
+      local trail_alpha = 1 - (i / trail_length)
+      if trail_alpha > 0.2 then
+        pset(trail_x, trail_y, 13)
+      end
+    end
+  end
+  
   if pixel.age > 600 then
     pset(pixel.x, pixel.y - 4, 13)
   end
+  
   if pixel == pixels[1] then
     for i=1,#pixel.memories do
       local mem = pixel.memories[i]
@@ -957,28 +1045,112 @@ function draw_cursor()
     local cursor_x = mouse_cursor.x
     local cursor_y = mouse_cursor.y
     local primary_pixel = (#pixels > 0) and pixels[1] or {x = 64, y = 64}
+    
+    -- Enhanced cursor appearance based on heat and interaction
+    local heat_level = cursor_interaction.cursor_heat
+    local cursor_size = 1 + heat_level * 2
+    local cursor_color = 7
+    
+    if heat_level > 0.7 then
+      cursor_color = 14  -- yellow when very active
+    elseif heat_level > 0.4 then
+      cursor_color = 10  -- orange when moderately active
+    elseif heat_level > 0.1 then
+      cursor_color = 12  -- red when slightly active
+    end
+    
+    -- Proximity-based cursor enhancement
     if dist(cursor_x, cursor_y, primary_pixel.x, primary_pixel.y) < 15 then
+      -- Close proximity - enhanced cursor
       line(cursor_x-4, cursor_y, cursor_x+4, cursor_y, 11)
       line(cursor_x, cursor_y-4, cursor_x, cursor_y+4, 11)
-      circfill(cursor_x, cursor_y, 2, 11)
-      circ(cursor_x, cursor_y, 6, 11)
+      circfill(cursor_x, cursor_y, cursor_size + 1, 11)
+      circ(cursor_x, cursor_y, 6 + heat_level * 2, 11)
+      
+      -- Interaction sparkles when very close
+      for i = 1, 3 do
+        local sparkle_angle = time() * 3 + i * 2
+        local sparkle_x = cursor_x + cos(sparkle_angle) * (8 + i)
+        local sparkle_y = cursor_y + sin(sparkle_angle) * (8 + i)
+        pset(sparkle_x, sparkle_y, 12)
+      end
     else
-      line(cursor_x-3, cursor_y, cursor_x+3, cursor_y, 7)
-      line(cursor_x, cursor_y-3, cursor_x, cursor_y+3, 7)
-      circfill(cursor_x, cursor_y, 1, 7)
+      -- Normal cursor with heat-based appearance
+      line(cursor_x-3, cursor_y, cursor_x+3, cursor_y, cursor_color)
+      line(cursor_x, cursor_y-3, cursor_x, cursor_y+3, cursor_color)
+      circfill(cursor_x, cursor_y, cursor_size, cursor_color)
     end
+    
+    -- Enhanced awareness visualization
     if cursor_interaction.is_aware then
       local awareness_color = 13
-      local awareness_radius = 8 + cursor_interaction.attention_level * 4
-      circ(cursor_x, cursor_y, awareness_radius, awareness_color)
+      local base_radius = 8 + cursor_interaction.attention_level * 4
+      local pulse_radius = base_radius + sin(time() * 4) * cursor_interaction.cursor_pulse * 2
+      
+      circ(cursor_x, cursor_y, pulse_radius, awareness_color)
+      
+      -- Collective excitement ring
+      if cursor_interaction.collective_excitement > 0.3 then
+        local collective_radius = base_radius + cursor_interaction.collective_excitement * 8
+        circ(cursor_x, cursor_y, collective_radius, 14)
+      end
+      
+      -- High attention sparkles
       if cursor_interaction.attention_level > 0.6 then
-        local sparkle_count = flr(cursor_interaction.attention_level * 4)
+        local sparkle_count = flr((cursor_interaction.attention_level + cursor_interaction.collective_excitement) * 4)
         for i = 1, sparkle_count do
-          local angle = (time() + i) * 2
-          local sparkle_radius = 10 + i * 2
+          local angle = (time() + i) * 2 + cursor_interaction.cursor_heat * 3
+          local sparkle_radius = 10 + i * 2 + cursor_interaction.collective_excitement * 5
           local sparkle_x = cursor_x + cos(angle) * sparkle_radius
           local sparkle_y = cursor_y + sin(angle) * sparkle_radius
-          pset(sparkle_x, sparkle_y, 14)
+          local sparkle_color = (i % 2 == 0) and 14 or 12
+          pset(sparkle_x, sparkle_y, sparkle_color)
+        end
+      end
+      
+      -- Heat trail visualization
+      if heat_level > 0.3 then
+        local trail_intensity = flr(heat_level * 5)
+        for i = 1, trail_intensity do
+          local trail_angle = time() * 2 + i * 0.5
+          local trail_radius = 5 + i
+          local trail_x = cursor_x + cos(trail_angle) * trail_radius
+          local trail_y = cursor_y + sin(trail_angle) * trail_radius
+          pset(trail_x, trail_y, 9)
+        end
+      end
+    end
+    
+    -- Draw particle trail
+    for particle in all(cursor_interaction.particle_trail) do
+      local alpha = particle.life / 30
+      if alpha > 0.2 then
+        pset(particle.x, particle.y, particle.color)
+      end
+    end
+    
+    -- Draw interaction particles
+    for particle in all(cursor_interaction.interaction_particles) do
+      local alpha = particle.life / 60
+      if alpha > 0.1 then
+        pset(particle.x, particle.y, particle.color)
+      end
+    end
+    
+    -- Draw force lines
+    for line in all(cursor_interaction.force_lines) do
+      local alpha = line.life / 15
+      if alpha > 0.3 then
+        local line_color = (line.type == "attract") and 11 or 8
+        -- Draw dotted line for force visualization
+        local steps = flr(dist(line.x1, line.y1, line.x2, line.y2) / 4)
+        for i = 0, steps do
+          if i % 2 == 0 then
+            local t = i / steps
+            local draw_x = lerp(line.x1, line.x2, t)
+            local draw_y = lerp(line.y1, line.y2, t)
+            pset(draw_x, draw_y, line_color)
+          end
         end
       end
     end
@@ -1133,22 +1305,113 @@ function update_cursor_awareness()
   if not mouse_cursor.visible or #pixels == 0 then
     return
   end
-  local pixel = pixels[1]
-  local cursor_distance = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
-  local awareness_range = 50 + pixel.personality.curiosity * 30
+  
+  -- Update cursor movement and heat
   local cursor_moved = abs(mouse_cursor.x - cursor_interaction.last_cursor_x) > 2 or 
                       abs(mouse_cursor.y - cursor_interaction.last_cursor_y) > 2
+  
   if cursor_moved then
     cursor_interaction.stillness_timer = 0
+    cursor_interaction.cursor_heat = min(1, cursor_interaction.cursor_heat + 0.1)
+    -- Add particle trail when cursor moves fast
+    local movement_speed = dist(mouse_cursor.x, cursor_interaction.last_cursor_x, 
+                               mouse_cursor.y, cursor_interaction.last_cursor_y)
+    if movement_speed > 3 then
+      add(cursor_interaction.particle_trail, {
+        x = cursor_interaction.last_cursor_x,
+        y = cursor_interaction.last_cursor_y,
+        life = 30,
+        color = 14
+      })
+    end
     cursor_interaction.last_cursor_x = mouse_cursor.x
     cursor_interaction.last_cursor_y = mouse_cursor.y
   else
     cursor_interaction.stillness_timer += 1
+    cursor_interaction.cursor_heat = max(0, cursor_interaction.cursor_heat - 0.02)
   end
+  
+  -- Update particle trail
+  for i = #cursor_interaction.particle_trail, 1, -1 do
+    local particle = cursor_interaction.particle_trail[i]
+    particle.life -= 1
+    if particle.life <= 0 then
+      del(cursor_interaction.particle_trail, particle)
+    end
+  end
+  
+  -- Update cursor pulse
+  cursor_interaction.cursor_pulse = sin(time() * 4) * 0.3 + 0.7
+  
+  -- Calculate collective awareness
+  local total_awareness = 0
+  local pixels_in_range = 0
+  
+  for pixel in all(pixels) do
+    local cursor_distance = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
+    local awareness_range = cursor_interaction.influence_radius + pixel.personality.curiosity * 20
+    
+    if cursor_distance < awareness_range then
+      pixels_in_range += 1
+      local proximity_factor = 1 - (cursor_distance / awareness_range)
+      total_awareness += proximity_factor
+      
+      -- Individual pixel awareness
+      local old_attention = pixel.cursor_attention or 0
+      pixel.cursor_attention = min(1, proximity_factor * cursor_interaction.cursor_heat)
+      
+      -- Create interaction particles
+      if pixel.cursor_attention > 0.7 and rnd(1) < 0.1 then
+        add(cursor_interaction.interaction_particles, {
+          x = pixel.x + (rnd(6) - 3),
+          y = pixel.y + (rnd(6) - 3),
+          vx = (rnd(2) - 1) * 0.5,
+          vy = (rnd(2) - 1) * 0.5,
+          life = 60,
+          color = 11 + flr(rnd(3))
+        })
+      end
+      
+      -- Enhanced emotional responses
+      if cursor_distance < 20 then
+        local excitement_boost = 0.03 * cursor_interaction.cursor_heat
+        pixel.emo_state.excitement += excitement_boost
+        
+        if pixel.personality.timidity > 0.5 then
+          pixel.emo_state.distress += 0.02 * cursor_interaction.cursor_heat
+          cursor_interaction.retreat_timer += 1
+        else
+          pixel.emo_state.happiness += 0.02 * cursor_interaction.cursor_heat
+          cursor_interaction.approach_timer += 1
+        end
+      elseif cursor_distance < 35 then
+        pixel.emo_state.excitement += 0.01 * cursor_interaction.cursor_heat
+        cursor_interaction.curiosity_triggered = true
+      end
+      
+      -- Enhanced movement influence
+      if cursor_interaction.stillness_timer <= cursor_interaction.max_stillness_threshold then
+        enhance_cursor_movement_influence(pixel, cursor_distance)
+      end
+    else
+      -- Fade out attention when out of range
+      pixel.cursor_attention = max(0, (pixel.cursor_attention or 0) - 0.05)
+    end
+  end
+  
+  -- Update collective excitement
+  cursor_interaction.collective_excitement = total_awareness / max(1, pixels_in_range)
+  
+  -- Update main cursor interaction state
+  local pixel = pixels[1]
+  local cursor_distance = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
+  local awareness_range = 50 + pixel.personality.curiosity * 30
+  
   if cursor_distance < awareness_range then
     cursor_interaction.is_aware = true
     local old_attention = cursor_interaction.attention_level
-    local attention_gain = 0.05
+    local attention_gain = 0.05 * cursor_interaction.cursor_heat
+    
     if cursor_interaction.stillness_timer > cursor_interaction.max_stillness_threshold then
       attention_gain = -0.03
       cursor_interaction.attention_level = max(0, cursor_interaction.attention_level + attention_gain)
@@ -1161,34 +1424,18 @@ function update_cursor_awareness()
         sfx(4)
       end
     end
+    
+    -- Enhanced gaze calculation
     local dx = mouse_cursor.x - pixel.x
     local dy = mouse_cursor.y - pixel.y
-    local gaze_strength = 0.3 + pixel.personality.curiosity * 0.4
+    local gaze_strength = 0.3 + pixel.personality.curiosity * 0.4 + cursor_interaction.cursor_heat * 0.2
+    
     if cursor_interaction.stillness_timer > cursor_interaction.max_stillness_threshold then
       gaze_strength *= 0.3
     end
+    
     cursor_interaction.gaze_offset_x = dx * gaze_strength / cursor_distance
     cursor_interaction.gaze_offset_y = dy * gaze_strength / cursor_distance
-    local boredom_factor = 1.0
-    if cursor_interaction.stillness_timer > cursor_interaction.max_stillness_threshold then
-      boredom_factor = 0.1
-    end
-    if cursor_distance < 20 then
-      pixel.emo_state.excitement += 0.02 * boredom_factor
-      if pixel.personality.timidity > 0.5 then
-        pixel.emo_state.distress += 0.01 * boredom_factor
-        cursor_interaction.retreat_timer += 1
-      else
-        pixel.emo_state.happiness += 0.01 * boredom_factor
-        cursor_interaction.approach_timer += 1
-      end
-    elseif cursor_distance < 35 then
-      pixel.emo_state.excitement += 0.01 * boredom_factor
-      cursor_interaction.curiosity_triggered = true
-    end
-    if cursor_interaction.stillness_timer <= cursor_interaction.max_stillness_threshold then
-      influence_movement_by_cursor(pixel, cursor_distance)
-    end
   else
     cursor_interaction.is_aware = false
     cursor_interaction.attention_level = max(0, cursor_interaction.attention_level - 0.02)
@@ -1199,7 +1446,18 @@ function update_cursor_awareness()
     cursor_interaction.gaze_offset_x *= 0.9
     cursor_interaction.gaze_offset_y *= 0.9
   end
-  cursor_interaction.last_distance = cursor_distance
+  
+  -- Update interaction particles
+  for i = #cursor_interaction.interaction_particles, 1, -1 do
+    local particle = cursor_interaction.interaction_particles[i]
+    particle.x += particle.vx
+    particle.y += particle.vy
+    particle.life -= 1
+    particle.vy += 0.02  -- gravity
+    if particle.life <= 0 then
+      del(cursor_interaction.interaction_particles, particle)
+    end
+  end
 end
 function influence_movement_by_cursor(pixel, cursor_distance)
   if not cursor_interaction.is_aware then
@@ -1227,9 +1485,163 @@ function influence_movement_by_cursor(pixel, cursor_distance)
     pixel.target_y = lerp(pixel.target_y, orbit_y, influence_strength * 0.08)
   end
 end
+
+function enhance_cursor_movement_influence(pixel, cursor_distance)
+  local attention_level = pixel.cursor_attention or 0
+  local heat_factor = cursor_interaction.cursor_heat
+  
+  -- Magnetic attraction/repulsion
+  local magnetic_force = cursor_interaction.magnetism_strength * attention_level * heat_factor
+  
+  if pixel.personality.curiosity > 0.5 and cursor_distance > 10 and cursor_distance < cursor_interaction.influence_radius then
+    -- Attraction behavior with enhanced dynamics
+    local attraction_strength = (pixel.personality.curiosity - 0.5) * 2 * magnetic_force
+    local dx = mouse_cursor.x - pixel.x
+    local dy = mouse_cursor.y - pixel.y
+    local distance_factor = 1 - (cursor_distance / cursor_interaction.influence_radius)
+    
+    pixel.target_x = lerp(pixel.target_x, mouse_cursor.x, attraction_strength * distance_factor * 0.15)
+    pixel.target_y = lerp(pixel.target_y, mouse_cursor.y, attraction_strength * distance_factor * 0.15)
+    
+    -- Add force line for visualization
+    if attention_level > 0.6 then
+      add(cursor_interaction.force_lines, {
+        x1 = pixel.x, y1 = pixel.y,
+        x2 = mouse_cursor.x, y2 = mouse_cursor.y,
+        strength = attraction_strength,
+        type = "attract",
+        life = 15
+      })
+    end
+  elseif pixel.personality.timidity > 0.5 and cursor_distance < 30 then
+    -- Enhanced repulsion with panic behavior
+    local repulsion_strength = pixel.personality.timidity * magnetic_force
+    local panic_factor = max(0, (30 - cursor_distance) / 30)
+    
+    local escape_angle = atan2(pixel.y - mouse_cursor.y, pixel.x - mouse_cursor.x)
+    local escape_distance = 40 + panic_factor * 20
+    local escape_x = pixel.x + cos(escape_angle) * escape_distance
+    local escape_y = pixel.y + sin(escape_angle) * escape_distance
+    
+    pixel.target_x = lerp(pixel.target_x, escape_x, repulsion_strength * panic_factor * 0.2)
+    pixel.target_y = lerp(pixel.target_y, escape_y, repulsion_strength * panic_factor * 0.2)
+    
+    -- Add force line for repulsion
+    if attention_level > 0.4 then
+      add(cursor_interaction.force_lines, {
+        x1 = pixel.x, y1 = pixel.y,
+        x2 = escape_x, y2 = escape_y,
+        strength = repulsion_strength,
+        type = "repel",
+        life = 10
+      })
+    end
+  end
+  
+  -- Dancing/playful behavior for balanced personalities
+  if pixel.personality.curiosity > 0.4 and pixel.personality.timidity > 0.3 and 
+     cursor_distance > 15 and cursor_distance < 45 then
+    local dance_angle = time() * 2 + pixel.personality.curiosity * 4 + cursor_interaction.cursor_heat * 2
+    local dance_radius = 20 + pixel.personality.timidity * 10 + cursor_interaction.collective_excitement * 15
+    local dance_x = mouse_cursor.x + cos(dance_angle) * dance_radius
+    local dance_y = mouse_cursor.y + sin(dance_angle) * dance_radius
+    
+    pixel.target_x = lerp(pixel.target_x, dance_x, magnetic_force * 0.12)
+    pixel.target_y = lerp(pixel.target_y, dance_y, magnetic_force * 0.12)
+  end
+  
+  -- Update force lines
+  for i = #cursor_interaction.force_lines, 1, -1 do
+    local line = cursor_interaction.force_lines[i]
+    line.life -= 1
+    if line.life <= 0 then
+      del(cursor_interaction.force_lines, line)
+    end
+  end
+end
 function lerp(a, b, t)
   return a + (b - a) * t
 end
+
+function update_collective_cursor_behavior()
+  -- Handle collective behaviors when multiple pixels interact with cursor
+  if cursor_interaction.collective_excitement > 0.5 and #pixels > 1 then
+    -- Flocking behavior - pixels form groups around cursor
+    for pixel in all(pixels) do
+      local cursor_distance = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
+      if cursor_distance < cursor_interaction.influence_radius then
+        -- Find nearby pixels
+        local nearby_pixels = {}
+        for other_pixel in all(pixels) do
+          if other_pixel != pixel then
+            local pixel_distance = dist(pixel.x, pixel.y, other_pixel.x, other_pixel.y)
+            if pixel_distance < 25 then
+              add(nearby_pixels, other_pixel)
+            end
+          end
+        end
+        
+        -- Apply flocking forces
+        if #nearby_pixels > 0 then
+          local avg_x, avg_y = 0, 0
+          for nearby in all(nearby_pixels) do
+            avg_x += nearby.x
+            avg_y += nearby.y
+          end
+          avg_x /= #nearby_pixels
+          avg_y /= #nearby_pixels
+          
+          -- Cohesion - move towards group center
+          local cohesion_strength = cursor_interaction.collective_excitement * 0.05
+          pixel.target_x = lerp(pixel.target_x, avg_x, cohesion_strength)
+          pixel.target_y = lerp(pixel.target_y, avg_y, cohesion_strength)
+          
+          -- Separation - avoid crowding
+          local separation_x, separation_y = 0, 0
+          local close_count = 0
+          for nearby in all(nearby_pixels) do
+            local nearby_distance = dist(pixel.x, pixel.y, nearby.x, nearby.y)
+            if nearby_distance < 15 then
+              separation_x += (pixel.x - nearby.x) / nearby_distance
+              separation_y += (pixel.y - nearby.y) / nearby_distance
+              close_count += 1
+            end
+          end
+          if close_count > 0 then
+            separation_x /= close_count
+            separation_y /= close_count
+            local separation_strength = cursor_interaction.collective_excitement * 0.1
+            pixel.target_x += separation_x * separation_strength
+            pixel.target_y += separation_y * separation_strength
+          end
+        end
+      end
+    end
+  end
+  
+  -- Synchronize emotions when highly excited
+  if cursor_interaction.collective_excitement > 0.7 then
+    local dominant_emotion = "happiness"
+    local max_emotion_value = 0
+    
+    -- Find dominant emotion across all pixels
+    for pixel in all(pixels) do
+      for emotion_name, value in pairs(pixel.emo_state) do
+        if value > max_emotion_value then
+          max_emotion_value = value
+          dominant_emotion = emotion_name
+        end
+      end
+    end
+    
+    -- Synchronize emotions
+    for pixel in all(pixels) do
+      local sync_strength = cursor_interaction.collective_excitement * 0.02
+      pixel.emo_state[dominant_emotion] = min(1, pixel.emo_state[dominant_emotion] + sync_strength)
+    end
+  end
+end
+
 function _update()
   if game_state == "splash" then
     splash_timer += 1
@@ -1288,6 +1700,7 @@ function _update()
   update_generation_system()
   update_consciousness()
   update_cursor_awareness()
+  update_collective_cursor_behavior()
   update_biological_processes()
 end
 function _draw()
@@ -1348,6 +1761,8 @@ function draw_large_text(text, x, y, color)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+007007000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00700700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00077000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
