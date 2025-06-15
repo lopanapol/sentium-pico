@@ -18,7 +18,7 @@ pixel_counter = 0 -- For numbering pixels
 
 -- biological parameters
 max_pixels = 8
-max_generation = 8 -- Max generation limit
+max_generation = 20 -- Max generation limit increased to 20
 division_energy_threshold = 85
 death_energy_threshold = 5
 division_cooldown = 600 -- 10 seconds at 60fps
@@ -115,7 +115,7 @@ end
 function init_consciousness()
   -- Initialize consciousness system with robust state management
   pixels = {}
-  pixel_counter = 0 -- Ensure counter starts at 0
+  pixel_counter = 0 -- Ensure counter starts at 0 for guaranteed uniqueness
   
   -- Create initial pixel with balanced personality traits
   add(pixels, create_pixel(64, 64, {
@@ -131,6 +131,12 @@ function init_consciousness()
   significant_event_occurred = false
   event_type = ""
   current_emotional_impact = 0
+  
+  -- Debug: Verify first pixel has number 1
+  if #pixels > 0 and pixels[1].number != 1 then
+    pixels[1].number = 1 -- Force correct numbering
+    pixel_counter = 1
+  end
 end
 
 function create_pixel(x, y, personality)
@@ -139,6 +145,19 @@ function create_pixel(x, y, personality)
   y = mid(4, y or 64, 124)
   
   pixel_counter += 1 -- Increment global counter for unique numbering
+  
+  -- Double-check for uniqueness (defensive programming)
+  local used_numbers = {}
+  for existing_pixel in all(pixels) do
+    if existing_pixel.number then
+      used_numbers[existing_pixel.number] = true
+    end
+  end
+  
+  -- If somehow this number is already used, keep incrementing
+  while used_numbers[pixel_counter] do
+    pixel_counter += 1
+  end
   
   -- Validate personality traits or provide defaults
   local validated_personality = personality or {}
@@ -991,11 +1010,6 @@ function draw_single_pixel(pixel)
         pset(pos[1], pos[2], iris_color)
       end
     end
-  end
-  
-  -- Generation number display
-  if pixel.generation > 1 then
-    print(pixel.generation, pixel.x + 4, pixel.y - 2, 6)
   end
   
   -- Age indicator (small dot)
