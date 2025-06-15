@@ -1228,31 +1228,6 @@ function draw_ui()
     end
   end
   
-  -- Show time until next generation
-  if current_generation < max_generation and #pixels < max_pixels then
-    local time_left = flr((generation_interval - generation_timer) / 60)
-    print("next:"..time_left.."s", 60, 117, 11)
-  elseif #pixels >= max_pixels then
-    print("max pop!", 60, 117, 14)
-  else
-    print("max gen!", 60, 117, 14)
-  end
-  
-  -- Debug: Show bacterial properties for primary pixel
-  if primary_pixel and #pixels > 0 then
-    local can_div = can_divide(primary_pixel)
-    local energy_ok = primary_pixel.energy >= division_energy_threshold
-    local progress_ok = primary_pixel.division_progress >= 100
-    
-    print("can div:"..tostr(can_div), 60, 123, can_div and 11 or 8)
-    print("e:"..primary_pixel.energy.."/"..division_energy_threshold, 60, 129, energy_ok and 11 or 8)
-    print("growth:"..flr(primary_pixel.division_progress).."%", 60, 135, progress_ok and 11 or 8)
-    print("size:"..flr(primary_pixel.size*10)/10, 60, 141, 7)
-    if primary_pixel.division_timer > 0 then
-      print("cd:"..flr(primary_pixel.division_timer/60).."s", 60, 147, 8)
-    end
-  end
-  
   -- Show emotional state (value only) - calculate average across all pixels
   local emo_x = 100
   local emo_y = 4

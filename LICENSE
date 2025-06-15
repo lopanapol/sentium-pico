@@ -1,16 +1,27 @@
-MIT License
+Sentiria Pico - Proprietary Software License
 
-Copyright (c) 2025 Sentium Pixel
+Copyright (c) 2025 Napol Thanarangkaun (lopanapol@gmail.com)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ALL RIGHTS RESERVED.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This software and associated documentation files (the "Software") are the 
+proprietary and confidential property of Napol Thanarangkaun. 
+
+RESTRICTIONS:
+1. You may NOT copy, modify, distribute, sell, or create derivative works 
+   based on this Software without explicit written permission from the 
+   copyright holder.
+
+2. You may NOT reverse engineer, decompile, or disassemble the Software.
+
+3. You may NOT remove or alter any copyright notices or proprietary 
+   markings in the Software.
+
+4. Any authorized use of this Software is subject to separate licensing 
+   agreements and payment of applicable fees.
+
+5. This Software is licensed for use, not sold. You do not acquire any 
+   ownership rights to the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,3 +30,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+For licensing inquiries, contact: lopanapol@gmail.com
