@@ -19,10 +19,15 @@ pixel_counter = 0 -- For numbering pixels
 -- biological parameters
 max_pixels = 8
 max_generation = 20 -- Max generation limit increased to 20
-division_energy_threshold = 85
+division_energy_threshold = 65 -- Lowered from 85 to make division more accessible
 death_energy_threshold = 5
-division_cooldown = 600 -- 10 seconds at 60fps
+division_cooldown = 300 -- Reduced from 600 (5 seconds instead of 10)
 mutation_rate = 0.1
+
+-- generation system
+current_generation = 1
+generation_timer = 0
+generation_interval = 600 -- 10 seconds at 60fps
 
 -- game state
 game_state = "splash"  -- can be "splash" or "game"
@@ -175,7 +180,7 @@ function create_pixel(x, y, personality)
     last_x = x,
     last_y = y,
     age = 0,
-    generation = 1,
+    generation = current_generation, -- Use current global generation
     division_timer = 0,
     parent_id = nil,
     id = pixel_counter * 1000 + flr(rnd(1000)), -- mathematically unique identifier
@@ -821,8 +826,8 @@ function can_divide(pixel)
   return pixel.energy >= division_energy_threshold and 
          pixel.division_timer <= 0 and 
          #pixels < max_pixels and
-         pixel.age > 180 and -- Must be at least 3 seconds old
-         pixel.generation < max_generation -- Generation limit
+         pixel.age > 120 and -- Reduced from 180 to 120 (2 seconds instead of 3)
+         current_generation < max_generation -- Check global generation limit
 end
 
 function divide_pixel(pixel_index)
@@ -856,12 +861,12 @@ function divide_pixel(pixel_index)
   
   -- Create the child pixel with validated parameters
   local child = create_pixel(child_x, child_y, child_personality)
-  child.generation = min(parent.generation + 1, max_generation) -- Enforce generation limit
+  child.generation = current_generation -- Use current global generation
   child.parent_id = parent.id
-  child.energy = flr(parent.energy * 0.5) -- Child inherits half parent's energy (integer math)
+  child.energy = flr(parent.energy * 0.55) -- Child inherits slightly more energy (55% instead of 50%)
   
-  -- Parent energy cost is proportional to current energy (realistic biology)
-  parent.energy = flr(parent.energy * 0.6)
+  -- Parent energy cost is less severe to encourage more divisions
+  parent.energy = flr(parent.energy * 0.65) -- Parent keeps 65% instead of 60%
   parent.division_timer = division_cooldown
   
   -- Prevent infinite population growth
@@ -925,6 +930,7 @@ function kill_pixel(pixel_index)
       timidity = 0.3 + rnd(0.4), 
       energy_conservation = 0.3 + rnd(0.4)
     }))
+    -- The new pixel will automatically get current_generation from create_pixel
   end
 end
 
@@ -943,6 +949,36 @@ function update_biological_processes()
     -- Check for division
     elseif can_divide(pixel) then
       divide_pixel(i)
+    end
+  end
+end
+
+function update_generation_system()
+  generation_timer += 1
+  
+  -- Increase generation every 10 seconds
+  if generation_timer >= generation_interval then
+    if current_generation < max_generation then
+      current_generation += 1
+      generation_timer = 0
+      
+      -- Update all existing pixels to the new generation
+      for pixel in all(pixels) do
+        pixel.generation = current_generation
+      end
+      
+      -- Record significant event
+      significant_event_occurred = true
+      event_type = "generation_advance"
+      current_emotional_impact = 0.5
+      
+      -- Visual/audio feedback
+      sfx(3) -- Generation advance sound
+      
+      -- Boost all pixels' excitement for generation advance
+      for pixel in all(pixels) do
+        pixel.emotional_state.excitement = min(1, pixel.emotional_state.excitement + 0.4)
+      end
     end
   end
 end
@@ -1087,12 +1123,29 @@ function draw_ui()
   
   -- Population information
   print("population:"..#pixels, 4, 117, 7)
-  if #pixels > 1 then
-    local current_max_gen = 1
-    for pixel in all(pixels) do
-      current_max_gen = max(current_max_gen, pixel.generation)
+  print("generation:"..current_generation, 4, 123, 7)
+  
+  -- Show time until next generation
+  if current_generation < max_generation then
+    local time_left = flr((generation_interval - generation_timer) / 60)
+    print("next gen:"..time_left.."s", 4, 129, 11)
+  else
+    print("max gen reached", 4, 129, 14)
+  end
+  
+  -- Debug: Show division readiness for primary pixel
+  if primary_pixel then
+    local can_div = can_divide(primary_pixel)
+    local energy_ok = primary_pixel.energy >= division_energy_threshold
+    local timer_ok = primary_pixel.division_timer <= 0
+    local age_ok = primary_pixel.age > 120
+    
+    print("can div:"..tostr(can_div), 4, 135, energy_ok and 11 or 8)
+    print("e:"..primary_pixel.energy.."/"..division_energy_threshold, 4, 141, energy_ok and 11 or 8)
+    print("age:"..flr(primary_pixel.age/60).."s", 60, 141, age_ok and 11 or 8)
+    if primary_pixel.division_timer > 0 then
+      print("cd:"..flr(primary_pixel.division_timer/60).."s", 60, 135, 8)
     end
-    print("max gen:"..max_generation, 4, 123, 7) -- Show generation limit, not current max
   end
   
   -- Show emotional state (value only) - calculate average across all pixels
@@ -1580,6 +1633,9 @@ function _update()
     save_consciousness()
   end
   
+  -- Update generation timer
+  update_generation_system()
+  
   -- Update consciousness
   update_consciousness()
   
@@ -1720,4 +1776,3 @@ function clamp(value, min_val, max_val)
   -- More explicit clamping function
   return max(min_val, min(value, max_val))
 end
-
