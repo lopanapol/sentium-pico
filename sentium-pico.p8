@@ -850,16 +850,16 @@ function draw_ui()
   }
   print("conscious", 4, 4, 7)
   local phi_bar_width = min(30, flr(primary_pixel.consc_level * 30))
-  rectfill(4, 13, 4 + phi_bar_width, 15, 14)
+  rectfill(4, 13, 4 + phi_bar_width, 15, 2)
   rect(3, 12, 34, 16, 5)
   print("energy", 4, 21, 7)
   local energy_bar_width = min(10, primary_pixel.energy/10)
-  rectfill(4, 27, 4 + energy_bar_width, 29, 11)
-  rect(3, 26, 14, 30, 5)
+  rectfill(4, 30, 4 + energy_bar_width, 32, 2)
+  rect(3, 29, 14, 33, 5)
   print("curiosity:"..flr(primary_pixel.personality.curiosity*10), 4, 105, 7)
   print("timidity:"..flr(primary_pixel.personality.timidity*10), 4, 111, 7)
   print("population:"..#pixels, 4, 117, 7)
-  print("current gen:"..cur_gen, 4, 123, 7)
+  print("generation:"..cur_gen, 4, 123, 7)
   local gen_counts = {}
   for pixel in all(pixels) do
     gen_counts[pixel.generation] = (gen_counts[pixel.generation] or 0) + 1
