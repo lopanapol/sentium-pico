@@ -927,13 +927,13 @@ function draw_ui()
   local label_x = 128 - (#focus_label * 4)
   print(focus_label, label_x, focus_y, 7)
   if global_workspace.current_focus then
-    local focus_color = 12
+    local focus_color = 11
     if global_workspace.current_focus.type == "cursor_attention" then
       focus_color = 11
     elseif global_workspace.current_focus.type == "energy_seeking" then
-      focus_color = 14
+      focus_color = 11
     elseif global_workspace.current_focus.type == "emo_state" then
-      focus_color = 8
+      focus_color = 11
     end
     local status_text = global_workspace.current_focus.type
     local status_x = 128 - (#status_text * 4)
