@@ -840,7 +840,11 @@ function check_energy_sources(pixel)
   end
   
   -- Maintain nutrient environment
-  if #energy_cubes < 5 and rnd(1) < 0.02 then -- More nutrients for bacterial environment
+  if #energy_cubes == 1 then -- When only one energy cube remains, create 3 more
+    for i=1,3 do
+      add_energy_cube()
+    end
+  elseif #energy_cubes < 5 and rnd(1) < 0.02 then -- More nutrients for bacterial environment
     add_energy_cube()
   end
 end
