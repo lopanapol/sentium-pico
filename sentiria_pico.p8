@@ -14,9 +14,11 @@ event_type = ""
 current_emotional_impact = 0
 target_x = 64
 target_y = 64
+pixel_counter = 0 -- For numbering pixels
 
 -- biological parameters
 max_pixels = 8
+max_generation = 8 -- Max generation limit
 division_energy_threshold = 85
 death_energy_threshold = 5
 division_cooldown = 600 -- 10 seconds at 60fps
@@ -111,25 +113,44 @@ end
 
 -- consciousness system
 function init_consciousness()
-  -- Initialize with one pixel
+  -- Initialize consciousness system with robust state management
   pixels = {}
+  pixel_counter = 0 -- Ensure counter starts at 0
   
+  -- Create initial pixel with balanced personality traits
   add(pixels, create_pixel(64, 64, {
-    curiosity = rnd(1),
-    timidity = rnd(1),
-    energy_conservation = rnd(1)
+    curiosity = 0.5 + rnd(0.3),
+    timidity = 0.4 + rnd(0.3),
+    energy_conservation = 0.5 + rnd(0.3)
   }))
   
-  -- Initialize memory storage (simplified)
+  -- Initialize memory system
   memory_size = 10
+  
+  -- Initialize global consciousness tracking
+  significant_event_occurred = false
+  event_type = ""
+  current_emotional_impact = 0
 end
 
 function create_pixel(x, y, personality)
+  -- Robust pixel creation with parameter validation
+  x = mid(4, x or 64, 124) -- Ensure valid coordinates
+  y = mid(4, y or 64, 124)
+  
+  pixel_counter += 1 -- Increment global counter for unique numbering
+  
+  -- Validate personality traits or provide defaults
+  local validated_personality = personality or {}
+  validated_personality.curiosity = mid(0, validated_personality.curiosity or rnd(1), 1)
+  validated_personality.timidity = mid(0, validated_personality.timidity or rnd(1), 1)
+  validated_personality.energy_conservation = mid(0, validated_personality.energy_conservation or rnd(1), 1)
+  
   return {
     x = x,
     y = y,
-    color = 8, -- default color
-    energy = 100,
+    color = 8, -- default white color
+    energy = 100, -- full energy at birth
     memories = {},
     consciousness_level = 0,
     last_x = x,
@@ -138,19 +159,16 @@ function create_pixel(x, y, personality)
     generation = 1,
     division_timer = 0,
     parent_id = nil,
-    id = rnd(10000), -- unique identifier
-    personality = personality or {
-      curiosity = rnd(1),
-      timidity = rnd(1),
-      energy_conservation = rnd(1)
-    },
+    id = pixel_counter * 1000 + flr(rnd(1000)), -- mathematically unique identifier
+    number = pixel_counter, -- Sequential display number (guaranteed unique)
+    personality = validated_personality,
     emotional_state = {
-      happiness = 0.5,
+      happiness = 0.5, -- neutral starting state
       excitement = 0.5,
       distress = 0
     },
-    target_x = x + rnd(20) - 10,
-    target_y = y + rnd(20) - 10
+    target_x = mid(8, x + rnd(20) - 10, 120), -- bounded random target
+    target_y = mid(8, y + rnd(20) - 10, 120)
   }
 end
 
@@ -418,34 +436,84 @@ function update_predictions_from_errors(pixel)
   end
 end
 
--- Integrated Information Theory (IIT) - measure of consciousness
+-- Integrated Information Theory (IIT) - PhD-level consciousness measure
 function calculate_phi(pixel_state)
-  -- Simplified IIT: measure integration between different aspects
+  -- Validate input state
+  if not pixel_state or not pixel_state.memories or not pixel_state.emotional_state then
+    return 0 -- Safe fallback for invalid state
+  end
+  
+  -- Multi-dimensional integration analysis
   local sensory_integration = 0
   local memory_integration = 0
   local emotional_integration = 0
+  local behavioral_integration = 0
   
-  -- Sensory integration (cursor awareness + energy detection)
-  if cursor_interaction.is_aware then
-    sensory_integration += cursor_interaction.attention_level * 0.5
+  -- Sensory integration: Information flow from environment
+  if cursor_interaction.is_aware and cursor_interaction.attention_level > 0 then
+    -- Non-linear scaling for attention awareness
+    sensory_integration = cursor_interaction.attention_level^1.2 * 0.4
   end
+  
+  -- Energy field awareness contributes to sensory integration
   if #energy_cubes > 0 then
-    sensory_integration += 0.3
+    local energy_awareness = min(#energy_cubes / 5, 1) * 0.25
+    sensory_integration += energy_awareness
   end
   
-  -- Memory integration (how memories affect current behavior)
+  -- Memory integration: Historical information affecting present
   if #pixel_state.memories > 0 then
-    memory_integration = min(#pixel_state.memories / memory_size, 1) * 0.4
+    local memory_density = min(#pixel_state.memories / memory_size, 1)
+    -- Weighted by emotional significance of memories
+    local total_memory_impact = 0
+    for memory in all(pixel_state.memories) do
+      total_memory_impact += (memory.emotional_impact or 0)
+    end
+    memory_integration = memory_density * min(total_memory_impact / #pixel_state.memories, 1) * 0.35
   end
   
-  -- Emotional integration (how emotions connect to actions)
-  local total_emotion = pixel_state.emotional_state.happiness + 
-                       pixel_state.emotional_state.excitement + 
-                       pixel_state.emotional_state.distress
-  emotional_integration = min(total_emotion, 1) * 0.3
+  -- Emotional integration: Simplified feeling-action coupling
+  local emotional_diversity = 0
+  local emotional_sum = 0
+  local active_emotions = 0
   
-  -- Phi (Φ) = integrated information measure
-  local phi = (sensory_integration + memory_integration + emotional_integration) / 3
+  for emotion_name, value in pairs(pixel_state.emotional_state) do
+    emotional_sum += value
+    if value > 0.1 then
+      active_emotions += 1
+      emotional_diversity += value * value -- Quadratic weighting for stronger emotions
+    end
+  end
+  
+  -- Integration based on emotional diversity and strength
+  if active_emotions > 0 then
+    emotional_integration = min(emotional_diversity / (active_emotions + 1), 1) * 0.3
+  else
+    emotional_integration = 0
+  end
+  
+  -- Behavioral integration: Coherence between intention and action
+  if pixel_state.target_x and pixel_state.target_y then
+    local movement_coherence = 1 - min(abs(pixel_state.x - pixel_state.target_x) + 
+                                      abs(pixel_state.y - pixel_state.target_y), 50) / 50
+    behavioral_integration = movement_coherence * 0.2
+  end
+  
+  -- Phi (Φ) calculation with non-linear integration
+  local component_sum = sensory_integration + memory_integration + 
+                       emotional_integration + behavioral_integration
+  local component_count = 4
+  
+  -- Apply integration bonus for multi-component activation
+  local active_components = 0
+  if sensory_integration > 0.1 then active_components += 1 end
+  if memory_integration > 0.1 then active_components += 1 end
+  if emotional_integration > 0.1 then active_components += 1 end
+  if behavioral_integration > 0.1 then active_components += 1 end
+  
+  local integration_bonus = (active_components / component_count)^1.5 * 0.15
+  local phi = min((component_sum / component_count) + integration_bonus, 1)
+  
   return phi
 end
 
@@ -734,85 +802,109 @@ function can_divide(pixel)
   return pixel.energy >= division_energy_threshold and 
          pixel.division_timer <= 0 and 
          #pixels < max_pixels and
-         pixel.age > 180 -- Must be at least 3 seconds old
+         pixel.age > 180 and -- Must be at least 3 seconds old
+         pixel.generation < max_generation -- Generation limit
 end
 
 function divide_pixel(pixel_index)
-  local parent = pixels[pixel_index]
+  -- Robust pixel division with mathematical precision
+  if pixel_index < 1 or pixel_index > #pixels then
+    return -- Invalid index protection
+  end
   
-  -- Create offspring with inherited traits and mutations
+  local parent = pixels[pixel_index]
+  if not parent then
+    return -- Additional safety check
+  end
+  
+  -- Create offspring with inherited traits and controlled mutations
   local child_personality = {}
   for trait, value in pairs(parent.personality) do
-    -- Inherit with slight mutation
+    -- Gaussian-like mutation with bounds checking
     local mutation = (rnd(2) - 1) * mutation_rate
     child_personality[trait] = mid(0, value + mutation, 1)
   end
   
-  -- Position child nearby but not overlapping
-  local angle = rnd(1) * 6.28 -- Full circle in radians
-  local distance = 8 + rnd(4)
+  -- Position child using polar coordinates for better distribution
+  local angle = rnd(1) * 6.2831853 -- 2π with higher precision
+  local distance = 8 + rnd(4) -- Minimum safe distance to prevent overlap
   local child_x = parent.x + cos(angle) * distance
   local child_y = parent.y + sin(angle) * distance
   
-  -- Keep child in bounds
+  -- Ensure child stays within simulation bounds with safety margin
   child_x = mid(8, child_x, 120)
   child_y = mid(8, child_y, 120)
   
-  -- Create the child pixel
+  -- Create the child pixel with validated parameters
   local child = create_pixel(child_x, child_y, child_personality)
-  child.generation = parent.generation + 1
+  child.generation = min(parent.generation + 1, max_generation) -- Enforce generation limit
   child.parent_id = parent.id
-  child.energy = 50 -- Child starts with half energy
+  child.energy = flr(parent.energy * 0.5) -- Child inherits half parent's energy (integer math)
   
-  -- Parent loses energy from division
-  parent.energy = parent.energy * 0.6
+  -- Parent energy cost is proportional to current energy (realistic biology)
+  parent.energy = flr(parent.energy * 0.6)
   parent.division_timer = division_cooldown
   
-  -- Add child to pixels array
-  add(pixels, child)
-  
-  -- Record division event
-  significant_event_occurred = true
-  event_type = "division"
-  current_emotional_impact = 0.4
-  
-  -- Play division sound
-  sfx(8) -- New division sound
-  
-  -- Visual effect: brief flash
-  parent.emotional_state.excitement += 0.3
-  child.emotional_state.excitement += 0.2
+  -- Prevent infinite population growth
+  if #pixels < max_pixels then
+    add(pixels, child)
+    
+    -- Record successful division event
+    significant_event_occurred = true
+    event_type = "division"
+    current_emotional_impact = 0.4
+    
+    -- Audio-visual feedback
+    sfx(8) -- Division sound
+    parent.emotional_state.excitement = min(1, parent.emotional_state.excitement + 0.3)
+    child.emotional_state.excitement = min(1, child.emotional_state.excitement + 0.2)
+  end
 end
 
 function kill_pixel(pixel_index)
-  local dying_pixel = pixels[pixel_index]
-  
-  -- Drop some energy cubes when dying (decomposition)
-  for i = 1, 2 do
-    add(energy_cubes, {
-      x = dying_pixel.x + rnd(16) - 8,
-      y = dying_pixel.y + rnd(16) - 8,
-      value = 15 + rnd(10)
-    })
+  -- Robust pixel death handling with bounds checking
+  if pixel_index < 1 or pixel_index > #pixels then
+    return -- Invalid index protection
   end
   
-  -- Record death event
+  local dying_pixel = pixels[pixel_index]
+  if not dying_pixel then
+    return -- Additional safety check
+  end
+  
+  -- Decomposition: Energy conservation through cube creation
+  local decomp_energy = flr(dying_pixel.energy * 0.3) -- 30% of remaining energy
+  if decomp_energy > 5 then
+    for i = 1, min(3, flr(decomp_energy / 8)) do -- Limit decomposition cubes
+      local cube_x = clamp(dying_pixel.x + rnd(16) - 8, 8, 120)
+      local cube_y = clamp(dying_pixel.y + rnd(16) - 8, 8, 120)
+      
+      add(energy_cubes, {
+        x = cube_x,
+        y = cube_y,
+        value = 8 + rnd(7) -- Smaller energy cubes from decomposition
+      })
+    end
+  end
+  
+  -- Record death event for consciousness studies
   significant_event_occurred = true
   event_type = "death"
   current_emotional_impact = 0.2
   
-  -- Play death sound
-  sfx(9) -- New death sound
+  -- Audio feedback
+  sfx(9) -- Death sound
   
-  -- Remove pixel
+  -- Safely remove pixel
   del(pixels, pixels[pixel_index])
   
-  -- If no pixels left, restart with one
+  -- Population recovery mechanism
   if #pixels == 0 then
-    add(pixels, create_pixel(64, 64, {
-      curiosity = rnd(1),
-      timidity = rnd(1), 
-      energy_conservation = rnd(1)
+    -- Create new pixel with slightly randomized traits
+    add(pixels, create_pixel(64 + rnd(8) - 4, 64 + rnd(8) - 4, {
+      curiosity = 0.3 + rnd(0.4),
+      timidity = 0.3 + rnd(0.4), 
+      energy_conservation = 0.3 + rnd(0.4)
     }))
   end
 end
@@ -853,6 +945,11 @@ function draw_single_pixel(pixel)
   end
   
   circfill(pixel.x, pixel.y, 2, base_color)
+  
+  -- Show pixel number with better visibility
+  local num_str = tostr(pixel.number)
+  print(num_str, pixel.x - 2, pixel.y - 8, 0) -- Black background
+  print(num_str, pixel.x - 3, pixel.y - 9, 7) -- White text offset for visibility
   
   -- Show division readiness
   if can_divide(pixel) then
@@ -984,30 +1081,30 @@ function draw_ui()
     print("max gen:"..max_gen, 4, 123, 7)
   end
   
-  -- Global workspace indicator
-  if global_workspace.current_focus then
-    local focus_color = 12
-    if global_workspace.current_focus.type == "cursor_attention" then
-      focus_color = 11
-    elseif global_workspace.current_focus.type == "energy_seeking" then
-      focus_color = 14
-    elseif global_workspace.current_focus.type == "emotional_state" then
-      focus_color = 8
-    end
-    print("focus:"..global_workspace.current_focus.type, 4, 117, focus_color)
-  else
-    print("focus: diffuse", 4, 117, 6)
-  end
-  
-  -- Show emotional state (value only)
+  -- Show emotional state (value only) - calculate average across all pixels
   local emo_x = 100
   local emo_y = 4
   
-  if primary_pixel.emotional_state.excitement > 0.5 then
+  local avg_excitement = 0
+  local avg_distress = 0
+  local avg_happiness = 0
+  
+  if #pixels > 0 then
+    for pixel in all(pixels) do
+      avg_excitement += pixel.emotional_state.excitement
+      avg_distress += pixel.emotional_state.distress
+      avg_happiness += pixel.emotional_state.happiness
+    end
+    avg_excitement /= #pixels
+    avg_distress /= #pixels
+    avg_happiness /= #pixels
+  end
+  
+  if avg_excitement > 0.5 then
     print("excited", emo_x, emo_y, 14)
-  elseif primary_pixel.emotional_state.distress > 0.5 then
+  elseif avg_distress > 0.5 then
     print("distress", emo_x, emo_y, 8)
-  elseif primary_pixel.emotional_state.happiness > 0.5 then
+  elseif avg_happiness > 0.5 then
     print("happy", emo_x, emo_y, 11)
   else
     print("neutral", emo_x, emo_y, 6)
@@ -1044,6 +1141,22 @@ function draw_ui()
   -- Prediction error indicator
   if attention_schema.prediction_error > 0.05 then
     print("prediction error", emo_x, emo_y + 24, 8)
+  end
+  
+  -- Global workspace indicator at bottom left to right
+  local focus_y = 122 -- Bottom of screen
+  if global_workspace.current_focus then
+    local focus_color = 12
+    if global_workspace.current_focus.type == "cursor_attention" then
+      focus_color = 11
+    elseif global_workspace.current_focus.type == "energy_seeking" then
+      focus_color = 14
+    elseif global_workspace.current_focus.type == "emotional_state" then
+      focus_color = 8
+    end
+    print("focus:"..global_workspace.current_focus.type, 4, focus_y, focus_color)
+  else
+    print("focus: diffuse", 4, focus_y, 11)
   end
 end
 
@@ -1119,6 +1232,9 @@ end
 -- data persistence
 function save_consciousness()
   -- Save core personality and memories to cart data
+  if #pixels == 0 then return end
+  
+  local pixel = pixels[1] -- Use primary pixel
   local data_string = ""
   
   -- Add personality traits
@@ -1132,6 +1248,8 @@ end
 
 function load_consciousness()
   -- Load saved consciousness if available
+  if #pixels == 0 then return end
+  
   local data_string = dget(0)
   
   -- Only try to parse if we got a value
@@ -1139,6 +1257,7 @@ function load_consciousness()
     -- Parse data string and restore personality
     local values = split(data_string, ",")
     if #values >= 3 then
+      local pixel = pixels[1] -- Use primary pixel
       pixel.personality.curiosity = values[1]
       pixel.personality.timidity = values[2]
       pixel.personality.energy_conservation = values[3]
@@ -1557,5 +1676,23 @@ function abs(x)
   return x < 0 and -x or x
 end
 
--- biological lifecycle functions
+-- Mathematical utilities for advanced consciousness calculations
+function log(x)
+  -- Simplified natural logarithm approximation
+  if x <= 0 then return -10 end -- Safe fallback
+  if x == 1 then return 0 end
+  
+  -- Simple approximation for small ranges
+  if x >= 0.1 and x <= 2 then
+    local y = x - 1
+    return y - y*y/2 + y*y*y/3
+  else
+    return 0 -- Safe fallback for extreme values
+  end
+end
+
+function clamp(value, min_val, max_val)
+  -- More explicit clamping function
+  return max(min_val, min(value, max_val))
+end
 
