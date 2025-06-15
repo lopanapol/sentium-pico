@@ -1143,8 +1143,15 @@ function draw_ui()
     print("prediction error", emo_x, emo_y + 24, 8)
   end
   
-  -- Global workspace indicator at bottom left to right
-  local focus_y = 122 -- Bottom of screen
+  -- Global workspace indicator at bottom right (two lines)
+  local focus_y = 116 -- Bottom of screen, leaving room for two lines
+  
+  -- Always show "focus:" label
+  local focus_label = "focus:"
+  local label_x = 128 - (#focus_label * 4) -- Right-align
+  print(focus_label, label_x, focus_y, 7) -- White text for label
+  
+  -- Show status below the label
   if global_workspace.current_focus then
     local focus_color = 12
     if global_workspace.current_focus.type == "cursor_attention" then
@@ -1154,9 +1161,13 @@ function draw_ui()
     elseif global_workspace.current_focus.type == "emotional_state" then
       focus_color = 8
     end
-    print("focus:"..global_workspace.current_focus.type, 4, focus_y, focus_color)
+    local status_text = global_workspace.current_focus.type
+    local status_x = 128 - (#status_text * 4) -- Right-align
+    print(status_text, status_x, focus_y + 6, focus_color)
   else
-    print("focus: diffuse", 4, focus_y, 11)
+    local diffuse_text = "diffuse"
+    local diffuse_x = 128 - (#diffuse_text * 4) -- Right-align
+    print(diffuse_text, diffuse_x, focus_y + 6, 11)
   end
 end
 
