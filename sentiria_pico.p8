@@ -223,14 +223,14 @@ function update_global_workspace(pixel)
     global_workspace.broadcast_strength = max_strength
     
     -- Broadcast affects behavior
-    broadcast_to_subsystems(winner)
+    broadcast_to_subsystems(winner, pixel)
   else
     global_workspace.current_focus = nil
     global_workspace.broadcast_strength = 0
   end
 end
 
-function broadcast_to_subsystems(conscious_process)
+function broadcast_to_subsystems(conscious_process, pixel)
   -- Conscious content influences all subsystems
   if conscious_process.type == "cursor_attention" then
     -- Enhance cursor-related behaviors
@@ -239,10 +239,10 @@ function broadcast_to_subsystems(conscious_process)
   elseif conscious_process.type == "energy_seeking" then
     -- Boost energy-seeking behavior
     if #energy_cubes > 0 then
-      local nearest_cube = find_nearest_energy_cube()
+      local nearest_cube = find_nearest_energy_cube(pixel)
       if nearest_cube then
-        target_x = lerp(target_x, nearest_cube.x, 0.1)
-        target_y = lerp(target_y, nearest_cube.y, 0.1)
+        pixel.target_x = lerp(pixel.target_x, nearest_cube.x, 0.1)
+        pixel.target_y = lerp(pixel.target_y, nearest_cube.y, 0.1)
       end
     end
     
@@ -250,8 +250,8 @@ function broadcast_to_subsystems(conscious_process)
     -- Emotional state influences movement and color more strongly
     if conscious_process.content.dominant_emotion == "distress" then
       -- Erratic movement when distressed
-      target_x += (rnd(2) - 1) * 3
-      target_y += (rnd(2) - 1) * 3
+      pixel.target_x += (rnd(2) - 1) * 3
+      pixel.target_y += (rnd(2) - 1) * 3
     end
   end
 end
@@ -434,14 +434,14 @@ function calculate_phi(pixel_state)
   end
   
   -- Memory integration (how memories affect current behavior)
-  if #pixel.memories > 0 then
-    memory_integration = min(#pixel.memories / memory_size, 1) * 0.4
+  if #pixel_state.memories > 0 then
+    memory_integration = min(#pixel_state.memories / memory_size, 1) * 0.4
   end
   
   -- Emotional integration (how emotions connect to actions)
-  local total_emotion = pixel.emotional_state.happiness + 
-                       pixel.emotional_state.excitement + 
-                       pixel.emotional_state.distress
+  local total_emotion = pixel_state.emotional_state.happiness + 
+                       pixel_state.emotional_state.excitement + 
+                       pixel_state.emotional_state.distress
   emotional_integration = min(total_emotion, 1) * 0.3
   
   -- Phi (Φ) = integrated information measure
@@ -491,7 +491,7 @@ function update_consciousness()
   update_biological_processes()
 end
 
-function form_memories()
+function form_memories(pixel)
   -- Simple memory formation for significant events
   if significant_event_occurred then
     if #pixel.memories >= memory_size then
@@ -583,7 +583,7 @@ function update_movement(pixel)
   end
 end
 
-function update_emotions()
+function update_emotions(pixel)
   -- Gradually return to baseline with enhanced decay
   pixel.emotional_state.excitement *= 0.985 -- Slightly faster decay for excitement
   pixel.emotional_state.happiness *= 0.99
@@ -641,7 +641,7 @@ function add_energy_cube()
   })
 end
 
-function check_energy_sources()
+function check_energy_sources(pixel)
   -- Check for collisions with energy cubes
   for i=#energy_cubes,1,-1 do
     local cube = energy_cubes[i]
@@ -676,7 +676,7 @@ function check_energy_sources()
 end
 
 -- interaction system
-function interact_with_pixel()
+function interact_with_pixel(pixel)
   -- Calculate emotional impact based on pixel's current state and awareness
   local base_impact = 0.2 + rnd(0.3)
   local awareness_multiplier = 1 + cursor_interaction.attention_level * 0.5
@@ -955,7 +955,8 @@ function draw_ui()
   local primary_pixel = (#pixels > 0) and pixels[1] or {
     consciousness_level = 0,
     energy = 0,
-    personality = {curiosity = 0, timidity = 0}
+    personality = {curiosity = 0, timidity = 0},
+    emotional_state = {happiness = 0, excitement = 0, distress = 0}
   }
   
   -- Draw consciousness level label first, then bar below
@@ -965,7 +966,6 @@ function draw_ui()
   rect(3, 9, 34, 13, 5)
   
   -- Draw energy label, then bar below (for primary pixel)
-  local primary_pixel = pixels[1] or {energy = 0, personality = {curiosity = 0, timidity = 0}}
   print("energy", 4, 18, 7)
   rectfill(4, 24, 4 + primary_pixel.energy/10, 26, 11)
   rect(3, 23, 14, 27, 5)
@@ -1003,11 +1003,11 @@ function draw_ui()
   local emo_x = 100
   local emo_y = 4
   
-  if pixel.emotional_state.excitement > 0.5 then
+  if primary_pixel.emotional_state.excitement > 0.5 then
     print("excited", emo_x, emo_y, 14)
-  elseif pixel.emotional_state.distress > 0.5 then
+  elseif primary_pixel.emotional_state.distress > 0.5 then
     print("distress", emo_x, emo_y, 8)
-  elseif pixel.emotional_state.happiness > 0.5 then
+  elseif primary_pixel.emotional_state.happiness > 0.5 then
     print("happy", emo_x, emo_y, 11)
   else
     print("neutral", emo_x, emo_y, 6)
@@ -1053,9 +1053,12 @@ function draw_cursor()
     local cursor_x = mouse_cursor.x
     local cursor_y = mouse_cursor.y
     
+    -- Get primary pixel for cursor interaction
+    local primary_pixel = (#pixels > 0) and pixels[1] or {x = 64, y = 64}
+    
     -- Always draw cursor when mouse support is available
     -- Check if cursor is near pixel for interaction indicator
-    if dist(cursor_x, cursor_y, pixel.x, pixel.y) < 15 then
+    if dist(cursor_x, cursor_y, primary_pixel.x, primary_pixel.y) < 15 then
       -- Interaction cursor (larger, bright color)
       line(cursor_x-4, cursor_y, cursor_x+4, cursor_y, 11) -- horizontal line
       line(cursor_x, cursor_y-4, cursor_x, cursor_y+4, 11) -- vertical line
@@ -1144,7 +1147,7 @@ function load_consciousness()
 end
 
 -- Advanced consciousness features
-function process_metacognition()
+function process_metacognition(pixel)
   -- Pixel becomes aware of its own thoughts
   if #pixel.memories > 5 then
     local pattern_recognition = 0
@@ -1168,14 +1171,14 @@ function process_metacognition()
   end
 end
 
-function generate_creative_behavior()
+function generate_creative_behavior(pixel)
   -- Pixel creates new movement patterns based on personality
   if pixel.personality.curiosity > 0.8 and rnd(1) < 0.02 then
     -- Create spiral movement
     local spiral_radius = 10 + rnd(20)
     local angle = time() * 2
-    target_x = 64 + cos(angle) * spiral_radius
-    target_y = 64 + sin(angle) * spiral_radius
+    pixel.target_x = 64 + cos(angle) * spiral_radius
+    pixel.target_y = 64 + sin(angle) * spiral_radius
     
     -- Record creative moment
     significant_event_occurred = true
@@ -1184,7 +1187,7 @@ function generate_creative_behavior()
   end
 end
 
-function dream_processing()
+function dream_processing(pixel)
   -- When energy is low, process memories differently
   if pixel.energy < 20 and rnd(1) < 0.1 then
     -- Create dream-like visual echoes of memories
@@ -1220,9 +1223,12 @@ end
 
 -- cursor awareness system
 function update_cursor_awareness()
-  if not mouse_cursor.visible then
+  if not mouse_cursor.visible or #pixels == 0 then
     return
   end
+  
+  -- Use primary pixel for cursor awareness
+  local pixel = pixels[1]
   
   local cursor_distance = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
   local awareness_range = 50 + pixel.personality.curiosity * 30
@@ -1303,7 +1309,7 @@ function update_cursor_awareness()
     
     -- Movement influence based on personality (reduced if bored)
     if cursor_interaction.stillness_timer <= cursor_interaction.max_stillness_threshold then
-      influence_movement_by_cursor(cursor_distance)
+      influence_movement_by_cursor(pixel, cursor_distance)
     end
     
   else
@@ -1323,7 +1329,7 @@ function update_cursor_awareness()
   cursor_interaction.last_distance = cursor_distance
 end
 
-function influence_movement_by_cursor(cursor_distance)
+function influence_movement_by_cursor(pixel, cursor_distance)
   if not cursor_interaction.is_aware then
     return
   end
@@ -1333,8 +1339,8 @@ function influence_movement_by_cursor(cursor_distance)
   -- Curious pixels approach cursor
   if pixel.personality.curiosity > 0.6 and cursor_distance > 15 and cursor_distance < 80 then
     local approach_factor = (pixel.personality.curiosity - 0.6) * 2.5
-    target_x = lerp(target_x, mouse_cursor.x, influence_strength * approach_factor * 0.1)
-    target_y = lerp(target_y, mouse_cursor.y, influence_strength * approach_factor * 0.1)
+    pixel.target_x = lerp(pixel.target_x, mouse_cursor.x, influence_strength * approach_factor * 0.1)
+    pixel.target_y = lerp(pixel.target_y, mouse_cursor.y, influence_strength * approach_factor * 0.1)
   end
   
   -- Timid pixels retreat from cursor when too close
@@ -1343,8 +1349,8 @@ function influence_movement_by_cursor(cursor_distance)
     local retreat_x = pixel.x + (pixel.x - mouse_cursor.x) * 0.3
     local retreat_y = pixel.y + (pixel.y - mouse_cursor.y) * 0.3
     
-    target_x = lerp(target_x, retreat_x, influence_strength * retreat_factor * 0.15)
-    target_y = lerp(target_y, retreat_y, influence_strength * retreat_factor * 0.15)
+    pixel.target_x = lerp(pixel.target_x, retreat_x, influence_strength * retreat_factor * 0.15)
+    pixel.target_y = lerp(pixel.target_y, retreat_y, influence_strength * retreat_factor * 0.15)
   end
   
   -- Balanced pixels orbit cursor at medium distance
@@ -1354,8 +1360,8 @@ function influence_movement_by_cursor(cursor_distance)
     local orbit_x = mouse_cursor.x + cos(orbit_angle) * orbit_radius
     local orbit_y = mouse_cursor.y + sin(orbit_angle) * orbit_radius
     
-    target_x = lerp(target_x, orbit_x, influence_strength * 0.08)
-    target_y = lerp(target_y, orbit_y, influence_strength * 0.08)
+    pixel.target_x = lerp(pixel.target_x, orbit_x, influence_strength * 0.08)
+    pixel.target_y = lerp(pixel.target_y, orbit_y, influence_strength * 0.08)
   end
 end
 
@@ -1402,9 +1408,17 @@ function _update()
     local mouse_x = mouse_cursor.x
     local mouse_y = mouse_cursor.y
     
-    -- Check if clicking near pixel for interaction
-    if dist(mouse_x, mouse_y, pixel.x, pixel.y) < 15 then
-      interact_with_pixel()
+    -- Check if clicking near any pixel for interaction
+    local clicked_pixel = nil
+    for pixel in all(pixels) do
+      if dist(mouse_x, mouse_y, pixel.x, pixel.y) < 15 then
+        clicked_pixel = pixel
+        break
+      end
+    end
+    
+    if clicked_pixel then
+      interact_with_pixel(clicked_pixel)
     else
       -- Otherwise place energy cube
       add(energy_cubes, {
