@@ -23,12 +23,12 @@ save_notification_text = ""
 -- biological parameters (bacteria-like)
 max_pixels = 32 -- Allows exponential growth: 1->2->4->8->16->32
 max_generation = 20 -- Max generation limit increased to 20
-division_energy_threshold = 40 -- Lower threshold for faster bacterial division
+division_energy_threshold = 25 -- Much lower threshold for faster bacterial division
 death_energy_threshold = 0 -- Disabled death - bacteria persist across generations
-division_cooldown = 60 -- Very fast division cooldown (1 second) for rapid exponential growth
+division_cooldown = 30 -- Super fast division cooldown (0.5 seconds) for rapid exponential growth
 mutation_rate = 0.05 -- Lower mutation rate for more stable traits
-metabolic_rate = 0.3 -- Energy consumption rate per frame
-growth_rate = 0.8 -- Faster energy accumulation rate when near food
+metabolic_rate = 0.2 -- Reduced energy consumption rate per frame
+growth_rate = 1.2 -- Much faster energy accumulation rate when near food
 
 -- generation system
 current_generation = 1
@@ -190,7 +190,7 @@ function create_pixel(x, y, personality)
     x = x,
     y = y,
     color = 8, -- default white color
-    energy = 60 + rnd(40), -- Variable initial energy like bacteria
+    energy = 80 + rnd(20), -- Higher initial energy for faster start
     memories = {},
     consciousness_level = 0,
     last_x = x,
@@ -825,8 +825,8 @@ function check_energy_sources(pixel)
       pixel.emotional_state.excitement += 0.1
       
       -- Growth response to feeding
-      pixel.size = min(2.5, pixel.size + 0.05)
-      pixel.division_progress = min(100, pixel.division_progress + 5)
+      pixel.size = min(2.5, pixel.size + 0.08)
+      pixel.division_progress = min(100, pixel.division_progress + 10)
       
       -- Remove the cube
       del(energy_cubes, cube)
@@ -904,8 +904,8 @@ function can_divide(pixel)
   return pixel.energy >= division_energy_threshold and 
          pixel.division_timer <= 0 and 
          #pixels < max_pixels and
-         pixel.age > 30 and -- Bacteria can divide very quickly (0.5 seconds)
-         pixel.division_progress >= 80 and -- Lower progress requirement for faster division
+         pixel.age > 20 and -- Bacteria can divide very quickly (0.33 seconds)
+         pixel.division_progress >= 50 and -- Lower progress requirement for faster division
          current_generation < max_generation -- Check global generation limit
 end
 
@@ -1052,9 +1052,9 @@ function update_biological_processes()
     -- Growth phase: build up to division
     if pixel.energy > division_energy_threshold * 0.6 then
       -- Bacteria grows when it has sufficient energy
-      local growth_amount = pixel.reproduction_drive * 0.8
+      local growth_amount = pixel.reproduction_drive * 1.5
       pixel.division_progress = min(100, pixel.division_progress + growth_amount)
-      pixel.size = min(2.5, pixel.size + 0.01) -- Gradually increase size
+      pixel.size = min(2.5, pixel.size + 0.02) -- Gradually increase size faster
     else
       -- Slow degradation when energy is low
       pixel.division_progress = max(0, pixel.division_progress - 0.2)
@@ -1091,8 +1091,8 @@ function update_generation_system()
         pixel.emotional_state.excitement = min(1, pixel.emotional_state.excitement + 0.2)
         -- Increase division drive for exponential growth
         pixel.reproduction_drive = min(1, pixel.reproduction_drive + 0.2)
-        -- Boost division progress slightly
-        pixel.division_progress = min(100, pixel.division_progress + 10)
+        -- Boost division progress significantly
+        pixel.division_progress = min(100, pixel.division_progress + 20)
       end
       
       -- Save state after generation advance
