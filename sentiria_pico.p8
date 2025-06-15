@@ -16,13 +16,15 @@ target_x = 64
 target_y = 64
 pixel_counter = 0 -- For numbering pixels
 
--- biological parameters
-max_pixels = 8
+-- biological parameters (bacteria-like)
+max_pixels = 32 -- Increased to allow more bacterial growth
 max_generation = 20 -- Max generation limit increased to 20
-division_energy_threshold = 65 -- Lowered from 85 to make division more accessible
-death_energy_threshold = 5
-division_cooldown = 300 -- Reduced from 600 (5 seconds instead of 10)
-mutation_rate = 0.1
+division_energy_threshold = 50 -- Lower threshold for faster bacterial division
+death_energy_threshold = 0 -- Disabled death - bacteria persist across generations
+division_cooldown = 120 -- Faster division cooldown (2 seconds) like bacteria
+mutation_rate = 0.05 -- Lower mutation rate for more stable traits
+metabolic_rate = 0.3 -- Energy consumption rate per frame
+growth_rate = 0.5 -- Energy accumulation rate when near food
 
 -- generation system
 current_generation = 1
@@ -174,7 +176,7 @@ function create_pixel(x, y, personality)
     x = x,
     y = y,
     color = 8, -- default white color
-    energy = 100, -- full energy at birth
+    energy = 60 + rnd(40), -- Variable initial energy like bacteria
     memories = {},
     consciousness_level = 0,
     last_x = x,
@@ -192,7 +194,12 @@ function create_pixel(x, y, personality)
       distress = 0
     },
     target_x = mid(8, x + rnd(20) - 10, 120), -- bounded random target
-    target_y = mid(8, y + rnd(20) - 10, 120)
+    target_y = mid(8, y + rnd(20) - 10, 120),
+    -- Bacterial properties
+    size = 1 + rnd(0.5), -- Variable size
+    division_progress = 0, -- How close to division (0-100)
+    metabolism_efficiency = 0.8 + rnd(0.4), -- How efficiently it uses energy
+    reproduction_drive = 0.7 + rnd(0.3) -- How likely to attempt division
   }
 end
 
@@ -734,21 +741,26 @@ function add_energy_cube()
 end
 
 function check_energy_sources(pixel)
-  -- Check for collisions with energy cubes
+  -- Check for collisions with energy cubes (nutrients)
   for i=#energy_cubes,1,-1 do
     local cube = energy_cubes[i]
-    if dist(pixel.x, pixel.y, cube.x, cube.y) < 6 then
-      -- Consume the energy cube
-      pixel.energy = min(100, pixel.energy + cube.value)
+    if dist(pixel.x, pixel.y, cube.x, cube.y) < (4 + pixel.size) then
+      -- Bacterial consumption: efficiency varies by bacterium
+      local absorbed_energy = cube.value * pixel.metabolism_efficiency
+      pixel.energy = min(100, pixel.energy + absorbed_energy)
       
       -- Record memory of energy consumption
       significant_event_occurred = true
-      event_type = "energy_consumed"
+      event_type = "nutrient_consumed"
       current_emotional_impact = 0.3 + rnd(0.2)
       
-      -- Update emotional state
+      -- Update emotional state (bacteria getting excited about food!)
       pixel.emotional_state.happiness += 0.2
       pixel.emotional_state.excitement += 0.1
+      
+      -- Growth response to feeding
+      pixel.size = min(2.5, pixel.size + 0.05)
+      pixel.division_progress = min(100, pixel.division_progress + 5)
       
       -- Remove the cube
       del(energy_cubes, cube)
@@ -756,13 +768,13 @@ function check_energy_sources(pixel)
       -- Play sound
       sfx(1)
       
-      -- Add a new cube elsewhere
+      -- Add a new cube elsewhere (nutrient regeneration)
       add_energy_cube()
     end
   end
   
-  -- Periodically add new cubes if few exist
-  if #energy_cubes < 3 and rnd(1) < 0.01 then
+  -- Maintain nutrient environment
+  if #energy_cubes < 5 and rnd(1) < 0.02 then -- More nutrients for bacterial environment
     add_energy_cube()
   end
 end
@@ -826,7 +838,8 @@ function can_divide(pixel)
   return pixel.energy >= division_energy_threshold and 
          pixel.division_timer <= 0 and 
          #pixels < max_pixels and
-         pixel.age > 120 and -- Reduced from 180 to 120 (2 seconds instead of 3)
+         pixel.age > 60 and -- Bacteria can divide quickly (1 second)
+         pixel.division_progress >= 100 and -- Must complete cell growth cycle
          current_generation < max_generation -- Check global generation limit
 end
 
@@ -841,33 +854,53 @@ function divide_pixel(pixel_index)
     return -- Additional safety check
   end
   
-  -- Create offspring with inherited traits and controlled mutations
+  -- Create offspring with inherited traits and controlled mutations (bacterial style)
   local child_personality = {}
   for trait, value in pairs(parent.personality) do
-    -- Gaussian-like mutation with bounds checking
+    -- Bacterial mutation with small random changes
     local mutation = (rnd(2) - 1) * mutation_rate
     child_personality[trait] = mid(0, value + mutation, 1)
   end
   
-  -- Position child using polar coordinates for better distribution
-  local angle = rnd(1) * 6.2831853 -- 2π with higher precision
-  local distance = 8 + rnd(4) -- Minimum safe distance to prevent overlap
-  local child_x = parent.x + cos(angle) * distance
-  local child_y = parent.y + sin(angle) * distance
+  -- Binary fission: divide along a random axis
+  local division_angle = rnd(1) * 6.2831853 -- Random division angle
+  local separation_distance = parent.size * 2 + 1 -- Separate based on size
   
-  -- Ensure child stays within simulation bounds with safety margin
+  -- Calculate positions for both cells (parent moves too)
+  local offset_x = cos(division_angle) * separation_distance
+  local offset_y = sin(division_angle) * separation_distance
+  
+  local child_x = parent.x + offset_x
+  local child_y = parent.y + offset_y
+  parent.x = parent.x - offset_x * 0.5 -- Parent moves slightly back
+  parent.y = parent.y - offset_y * 0.5
+  
+  -- Keep both within bounds
   child_x = mid(8, child_x, 120)
   child_y = mid(8, child_y, 120)
+  parent.x = mid(8, parent.x, 120)
+  parent.y = mid(8, parent.y, 120)
   
-  -- Create the child pixel with validated parameters
+  -- Create the child bacterium
   local child = create_pixel(child_x, child_y, child_personality)
-  child.generation = current_generation -- Use current global generation
+  child.generation = current_generation
   child.parent_id = parent.id
-  child.energy = flr(parent.energy * 0.55) -- Child inherits slightly more energy (55% instead of 50%)
   
-  -- Parent energy cost is less severe to encourage more divisions
-  parent.energy = flr(parent.energy * 0.65) -- Parent keeps 65% instead of 60%
+  -- Binary fission: roughly equal energy split
+  local total_energy = parent.energy
+  child.energy = flr(total_energy * 0.5)
+  parent.energy = flr(total_energy * 0.5)
+  
+  -- Inherit some bacterial properties with slight variations
+  child.size = parent.size * (0.9 + rnd(0.2))
+  child.metabolism_efficiency = parent.metabolism_efficiency * (0.95 + rnd(0.1))
+  child.reproduction_drive = parent.reproduction_drive * (0.95 + rnd(0.1))
+  
+  -- Reset division-related properties
   parent.division_timer = division_cooldown
+  parent.division_progress = 0
+  child.division_progress = 0
+  parent.size = parent.size * 0.9 -- Parent shrinks slightly after division
   
   -- Prevent infinite population growth
   if #pixels < max_pixels then
@@ -935,19 +968,32 @@ function kill_pixel(pixel_index)
 end
 
 function update_biological_processes()
-  -- Process each pixel for division and death
+  -- Process each bacterium for metabolism, growth, division and death
   for i = #pixels, 1, -1 do
     local pixel = pixels[i]
     
-    -- Age the pixel
+    -- Age the bacterium
     pixel.age += 1
     pixel.division_timer = max(0, pixel.division_timer - 1)
     
-    -- Check for death
-    if pixel.energy <= death_energy_threshold then
-      kill_pixel(i)
-    -- Check for division
-    elseif can_divide(pixel) then
+    -- Bacterial metabolism: consume energy over time
+    local energy_cost = metabolic_rate * pixel.metabolism_efficiency
+    pixel.energy = max(0, pixel.energy - energy_cost)
+    
+    -- Growth phase: build up to division
+    if pixel.energy > division_energy_threshold * 0.6 then
+      -- Bacteria grows when it has sufficient energy
+      local growth_amount = pixel.reproduction_drive * 0.8
+      pixel.division_progress = min(100, pixel.division_progress + growth_amount)
+      pixel.size = min(2.5, pixel.size + 0.01) -- Gradually increase size
+    else
+      -- Slow degradation when energy is low
+      pixel.division_progress = max(0, pixel.division_progress - 0.2)
+      pixel.size = max(0.5, pixel.size - 0.005)
+    end
+    
+    -- Check for division (binary fission) - no death checks, bacteria persist
+    if can_divide(pixel) then
       divide_pixel(i)
     end
   end
@@ -958,13 +1004,35 @@ function update_generation_system()
   
   -- Increase generation every 10 seconds
   if generation_timer >= generation_interval then
-    if current_generation < max_generation then
+    if current_generation < max_generation and #pixels < max_pixels then
       current_generation += 1
       generation_timer = 0
       
-      -- Update all existing pixels to the new generation
-      for pixel in all(pixels) do
-        pixel.generation = current_generation
+      -- Create new bacteria for the new generation instead of updating existing ones
+      -- This way all generations stay on screen
+      local new_bacteria_count = min(2, max_pixels - #pixels) -- Add 1-2 new bacteria per generation
+      
+      for i = 1, new_bacteria_count do
+        -- Create new bacteria at random positions
+        local x = 20 + rnd(88)
+        local y = 20 + rnd(88)
+        
+        -- Make sure it's not too close to existing bacteria
+        local too_close = false
+        for existing_pixel in all(pixels) do
+          if dist(x, y, existing_pixel.x, existing_pixel.y) < 15 then
+            too_close = true
+            break
+          end
+        end
+        
+        if not too_close then
+          add(pixels, create_pixel(x, y, {
+            curiosity = 0.4 + rnd(0.4),
+            timidity = 0.3 + rnd(0.4),
+            energy_conservation = 0.4 + rnd(0.4)
+          }))
+        end
       end
       
       -- Record significant event
@@ -992,29 +1060,48 @@ function draw_pixel()
 end
 
 function draw_single_pixel(pixel)
-  -- Base pixel with generation indicator
-  local base_color = pixel.color
-  if pixel.generation > 1 then
-    -- Slightly different color for offspring
-    base_color = 7 + (pixel.generation % 8)
+  -- Different colors for different generations so all stay visible
+  local generation_colors = {7, 12, 11, 3, 9, 10, 4, 2, 8, 14, 13, 1, 5, 6, 15}
+  local base_color = generation_colors[pixel.generation] or 7
+  
+  -- Draw bacterium with variable size
+  local radius = flr(pixel.size)
+  circfill(pixel.x, pixel.y, radius, base_color)
+  
+  -- Show generation number
+  local gen_str = tostr(pixel.generation)
+  print(gen_str, pixel.x - 2, pixel.y - 8, 0) -- Black background
+  print(gen_str, pixel.x - 3, pixel.y - 9, 7) -- White text
+  
+  -- Show division progress as growing size
+  if pixel.division_progress > 50 then
+    -- Bacterium preparing to divide - show elongation
+    local elongation = (pixel.division_progress - 50) / 50
+    oval(pixel.x - radius - elongation, pixel.y - radius, 
+         pixel.x + radius + elongation, pixel.y + radius, base_color)
   end
   
-  circfill(pixel.x, pixel.y, 2, base_color)
-  
-  -- Show pixel number with better visibility
-  local num_str = tostr(pixel.number)
-  print(num_str, pixel.x - 2, pixel.y - 8, 0) -- Black background
-  print(num_str, pixel.x - 3, pixel.y - 9, 7) -- White text offset for visibility
-  
-  -- Show division readiness
+  -- Show division readiness with pulsing effect
   if can_divide(pixel) then
-    circ(pixel.x, pixel.y, 4, 11) -- Green circle when ready to divide
+    local pulse = sin(pixel.age * 0.2) * 0.5 + 0.5
+    circ(pixel.x, pixel.y, radius + 2 + pulse, 11) -- Green pulsing circle
   end
   
-  -- Show low energy warning
-  if pixel.energy < death_energy_threshold + 5 then
-    circ(pixel.x, pixel.y, 3, 8) -- Red circle when near death
+  -- Show metabolic activity
+  if pixel.energy > division_energy_threshold * 0.8 then
+    -- High activity - bright aura
+    for i=1,3 do
+      circ(pixel.x, pixel.y, radius + i, 7)
+    end
+  elseif pixel.energy < death_energy_threshold + 10 then
+    -- Low energy - warning color
+    circ(pixel.x, pixel.y, radius + 1, 8) -- Red warning
   end
+  
+  -- Show bacterium number
+  local num_str = tostr(pixel.number)
+  print(num_str, pixel.x - 2, pixel.y - 8, 0) -- Black shadow
+  print(num_str, pixel.x - 3, pixel.y - 9, 7) -- White text
   
   -- Draw "eye" or gaze direction when aware of cursor (only for closest pixel)
   local closest_pixel = find_closest_pixel_to_cursor()
@@ -1123,28 +1210,46 @@ function draw_ui()
   
   -- Population information
   print("population:"..#pixels, 4, 117, 7)
-  print("generation:"..current_generation, 4, 123, 7)
+  print("current gen:"..current_generation, 4, 123, 7)
   
-  -- Show time until next generation
-  if current_generation < max_generation then
-    local time_left = flr((generation_interval - generation_timer) / 60)
-    print("next gen:"..time_left.."s", 4, 129, 11)
-  else
-    print("max gen reached", 4, 129, 14)
+  -- Show count per generation
+  local gen_counts = {}
+  for pixel in all(pixels) do
+    gen_counts[pixel.generation] = (gen_counts[pixel.generation] or 0) + 1
   end
   
-  -- Debug: Show division readiness for primary pixel
-  if primary_pixel then
+  local y_offset = 129
+  for gen = 1, current_generation do
+    if gen_counts[gen] then
+      local generation_colors = {7, 12, 11, 3, 9, 10, 4, 2, 8, 14, 13, 1, 5, 6, 15}
+      local color = generation_colors[gen] or 7
+      print("g"..gen..":"..gen_counts[gen], 4, y_offset, color)
+      y_offset += 6
+    end
+  end
+  
+  -- Show time until next generation
+  if current_generation < max_generation and #pixels < max_pixels then
+    local time_left = flr((generation_interval - generation_timer) / 60)
+    print("next:"..time_left.."s", 60, 117, 11)
+  elseif #pixels >= max_pixels then
+    print("max pop!", 60, 117, 14)
+  else
+    print("max gen!", 60, 117, 14)
+  end
+  
+  -- Debug: Show bacterial properties for primary pixel
+  if primary_pixel and #pixels > 0 then
     local can_div = can_divide(primary_pixel)
     local energy_ok = primary_pixel.energy >= division_energy_threshold
-    local timer_ok = primary_pixel.division_timer <= 0
-    local age_ok = primary_pixel.age > 120
+    local progress_ok = primary_pixel.division_progress >= 100
     
-    print("can div:"..tostr(can_div), 4, 135, energy_ok and 11 or 8)
-    print("e:"..primary_pixel.energy.."/"..division_energy_threshold, 4, 141, energy_ok and 11 or 8)
-    print("age:"..flr(primary_pixel.age/60).."s", 60, 141, age_ok and 11 or 8)
+    print("can div:"..tostr(can_div), 60, 123, can_div and 11 or 8)
+    print("e:"..primary_pixel.energy.."/"..division_energy_threshold, 60, 129, energy_ok and 11 or 8)
+    print("growth:"..flr(primary_pixel.division_progress).."%", 60, 135, progress_ok and 11 or 8)
+    print("size:"..flr(primary_pixel.size*10)/10, 60, 141, 7)
     if primary_pixel.division_timer > 0 then
-      print("cd:"..flr(primary_pixel.division_timer/60).."s", 60, 135, 8)
+      print("cd:"..flr(primary_pixel.division_timer/60).."s", 60, 147, 8)
     end
   end
   
@@ -1775,4 +1880,27 @@ end
 function clamp(value, min_val, max_val)
   -- More explicit clamping function
   return max(min_val, min(value, max_val))
+end
+
+-- helper function for oval drawing (elongated bacterium)
+function oval(x1, y1, x2, y2, col)
+  -- Simple oval approximation using filled circles
+  local cx = (x1 + x2) / 2
+  local cy = (y1 + y2) / 2
+  local rx = abs(x2 - x1) / 2
+  local ry = abs(y2 - y1) / 2
+  
+  if rx > ry then
+    -- Horizontal oval
+    for i = -rx, rx, 0.5 do
+      local h = sqrt(max(0, ry*ry * (1 - (i*i)/(rx*rx))))
+      line(cx + i, cy - h, cx + i, cy + h, col)
+    end
+  else
+    -- Vertical oval or circle
+    for i = -ry, ry, 0.5 do
+      local w = sqrt(max(0, rx*rx * (1 - (i*i)/(ry*ry))))
+      line(cx - w, cy + i, cx + w, cy + i, col)
+    end
+  end
 end
