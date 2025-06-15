@@ -17,14 +17,14 @@ target_y = 64
 pixel_counter = 0 -- For numbering pixels
 
 -- biological parameters (bacteria-like)
-max_pixels = 32 -- Increased to allow more bacterial growth
+max_pixels = 32 -- Allows exponential growth: 1->2->4->8->16->32
 max_generation = 20 -- Max generation limit increased to 20
-division_energy_threshold = 50 -- Lower threshold for faster bacterial division
+division_energy_threshold = 40 -- Lower threshold for faster bacterial division
 death_energy_threshold = 0 -- Disabled death - bacteria persist across generations
-division_cooldown = 120 -- Faster division cooldown (2 seconds) like bacteria
+division_cooldown = 60 -- Very fast division cooldown (1 second) for rapid exponential growth
 mutation_rate = 0.05 -- Lower mutation rate for more stable traits
 metabolic_rate = 0.3 -- Energy consumption rate per frame
-growth_rate = 0.5 -- Energy accumulation rate when near food
+growth_rate = 0.8 -- Faster energy accumulation rate when near food
 
 -- generation system
 current_generation = 1
@@ -838,8 +838,8 @@ function can_divide(pixel)
   return pixel.energy >= division_energy_threshold and 
          pixel.division_timer <= 0 and 
          #pixels < max_pixels and
-         pixel.age > 60 and -- Bacteria can divide quickly (1 second)
-         pixel.division_progress >= 100 and -- Must complete cell growth cycle
+         pixel.age > 30 and -- Bacteria can divide very quickly (0.5 seconds)
+         pixel.division_progress >= 80 and -- Lower progress requirement for faster division
          current_generation < max_generation -- Check global generation limit
 end
 
@@ -883,7 +883,7 @@ function divide_pixel(pixel_index)
   
   -- Create the child bacterium
   local child = create_pixel(child_x, child_y, child_personality)
-  child.generation = current_generation
+  child.generation = parent.generation -- Inherit parent's generation, not current global
   child.parent_id = parent.id
   
   -- Binary fission: roughly equal energy split
@@ -1004,37 +1004,11 @@ function update_generation_system()
   
   -- Increase generation every 10 seconds
   if generation_timer >= generation_interval then
-    if current_generation < max_generation and #pixels < max_pixels then
+    if current_generation < max_generation then
       current_generation += 1
       generation_timer = 0
       
-      -- Create new bacteria for the new generation instead of updating existing ones
-      -- This way all generations stay on screen
-      local new_bacteria_count = min(2, max_pixels - #pixels) -- Add 1-2 new bacteria per generation
-      
-      for i = 1, new_bacteria_count do
-        -- Create new bacteria at random positions
-        local x = 20 + rnd(88)
-        local y = 20 + rnd(88)
-        
-        -- Make sure it's not too close to existing bacteria
-        local too_close = false
-        for existing_pixel in all(pixels) do
-          if dist(x, y, existing_pixel.x, existing_pixel.y) < 15 then
-            too_close = true
-            break
-          end
-        end
-        
-        if not too_close then
-          add(pixels, create_pixel(x, y, {
-            curiosity = 0.4 + rnd(0.4),
-            timidity = 0.3 + rnd(0.4),
-            energy_conservation = 0.4 + rnd(0.4)
-          }))
-        end
-      end
-      
+      -- Don't create new bacteria automatically - rely on cell division
       -- Record significant event
       significant_event_occurred = true
       event_type = "generation_advance"
@@ -1043,9 +1017,13 @@ function update_generation_system()
       -- Visual/audio feedback
       sfx(3) -- Generation advance sound
       
-      -- Boost all pixels' excitement for generation advance
+      -- Boost all pixels' reproduction drive and excitement for faster division
       for pixel in all(pixels) do
-        pixel.emotional_state.excitement = min(1, pixel.emotional_state.excitement + 0.4)
+        pixel.emotional_state.excitement = min(1, pixel.emotional_state.excitement + 0.2)
+        -- Increase division drive for exponential growth
+        pixel.reproduction_drive = min(1, pixel.reproduction_drive + 0.2)
+        -- Boost division progress slightly
+        pixel.division_progress = min(100, pixel.division_progress + 10)
       end
     end
   end
