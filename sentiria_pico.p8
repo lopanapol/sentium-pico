@@ -1244,13 +1244,14 @@ function draw_ui()
   
   -- Draw consciousness level label first, then bar below
   print("conscious level", 4, 4, 7)
-  local phi_bar_width = flr(primary_pixel.consciousness_level * 30)
+  local phi_bar_width = min(30, flr(primary_pixel.consciousness_level * 30))
   rectfill(4, 10, 4 + phi_bar_width, 12, 14)
   rect(3, 9, 34, 13, 5)
   
   -- Draw energy label, then bar below (for primary pixel)
   print("energy", 4, 18, 7)
-  rectfill(4, 24, 4 + primary_pixel.energy/10, 26, 11)
+  local energy_bar_width = min(10, primary_pixel.energy/10)
+  rectfill(4, 24, 4 + energy_bar_width, 26, 11)
   rect(3, 23, 14, 27, 5)
   
   -- Draw personality indicators for primary pixel
