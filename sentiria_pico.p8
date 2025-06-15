@@ -213,7 +213,8 @@ function create_pixel(x, y, personality)
     size = 1 + rnd(0.5), -- Variable size
     division_progress = 0, -- How close to division (0-100)
     metabolism_efficiency = 0.8 + rnd(0.4), -- How efficiently it uses energy
-    reproduction_drive = 0.7 + rnd(0.3) -- How likely to attempt division
+    reproduction_drive = 0.7 + rnd(0.3), -- How likely to attempt division
+    stuck_timer = 0 -- Track how long pixel has been motionless
   }
 end
 
@@ -646,7 +647,13 @@ function update_movement(pixel)
   end
   
   -- Decide movement target
-  if nearest_cube and pixel.energy < 30 then
+  if pixel.stuck_timer and pixel.stuck_timer > 60 then
+    -- Priority: Follow cursor when stuck
+    pixel.target_x = mouse_cursor.x
+    pixel.target_y = mouse_cursor.y
+    move_speed = 0.7 -- Slightly faster when following cursor
+    
+  elseif nearest_cube and pixel.energy < 30 then
     -- Move toward nearest cube if energy is low
     pixel.target_x = nearest_cube.x
     pixel.target_y = nearest_cube.y
@@ -658,9 +665,22 @@ function update_movement(pixel)
   else
     -- Random movement with some persistence
     if rnd(1) < 0.02 then
-      -- Choose new random target
-      pixel.target_x = 16 + rnd(96)
-      pixel.target_y = 16 + rnd(96)
+      -- Choose new random target with better distribution
+      pixel.target_x = 20 + rnd(88) -- Range 20-108 for better centering
+      pixel.target_y = 20 + rnd(88) -- Range 20-108 for better centering
+    end
+    
+    -- Add gentle drift toward center if stuck at edges
+    if pixel.x < 20 then
+      pixel.target_x = max(pixel.target_x, 40 + rnd(40))
+    elseif pixel.x > 108 then
+      pixel.target_x = min(pixel.target_x, 48 + rnd(40))
+    end
+    
+    if pixel.y < 20 then
+      pixel.target_y = max(pixel.target_y, 40 + rnd(40))
+    elseif pixel.y > 108 then
+      pixel.target_y = min(pixel.target_y, 48 + rnd(40))
     end
   end
   
@@ -693,6 +713,38 @@ function update_movement(pixel)
     -- Keep in bounds
     pixel.x = mid(4, pixel.x, 124)
     pixel.y = mid(4, pixel.y, 124)
+    
+    -- Anti-stuck mechanism: if pixel hasn't moved much, make it follow cursor
+    if pixel.last_x and pixel.last_y then
+      local movement = abs(pixel.x - pixel.last_x) + abs(pixel.y - pixel.last_y)
+      if movement < 0.1 then -- If nearly motionless
+        pixel.stuck_timer = (pixel.stuck_timer or 0) + 1
+        
+        -- After being stuck for a while, start following cursor
+        if pixel.stuck_timer > 60 then -- 1 second of being stuck
+          -- Follow cursor to get unstuck
+          pixel.target_x = mouse_cursor.x
+          pixel.target_y = mouse_cursor.y
+          
+          -- Add some curiosity boost when following cursor
+          pixel.personality.curiosity = min(1, pixel.personality.curiosity + 0.01)
+          
+          -- Reset stuck timer occasionally to allow normal behavior
+          if pixel.stuck_timer > 180 then -- After 3 seconds of following
+            pixel.stuck_timer = 0
+            pixel.target_x = 32 + rnd(64) -- Give it a new random target
+            pixel.target_y = 32 + rnd(64)
+          end
+        end
+      else
+        -- Reset stuck timer if moving normally
+        pixel.stuck_timer = 0
+      end
+    end
+    
+    -- Update last position for stuck detection
+    pixel.last_x = pixel.x
+    pixel.last_y = pixel.y
   end
 end
 
@@ -1078,6 +1130,15 @@ function draw_single_pixel(pixel)
   if can_divide(pixel) then
     local pulse = sin(pixel.age * 0.2) * 0.5 + 0.5
     circ(pixel.x, pixel.y, radius + 2 + pulse, 11) -- Green pulsing circle
+  end
+  
+  -- Show cursor-following state with special indicator
+  if pixel.stuck_timer and pixel.stuck_timer > 60 then
+    -- Draw connection line to cursor when following
+    line(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y, 12)
+    -- Add pulsing ring to show following state
+    local pulse = sin(pixel.age * 0.3) * 1 + 1
+    circ(pixel.x, pixel.y, radius + 3 + pulse, 12) -- Light blue pulsing
   end
   
   -- Show metabolic activity
