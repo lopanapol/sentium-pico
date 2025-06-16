@@ -1,10 +1,8 @@
-# Se[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](VERSION)tium Pico - Synthetic Life Simulation
+# Sentium Pico - Synthetic Life Simulation
 
 *A fascinating exploration of artificial consciousness in the constraints of PICO-8*
 
-[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](VERSION)
-
-[![License](https://img.shields.io/badge/license-Sentium-red.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Sentium-red.svg)](https://sentium.dev/license.txt)
 
 ## About
 
@@ -172,18 +170,14 @@ This project is licensed under the **Sentium License** - a custom license that p
 - **Profit-sharing requirement** - 10% donation to charity for commercial use generating significant profit
 - **Open modification** - changes must be documented and shared under compatible license
 
-See the [LICENSE](LICENSE) file for complete terms and conditions.
+See the [LICENSE](https://sentium.dev/license.txt) file for complete terms and conditions.
 
 **Copyright (c) 2025 Napol Thanarangkaun (lopanapol@gmail.com)**
 
 ---
 
-<div align="center">
-
 **Artificial Life • PICO-8 • Consciousness Simulation**
 
 *Created with love for the digital life research community*
 
-**[Website](https://sentium.dev)** • **[Documentation](PUBLISHING_GUIDE.md)** • **[Version](VERSION)**
-
-</div>
+**[Website](https://sentium.dev)**
