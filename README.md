@@ -44,15 +44,6 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 
 ## How to Experience Digital Life
 
-### Controls
-
-| Input              | Action                | Description                                                  |
-| ------------------ | --------------------- | ------------------------------------------------------------ |
-| **X Button** | Place Energy Cube     | Provide sustenance for your digital organisms                |
-| **O Button** | Conscious Interaction | Directly influence pixel consciousness and personality       |
-| **Mouse**    | Precision Control     | Click to place energy cubes or interact with specific pixels |
-| **Observe**  | Passive Watching      | The most rewarding experience - simply watch life unfold     |
-
 ### Gameplay Experience
 
 1. **Genesis**: Start with a single conscious pixel in an empty digital world
