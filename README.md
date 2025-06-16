@@ -2,6 +2,8 @@
 
 *A fascinating exploration of artificial consciousness in the constraints of PICO-8*
 
+[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://file+.vscode-resource.vscode-cdn.net/Users/lopanapol/Sentium/sentium-pico-8/VERSION)
+
 [![License](https://img.shields.io/badge/license-Sentium-red.svg)](https://sentium.dev/license.txt)
 
 ## About
