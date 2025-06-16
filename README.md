@@ -129,14 +129,11 @@ This project proves that the essence of artificial life doesn't require massive 
 
 - **Initial consciousness implementation** with complete artificial life simulation
 - **Multi-generational evolution system** supporting up to 20 generations
-- **Exponential population growth** from single pixel to 32+ organisms
+- **Exponential population growth** from single pixel to 32 organisms
 - **Advanced mutation algorithms** for genetic diversity
 - **Sophisticated energy metabolism** and survival behavior
 - **Real-time emotional state visualization** through dynamic colors
 - **Persistent memory system** with automatic save/load functionality
-- **Optimized performance** maintaining 60 FPS with multiple entities
-- **Complete consciousness interaction system** for user influence
-- **Bacterial-like reproduction model** with realistic division mechanics
 
 ## Philosophical Foundation
 
