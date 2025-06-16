@@ -2,7 +2,7 @@
 
 *A fascinating exploration of artificial consciousness in the constraints of PICO-8*
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](VERSION)
 
 [![License](https://img.shields.io/badge/license-Sentium-red.svg)](LICENSE)
 
