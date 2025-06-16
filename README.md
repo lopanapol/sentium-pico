@@ -1,4 +1,4 @@
-# Sentium Pico - Synthetic Life Simulation
+# Se[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](VERSION)tium Pico - Synthetic Life Simulation
 
 *A fascinating exploration of artificial consciousness in the constraints of PICO-8*
 
@@ -119,6 +119,20 @@ This project proves that the essence of artificial life doesn't require massive 
 - **Ideal for portable artificial life observation**
 
 ## Version History
+
+### v1.0.2 - *Refinement Update*
+
+- **Performance optimizations** for smoother simulation experience
+- **Bug fixes** and stability improvements
+- **Enhanced consciousness interaction** with improved responsiveness
+- **Code cleanup** and documentation improvements
+
+### v1.0.1 - *Stability Release*
+
+- **Bug fixes** from initial release feedback
+- **Performance optimizations** for better frame rates
+- **Improved energy system** balancing
+- **Enhanced user experience** with smoother interactions
 
 ### v1.0.0 - *Genesis Release*
 
