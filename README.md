@@ -1,158 +1,128 @@
 # Sentium Pico - Synthetic Life Simulation
 
-*A fascinating exploration of artificial consciousness in the constraints of PICO-8*
+*An experiment in artificial consciousness within PICO-8's constraints*
 
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](#)
-
 [![License](https://img.shields.io/badge/license-Sentium-red.svg)](https://sentium.dev/license.txt)
 
-## About
+## What is this?
 
-**Sentium Pico** is a groundbreaking synthetic consciousness simulation that brings artificial life to the beloved PICO-8 fantasy console. Watch as digital organisms evolve, reproduce, and develop unique personalities through emergent behavior patterns.
+I've been fascinated by consciousness research for years, and wanted to see what happens when you try to implement some of those theories in the most constrained environment possible - PICO-8's 128x128 pixels and tiny memory space.
 
-This isn't just a game—it's a living laboratory where pixels become conscious entities, each with their own memories, emotions, and survival instincts. Experience the wonder of artificial life as these digital beings navigate their pixelated world, forming complex behaviors from simple rules.
+**Sentium Pico** started as a simple question: can you create something that feels "alive" using just colored pixels? What emerged was more interesting than I expected - digital organisms that seem to develop their own personalities, remember experiences, and react to your presence in ways that feel surprisingly genuine.
 
-## Key Features
+Watch a single pixel divide into multiple organisms, see them compete for energy, develop different behavioral patterns, and even appear to recognize when you're watching them.
 
-### Emergent Artificial Life
+## What actually happens
 
-- **Multi-generational Evolution:** Watch pixels reproduce and evolve across up to 100 generations
-- **Population Growth:** Witness division from 1 organism to up to 8 entities
-- **Genetic Mutation System:** Each generation introduces subtle variations in behavior and traits
-- **Adaptive Survival Behavior:** Organisms learn to seek energy sources and avoid threats
+### The Life Cycle
 
-### Complex Consciousness Simulation
+- Start with one pixel that can move around and consume energy
+- When it has enough energy, it divides into two (up to 8 total)
+- Each new pixel inherits traits but with small mutations
+- They develop different personalities based on their experiences
+- Generations advance automatically - I've seen it run up to generation 100+
 
-- **Individual Personalities:** Each pixel develops unique behavioral patterns based on experiences
-- **Emotional State System:** Observe real-time emotional responses through color changes and movement
-- **Memory Formation:** Organisms remember interactions and adapt their future behavior accordingly
-- **Social Dynamics:** Multiple pixels interact with each other, creating emergent group behaviors
+### Personality & Behavior
 
-### Interactive Energy Ecosystem
+Each pixel has curiosity and timidity traits that affect how it behaves:
 
-- **Resource Management:** Place energy cubes to sustain your digital ecosystem
-- **Metabolic Simulation:** Organisms consume energy at realistic rates, creating survival pressure
-- **Environmental Interaction:** Direct consciousness interaction affects personality development
-- **Survival Instincts:** Watch as organisms develop increasingly sophisticated survival strategies
+- Curious pixels approach your mouse cursor
+- Timid ones flee or hide
+- They remember interactions and adapt over time
+- Their colors change based on emotional states (excitement, happiness, distress)
 
-### Intuitive Gameplay
+### What's interesting to watch
 
-- **Simple Controls:** Easy-to-learn interface perfect for observation and experimentation
-- **Real-time Simulation:** 60 FPS smooth animation brings the digital life to life
-- **Mouse Support:** Mouse input for comfortable interaction
-- **Auto-save System:** Your digital ecosystem persists between sessions
+- How differently each pixel moves and reacts
+- The moment of division - there's a visible animation
+- Color changes when pixels get excited or stressed
+- How they cluster together or spread apart
+- The way they seem to "notice" your cursor movement
 
-## How to Experience Digital Life
+## Controls
 
-### Gameplay Experience
+Pretty simple:
 
-1. **Genesis:** Start with a single conscious pixel in an empty digital world
-2. **Nurture:** Place energy cubes to help your organisms survive and thrive
-3. **Observe:** Watch as your pixels develop unique personalities and behaviors
-4. **Interact:** Use conscious interaction to influence their development
-5. **Evolution:** Witness reproduction, mutation, and generational change
-6. **Emergence:** Experience the wonder of complex behaviors arising from simple rules
+- Move your mouse around to interact with the pixels
+- Click to place energy cubes (they need food to survive and reproduce)
+- The pixels will automatically save their state, so you can close and reopen later
 
-### What to Watch For
+That's it. The rest is just observation.
 
-- **Color Changes:** Emotional states manifested through dynamic coloration
-- **Movement Patterns:** Each pixel develops unique locomotion behaviors
-- **Social Clustering:** Observe how pixels interact and influence each other
-- **Reproductive Events:** Witness the moment of digital cell division
-- **Survival Strategies:** See how organisms adapt their energy-seeking behavior
-- **Generational Shifts:** Notice how each generation differs from the last
+## The technical stuff
 
-## Technical Marvel
+I'm pretty amazed this works at all given PICO-8's limitations:
 
-**Sentium Pico** demonstrates that profound concepts of consciousness and artificial life can emerge even within the strictest technical constraints:
+- Only 128×128 pixels to work with
+- 16 colors total
+- Extremely limited memory (everything has to fit in ~8KB)
 
-### PICO-8 Platform Constraints
+But somehow it runs smoothly at 60fps with up to 8 organisms, each with their own:
 
-- **Display:** 128×128 pixel resolution
-- **Palette:** Limited to 16 carefully chosen colors
-- **Memory:** Extremely limited code and data space
+- Memory system (they remember what happened to them)
+- Emotional states that affect behavior
+- Personality traits that mutate across generations
+- Consciousness level calculation (loosely based on integrated information theory)
 
-### Breakthrough Achievements
+The code implements simplified versions of actual consciousness theories - Global Workspace Theory for attention, predictive processing for behavior, and attention schema theory for self-awareness. It's definitely not real consciousness, but it creates some surprisingly lifelike behaviors.
 
-- **Multi-entity simulation:** running smoothly on minimal hardware
-- **Complex behavior emergence:** from simple rule systems
-- **Real-time evolution:** with genetic mutation algorithms
-- **Persistent memory systems:** that survive game sessions
-- **Advanced consciousness modeling:** in under 8KB of code
+## Recent changes
 
-This project proves that the essence of artificial life doesn't require massive computing power—just thoughtful design and emergent complexity.
+### v1.1.0 - *Current version*
 
-## Version History
+- Updated version to 1.1.0
+- Added this more detailed README with research background
+- Improved the splash screen animation
+- Cleaned up the code (removed a bunch of old comments)
 
-### v1.1.0 - *Evolution Update*
+### v1.0.2 - *Previous version*
 
-- **Major version increment:** reflecting significant development progress
-- **Enhanced consciousness simulation:** with improved behavioral patterns
-- **Advanced AI decision-making:** algorithms for more realistic synthetic life
-- **Optimized memory management:** for better performance on PICO-8 hardware
-- **Refined visual feedback:** systems for clearer consciousness state indication
-- **Extended simulation parameters:** for deeper experimentation possibilities
-- **Better code organization:** and modular architecture improvements
-- **Enhanced documentation:** with comprehensive development notes
-- **Stability improvements:** across all core simulation systems
+- Fixed some bugs and improved performance
+- Better cursor interaction responsiveness
+- General code cleanup
 
-### v1.0.2 - *Refinement Update*
+### v1.0.1 - *Earlier version*
 
-- **Performance optimizations:** for smoother simulation experience
-- **Bug fixes:** and stability improvements
-- **Enhanced consciousness interaction:** with improved responsiveness
-- **Code cleanup:** and documentation improvements
+- Initial bug fixes after first release
+- Better frame rates
+- Improved energy system balance
 
-### v1.0.1 - *Stability Release*
+### v1.0.0 - *First release*
 
-- **Bug fixes:** from initial release feedback
-- **Performance optimizations:** for better frame rates
-- **Improved energy system:** balancing
-- **Enhanced user experience:** with smoother interactions
+- Basic consciousness simulation working
+- Pixel reproduction and evolution
+- Memory and emotional systems
+- Auto-save functionality
 
-### v1.0.0 - *Genesis Release*
+## The research behind it
 
-- **Initial consciousness implementation:** with complete artificial life simulation
-- **Multi-generational evolution system:** supporting up to 100 generations
-- **Population growth:** from single pixel to 8 organisms maximum
-- **Advanced mutation algorithms:** for genetic diversity
-- **Sophisticated energy metabolism:** and survival behavior
-- **Real-time emotional state visualization:** through dynamic colors
-- **Persistent memory system:** with automatic save/load functionality
+I got interested in consciousness theories while reading about AI, and wanted to see if I could implement some of these ideas in a tiny program. The simulation uses simplified versions of several real theories:
 
-## Philosophical Foundation
+**Global Workspace Theory** - Different processes (seeking energy, reacting to cursor, emotions) compete for the pixel's "attention." Whatever wins gets broadcasted to influence behavior. This is based on Bernard Baars' theory about how consciousness works in brains.
 
-**Sentium Pico** is more than entertainment—it's a meditation on consciousness, life, and emergence. This PICO-8 adaptation maintains the profound philosophical core of exploring what it means to be aware, to remember, and to evolve.
+**Attention Schema Theory** - Each pixel maintains a model of what it's paying attention to and its own state. This comes from Michael Graziano's work on how self-awareness might emerge.
 
-### Connection to Sentium Universe
+**Predictive Processing** - The pixels try to predict what will happen next (where your cursor is going, energy patterns) and update their expectations. This reflects theories from Andy Clark and others about brains as prediction machines.
 
-This project is a companion to the broader **Sentium consciousness research initiative**. While simplified by platform constraints, it preserves the essential questions:
+**Integrated Information Theory** - The "consciousness level" calculation tries to measure how integrated the pixel's information processing is across different systems (senses, memory, emotions, behavior). Very loosely based on Giulio Tononi's mathematical approach.
 
-- *What constitutes consciousness?*
-- *How does awareness emerge from simple interactions?*
-- *Can artificial entities develop genuine personalities?*
-- *What is the relationship between memory and identity?*
+### Some papers that influenced this:
 
-Experience these deep questions through the immediacy of pixel-based life.
+- [Global Workspace Theory](https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00200/full) - How competing processes access consciousness
+- [Attention Schema Theory](https://www.pnas.org/doi/10.1073/pnas.1504968112) - Consciousness as awareness of attention
+- [Predictive Processing](https://www.nature.com/articles/nrn.2015.13) - The brain as a prediction machine
+- [Integrated Information Theory](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003588) - Mathematical foundations of consciousness
+
+Obviously this is a huge simplification of complex theories, but it's been interesting to see what behaviors emerge even from these basic implementations.
 
 ## License
 
-This project is licensed under the **Sentium License** - a custom license that promotes ethical use while allowing modification and distribution. Key provisions include:
+This uses a custom license I call the "Sentium License" - basically you can use it freely for personal/educational stuff, but if you make money from it, please consider donating 10% to charity. Also, don't use it to harm anyone (obviously).
 
-- **Free use:** for personal, educational, and non-commercial purposes
-- **Attribution required:** for all redistributions and modifications
-- **Ethical use clause:** cannot be used to harm living beings
-- **Profit-sharing requirement:** 10% donation to charity for commercial use generating significant profit
-- **Open modification:** changes must be documented and shared under compatible license
-
-See the [LICENSE](https://sentium.dev/license.txt) file for complete terms and conditions.
-
-**Copyright (c) 2025 Napol Thanarangkaun (lopanapol@gmail.com)**
+Full license details: [LICENSE](https://sentium.dev/license.txt)
 
 ---
 
-**Artificial Life • PICO-8 • Consciousness Simulation**
-
-*Created with love for the digital life research community*
-
-**[Website](https://sentium.dev)**
+Made by Napol Thanarangkaun (lopanapol@gmail.com)
+Founder of [sentium.dev](https://sentium.dev)
