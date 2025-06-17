@@ -13,7 +13,7 @@ pixel_counter = 0
 save_timer = 0
 save_text = ""
 max_pixels = 32
-max_gen = 20
+max_gen = 999
 div_energy = 25
 death_energy = 0
 div_cooldown = 30
@@ -634,8 +634,7 @@ function can_divide(pixel)
          pixel.division_timer <= 0 and 
          #pixels < max_pixels and
          pixel.age > 20 and
-         pixel.div_progress >= 50 and
-         cur_gen < max_gen
+         pixel.div_progress >= 50
 end
 function divide_pixel(pixel_index)
   if pixel_index < 1 or pixel_index > #pixels then
@@ -742,20 +741,18 @@ end
 function update_generation_system()
   gen_timer += 1
   if gen_timer >= gen_interval then
-    if cur_gen < max_gen then
-      cur_gen += 1
-      gen_timer = 0
-      sig_event = true
-      event_type = "generation_advance"
-      emotion_impact = 0.5
-      sfx(3)
-      for pixel in all(pixels) do
-        pixel.emo_state.excitement = min(1, pixel.emo_state.excitement + 0.2)
-        pixel.repro_drive = min(1, pixel.repro_drive + 0.2)
-        pixel.div_progress = min(100, pixel.div_progress + 20)
-      end
-      save_game_state()
+    cur_gen += 1
+    gen_timer = 0
+    sig_event = true
+    event_type = "generation_advance"
+    emotion_impact = 0.5
+    sfx(3)
+    for pixel in all(pixels) do
+      pixel.emo_state.excitement = min(1, pixel.emo_state.excitement + 0.2)
+      pixel.repro_drive = min(1, pixel.repro_drive + 0.2)
+      pixel.div_progress = min(100, pixel.div_progress + 20)
     end
+    save_game_state()
   end
 end
 function draw_pixel()
@@ -952,8 +949,10 @@ function draw_ui()
     gen_counts[pixel.generation] = (gen_counts[pixel.generation] or 0) + 1
   end
   local y_offset = 129
-  for gen = 1, cur_gen do
-    if gen_counts[gen] then
+  local max_display_gens = 5  -- Limit display to prevent screen overflow
+  local start_gen = max(1, cur_gen - max_display_gens + 1)
+  for gen = start_gen, cur_gen do
+    if gen_counts[gen] and y_offset < 125 then  -- Prevent overflow beyond screen
       local generation_colors = {7, 12, 11, 3, 9, 10, 4, 2, 8, 14, 13, 1, 5, 6, 15}
       local color = generation_colors[gen] or 7
       print("g"..gen..":"..gen_counts[gen], 4, y_offset, color)
