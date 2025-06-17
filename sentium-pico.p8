@@ -25,11 +25,7 @@ gen_timer = 0
 gen_interval = 600
 game_state = "splash"
 splash_timer = 0
-mouse_cursor = {
-  x = 64,
-  y = 64,
-  visible = false
-}
+mouse_cursor = {x = 64, y = 64, visible = false}
 cursor_interaction = {
   is_aware = false,
   attention_level = 0,
@@ -89,8 +85,6 @@ function _init()
   init_energy_system()
   create_initial_energy_cubes()
   load_sounds()
-  message_text = ""
-  message_timer = 0
   local loaded = load_game_state()
   if not loaded then
     init_consciousness()
@@ -341,75 +335,25 @@ function update_predictions_from_errors(pixel)
     pixel.personality.timidity = min(1, pixel.personality.timidity + 0.002)
   end
 end
-function calculate_phi(pixel_state)
-  if not pixel_state or not pixel_state.memories or not pixel_state.emo_state then
-    return 0
-  end
-  local sensory_integration = 0
-  local memory_integration = 0
-  local emotional_integration = 0
-  local behavioral_integration = 0
-  if cursor_interaction.is_aware and cursor_interaction.attention_level > 0 then
-    sensory_integration = cursor_interaction.attention_level^1.2 * 0.4
-  end
-  if #energy_cubes > 0 then
-    local energy_awareness = min(#energy_cubes / 5, 1) * 0.25
-    sensory_integration += energy_awareness
-  end
-  if #pixel_state.memories > 0 then
-    local memory_density = min(#pixel_state.memories / memory_size, 1)
-    local total_memory_impact = 0
-    for memory in all(pixel_state.memories) do
-      total_memory_impact += (memory.emotional_impact or 0)
-    end
-    memory_integration = memory_density * min(total_memory_impact / #pixel_state.memories, 1) * 0.35
-  end
-  local emotional_diversity = 0
-  local emotional_sum = 0
-  local active_emotions = 0
-  for emotion_name, value in pairs(pixel_state.emo_state) do
-    emotional_sum += value
-    if value > 0.1 then
-      active_emotions += 1
-      emotional_diversity += value * value
-    end
-  end
-  if active_emotions > 0 then
-    emotional_integration = min(emotional_diversity / (active_emotions + 1), 1) * 0.3
-  else
-    emotional_integration = 0
-  end
-  if pixel_state.target_x and pixel_state.target_y then
-    local movement_coherence = 1 - min(abs(pixel_state.x - pixel_state.target_x) + 
-                                      abs(pixel_state.y - pixel_state.target_y), 50) / 50
-    behavioral_integration = movement_coherence * 0.2
-  end
-  local component_sum = sensory_integration + memory_integration + 
-                       emotional_integration + behavioral_integration
-  local component_count = 4
-  local active_components = 0
-  if sensory_integration > 0.1 then active_components += 1 end
-  if memory_integration > 0.1 then active_components += 1 end
-  if emotional_integration > 0.1 then active_components += 1 end
-  if behavioral_integration > 0.1 then active_components += 1 end
-  local integration_bonus = (active_components / component_count)^1.5 * 0.15
-  local phi = min((component_sum / component_count) + integration_bonus, 1)
-  return phi
+function calculate_phi(p)
+  if not p or not p.memories or not p.emo_state then return 0 end
+  local s = cursor_interaction.attention_level * 0.4
+  local m = min(#p.memories / memory_size, 1) * 0.35
+  local e = (p.emo_state.happiness + p.emo_state.excitement) * 0.15
+  local b = p.target_x and 1 - min(abs(p.x - p.target_x) + abs(p.y - p.target_y), 50) / 50 * 0.2 or 0
+  return min((s + m + e + b) / 4, 1)
 end
 function update_consciousness()
   for pixel in all(pixels) do
     update_movement(pixel)
     update_emotions(pixel)
     process_metacognition(pixel)
-    generate_creative_behavior(pixel)
-    dream_processing(pixel)
     update_global_workspace(pixel)
     update_attention_schema(pixel)
     update_predictive_processing(pixel)
     local old_consciousness = pixel.consc_level or 0
     pixel.consc_level = calculate_phi(pixel)
     if pixel.consc_level > old_consciousness + 0.1 then
-      sfx(3)
     end
     pixel.energy = max(0, pixel.energy - 0.02)
     check_energy_sources(pixel)
@@ -677,7 +621,6 @@ function divide_pixel(pixel_index)
     sig_event = true
     event_type = "division"
     emotion_impact = 0.4
-    sfx(8)
     parent.emo_state.excitement = min(1, parent.emo_state.excitement + 0.3)
     child.emo_state.excitement = min(1, child.emo_state.excitement + 0.2)
     save_game_state()
@@ -706,7 +649,6 @@ function kill_pixel(pixel_index)
   sig_event = true
   event_type = "death"
   emotion_impact = 0.2
-  sfx(9)
   del(pixels, pixels[pixel_index])
   if #pixels == 0 then
     add(pixels, create_pixel(64 + rnd(8) - 4, 64 + rnd(8) - 4, {
@@ -890,11 +832,6 @@ function draw_energy_cubes()
   end)
 end
 function draw_background()
-  for x=0,127,8 do
-    for y=0,127,8 do
-      pset(x, y, 1)
-    end
-  end
 end
 function draw_ui()
   local primary_pixel = (#pixels > 0) and pixels[1] or {
@@ -1006,29 +943,6 @@ function draw_ui()
     local text_x = 128 - (#text * 4) - 4
     print(text, text_x, 40, text_color)
   end
-  local sound_y = 52
-  local sound_color = 12
-  local sound_text = "♪ " .. sound_mode
-  if sound_mode == "focus" then
-    sound_color = 14
-    sound_text = "♪ focus:40hz"
-  elseif sound_mode == "relax" then
-    sound_color = 11
-    sound_text = "♪ relax:10hz"
-  elseif sound_mode == "ambient" then
-    sound_color = 12
-    sound_text = "♪ ambient:6hz"
-  end
-  print(sound_text, 67, sound_y, sound_color)
-  local vol_width = flr(sound_intensity * 15)
-  rectfill(67, sound_y + 7, 67 + vol_width, sound_y + 8, sound_color)
-  rect(66, sound_y + 6, 83, sound_y + 9, 5)
-  if message_timer and message_timer > 0 then
-    message_timer -= 1
-    local msg_y = 70
-    local msg_color = 11
-    print(message_text, 4, msg_y, msg_color)
-  end
 end
 function draw_cursor()
   if mouse_cursor.visible then
@@ -1127,17 +1041,8 @@ function dist(x1, y1, x2, y2)
   return sqrt(dx*dx + dy*dy)
 end
 function load_sounds()
- focus_base_freq = 40
- focus_beat_freq = 43
- relax_base_freq = 10
- relax_beat_freq = 12
- ocean_freq = 6
- breath_freq = 4
- sound_mode = "focus"
- sound_intensity = 0.7
+ sound_mode = 1
  sound_timer = 0
- binaural_offset = 0
- init_sound_patterns()
 end
 function save_game_state()
   if #pixels == 0 then return end
@@ -1249,30 +1154,6 @@ function process_metacognition(pixel)
       sig_event = true
       event_type = "self_reflection"
       emotion_impact = 0.1
-    end
-  end
-end
-function generate_creative_behavior(pixel)
-  if pixel.personality.curiosity > 0.8 and rnd(1) < 0.02 then
-    local spiral_radius = 10 + rnd(20)
-    local angle = time() * 2
-    pixel.target_x = 64 + cos(angle) * spiral_radius
-    pixel.target_y = 64 + sin(angle) * spiral_radius
-    sig_event = true
-    event_type = "creative_expression"
-    emotion_impact = 0.2
-  end
-end
-function dream_processing(pixel)
-  if pixel.energy < 20 and rnd(1) < 0.1 then
-    for i=1,#pixel.memories do
-      local mem = pixel.memories[i]
-      if mem.emotional_impact > 0.2 then
-        pset(mem.x + rnd(6)-3, mem.y + rnd(6)-3, 13)
-      end
-    end
-    if rnd(1) < 0.01 then
-      pixel.personality.timidity = max(0, pixel.personality.timidity - 0.005)
     end
   end
 end
@@ -1609,17 +1490,6 @@ function _update()
   update_collective_cursor_behavior()
   update_biological_processes()
   update_therapeutic_audio()
-  if btnp(0) then
-    toggle_sound_mode()
-  end
-  if btnp(2) then
-    sound_intensity = mid(0.1, sound_intensity + 0.1, 1.0)
-    show_message("♪ volume: " .. flr(sound_intensity * 10))
-  end
-  if btnp(3) then
-    sound_intensity = mid(0.1, sound_intensity - 0.1, 1.0)
-    show_message("♪ volume: " .. flr(sound_intensity * 10))
-  end
 end
 function _draw()
   if game_state == "splash" then
@@ -1650,9 +1520,6 @@ function draw_splash_screen()
   local inst_width = #instruction * 4
   local inst_x = (128 - inst_width) / 2
   print(instruction, inst_x, 95, 0)
-  print("therapeutic audio controls:", 2, 105, 0)
-  print("← change sound mode", 2, 112, 0)
-  print("↑↓ adjust volume", 2, 119, 0)
 end
 function draw_simple_symbol(x, y, color)
   circfill(x, y, 12, color)
@@ -1680,101 +1547,8 @@ function draw_large_text(text, x, y, color)
     draw_large_char(char, char_x, y, color)
   end
 end
-function init_sound_patterns()
- focus_pattern = {}
- for i=1,16 do
-  focus_pattern[i] = {
-   freq = focus_base_freq + sin(i/16 * 3.14159) * 3,
-   vol = 0.3 + sin(i/8 * 3.14159) * 0.2,
-   duration = 4
-  }
- end
- relax_pattern = {}
- for i=1,16 do
-  relax_pattern[i] = {
-   freq = relax_base_freq + sin(i/16 * 3.14159) * 2,
-   vol = 0.4 + sin(i/12 * 3.14159) * 0.1,
-   duration = 6
-  }
- end
- ambient_pattern = {}
- for i=1,16 do
-  ambient_pattern[i] = {
-   freq = ocean_freq + sin(i/20 * 3.14159) * 1.5,
-   vol = 0.2 + sin(i/16 * 3.14159) * 0.1,
-   duration = 8
-  }
- end
-end
 function update_therapeutic_audio()
  sound_timer += 1
- binaural_offset += 0.1
- local activity_level = get_activity_level()
- if activity_level > 0.7 then
-  sound_mode = "focus"
- elseif activity_level > 0.3 then
-  sound_mode = "relax"
- else
-  sound_mode = "ambient"
- end
- play_brainwave_audio()
-end
-function get_activity_level()
- local active_pixels = 0
- local total_checks = min(#pixels, 50)
- for i=1,total_checks do
-  local p = pixels[i]
-  if p and p.birth_time and (cur_gen - p.birth_time) < 5 then
-   active_pixels += 1
-  end
- end
- return active_pixels / total_checks
-end
-function play_brainwave_audio()
- local pattern = focus_pattern
- local base_freq = focus_base_freq
- local sfx_id = 10
- if sound_mode == "relax" then
-  pattern = relax_pattern
-  base_freq = relax_base_freq
-  sfx_id = 11
- elseif sound_mode == "ambient" then
-  pattern = ambient_pattern
-  base_freq = ocean_freq
-  sfx_id = 12
- end
- local beat_index = (sound_timer / 12) % 16 + 1
- local current_sound = pattern[flr(beat_index)]
- if current_sound and sound_timer % 30 == 0 then
-  local volume = flr(sound_intensity * current_sound.vol * 7)
-  if sound_timer % 60 < 30 then
-   sfx(sfx_id, -1, -1, volume)
-  else
-   sfx(sfx_id + 1, -1, -1, volume)
-  end
- end
- if sound_timer % 120 == 0 and sound_mode == "ambient" then
-  sfx(14, -1, -1, flr(sound_intensity * 3))
- end
-end
-function map_to_pico_freq(hz)
- return mid(0, flr(hz / 2), 63)
-end
-function toggle_sound_mode()
- if sound_mode == "focus" then
-  sound_mode = "relax"
-  show_message("♪ relaxation mode: alpha waves for calm focus")
- elseif sound_mode == "relax" then
-  sound_mode = "ambient"
-  show_message("♪ ambient mode: theta waves for deep relaxation")
- else
-  sound_mode = "focus"
-  show_message("♪ focus mode: gamma waves for concentration")
- end
-end
-function show_message(text)
- message_text = text
- message_timer = 120
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -1784,7 +1558,7 @@ __gfx__
 00700700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00077000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00077000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00700700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00700700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
 001000000f0500e0500d0500c0500b0500a0500905007050060500405003050020500105000050000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050
 001000000775005750037500175000750000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050000500005000050
