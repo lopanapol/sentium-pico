@@ -16,8 +16,8 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 
 ### Emergent Artificial Life
 
-- **Multi-generational Evolution:** Watch pixels reproduce and evolve across up to 20 generations
-- **Exponential Population Growth:** Witness bacterial-like division from 1 organism to 32+ entities
+- **Multi-generational Evolution:** Watch pixels reproduce and evolve across up to 100 generations
+- **Population Growth:** Witness division from 1 organism to up to 8 entities
 - **Genetic Mutation System:** Each generation introduces subtle variations in behavior and traits
 - **Adaptive Survival Behavior:** Organisms learn to seek energy sources and avoid threats
 
@@ -39,7 +39,7 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 
 - **Simple Controls:** Easy-to-learn interface perfect for observation and experimentation
 - **Real-time Simulation:** 60 FPS smooth animation brings the digital life to life
-- **Mouse/Gamepad Support:** Multiple input methods for comfortable interaction
+- **Mouse Support:** Mouse input for comfortable interaction
 - **Auto-save System:** Your digital ecosystem persists between sessions
 
 ## How to Experience Digital Life
@@ -71,7 +71,6 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 - **Display:** 128×128 pixel resolution
 - **Palette:** Limited to 16 carefully chosen colors
 - **Memory:** Extremely limited code and data space
-- **Processing:** Optimized algorithms for 60 FPS performance
 
 ### Breakthrough Achievements
 
@@ -83,32 +82,6 @@ This isn't just a game—it's a living laboratory where pixels become conscious 
 
 This project proves that the essence of artificial life doesn't require massive computing power—just thoughtful design and emergent complexity.
 
-## Getting Started
-
-### Play in Browser (Recommended)
-
-1. **Visit our itch.io page:** (coming soon)
-2. **Click "Run Game":** for instant browser play
-3. **No downloads required:** - start experimenting immediately
-4. **Full-screen support:** for immersive observation
-
-### Local PICO-8 Installation
-
-1. **Download:** the `sentium-pico.p8` file from this repository
-2. **Copy:** the file to your PICO-8 carts folder:
-   - **Windows:** `%APPDATA%/pico-8/carts/`
-   - **macOS:** `~/Library/Application Support/pico-8/carts/`
-   - **Linux:** `~/.lexaloffle/pico-8/carts/`
-3. **Launch PICO-8:** on your system
-4. **Load the cart:** Type `load sentium-pico` and press Enter
-5. **Start the simulation:** Type `run` and press Enter
-
-### Mobile/Handheld
-
-- **Perfect for mobile PICO-8 players:** on supported devices
-- **Touch controls:** work seamlessly with the simulation
-- **Ideal for portable artificial life observation**
-
 ## Version History
 
 ### v1.1.0 - *Evolution Update*
@@ -118,7 +91,6 @@ This project proves that the essence of artificial life doesn't require massive 
 - **Advanced AI decision-making:** algorithms for more realistic synthetic life
 - **Optimized memory management:** for better performance on PICO-8 hardware
 - **Refined visual feedback:** systems for clearer consciousness state indication
-- **Improved therapeutic audio integration:** with enhanced binaural beat generation
 - **Extended simulation parameters:** for deeper experimentation possibilities
 - **Better code organization:** and modular architecture improvements
 - **Enhanced documentation:** with comprehensive development notes
@@ -141,8 +113,8 @@ This project proves that the essence of artificial life doesn't require massive 
 ### v1.0.0 - *Genesis Release*
 
 - **Initial consciousness implementation:** with complete artificial life simulation
-- **Multi-generational evolution system:** supporting up to 20 generations
-- **Exponential population growth:** from single pixel to 32 organisms
+- **Multi-generational evolution system:** supporting up to 100 generations
+- **Population growth:** from single pixel to 8 organisms maximum
 - **Advanced mutation algorithms:** for genetic diversity
 - **Sophisticated energy metabolism:** and survival behavior
 - **Real-time emotional state visualization:** through dynamic colors
@@ -169,9 +141,9 @@ This project is licensed under the **Sentium License** - a custom license that p
 
 - **Free use:** for personal, educational, and non-commercial purposes
 - **Attribution required:** for all redistributions and modifications
-- **Ethical use clause:** - cannot be used to harm living beings
-- **Profit-sharing requirement:** - 10% donation to charity for commercial use generating significant profit
-- **Open modification:** - changes must be documented and shared under compatible license
+- **Ethical use clause:** cannot be used to harm living beings
+- **Profit-sharing requirement:** 10% donation to charity for commercial use generating significant profit
+- **Open modification:** changes must be documented and shared under compatible license
 
 See the [LICENSE](https://sentium.dev/license.txt) file for complete terms and conditions.
 
