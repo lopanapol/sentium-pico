@@ -1504,13 +1504,20 @@ function _draw()
   draw_cursor()
 end
 function draw_splash_screen()
-  cls(9)
+  cls(14)
   local symbol_x = 64
   local symbol_y = 40
-  draw_simple_symbol(symbol_x, symbol_y, 0)
+  -- Make logo blink every 30 frames (about 0.5 seconds)
+  if flr(splash_timer / 30) % 2 == 0 then
+    draw_simple_symbol(symbol_x, symbol_y, 0)
+  end
   local title = "sentium"
   local title_width = #title * 4
-  local title_x = (128 - title_width) / 2
+  -- Animate title from left to right
+  local anim_progress = min(splash_timer / 60, 1) -- Animation over 1 second
+  local start_x = -title_width
+  local end_x = (128 - title_width) / 2
+  local title_x = start_x + (end_x - start_x) * anim_progress
   print(title, title_x, 65, 0)
   local subtitle = "consciousness simulation"
   local sub_width = #subtitle * 4
@@ -1523,7 +1530,7 @@ function draw_splash_screen()
 end
 function draw_simple_symbol(x, y, color)
   circfill(x, y, 12, color)
-  circfill(x, y, 7, 9)
+  circfill(x, y, 7, 14)
   line(x-2, y-20, x-2, y+20, color)
   line(x-1, y-20, x-1, y+20, color)
   line(x, y-20, x, y+20, color)
