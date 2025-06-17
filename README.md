@@ -21,7 +21,7 @@ Watch a single pixel divide into multiple organisms, see them compete for energy
 - When it has enough energy, it divides into two (up to 8 total)
 - Each new pixel inherits traits but with small mutations
 - They develop different personalities based on their experiences
-- Generations advance automatically - I've seen it run up to generation 100+
+- Generations advance automatically - I've seen it run up to generation 100
 
 ### Personality & Behavior
 
@@ -45,7 +45,6 @@ Each pixel has curiosity and timidity traits that affect how it behaves:
 Pretty simple:
 
 - Move your mouse around to interact with the pixels
-- Click to place energy cubes (they need food to survive and reproduce)
 - The pixels will automatically save their state, so you can close and reopen later
 
 That's it. The rest is just observation.
@@ -58,7 +57,7 @@ I'm pretty amazed this works at all given PICO-8's limitations:
 - 16 colors total
 - Extremely limited memory (everything has to fit in ~8KB)
 
-But somehow it runs smoothly at 60fps with up to 8 organisms, each with their own:
+But somehow it runs smoothly with up to 8 organisms, each with their own:
 
 - Memory system (they remember what happened to them)
 - Emotional states that affect behavior
@@ -101,11 +100,147 @@ I got interested in consciousness theories while reading about AI, and wanted to
 
 **Global Workspace Theory** - Different processes (seeking energy, reacting to cursor, emotions) compete for the pixel's "attention." Whatever wins gets broadcasted to influence behavior. This is based on Bernard Baars' theory about how consciousness works in brains.
 
+```lua
+function update_global_workspace(pixel)
+  local processes = {}
+  
+  -- Cursor attention process
+  if cursor_interaction.is_aware then
+    add(processes, {
+      type = "cursor_attention",
+      strength = cursor_interaction.attention_level,
+      content = {x = mouse_cursor.x, y = mouse_cursor.y}
+    })
+  end
+  
+  -- Energy seeking process
+  if pixel.energy < 50 then
+    local urgency = (50 - pixel.energy) / 50
+    add(processes, {
+      type = "energy_seeking", 
+      strength = urgency * 0.8,
+      content = {energy_level = pixel.energy}
+    })
+  end
+  
+  -- Winner takes all - highest strength process wins
+  local winner = nil
+  local max_strength = 0
+  for process in all(processes) do
+    if process.strength > max_strength then
+      max_strength = process.strength
+      winner = process
+    end
+  end
+  
+  -- Broadcast winner if above consciousness threshold
+  if winner and max_strength > global_workspace.consc_thresh then
+    global_workspace.current_focus = winner
+    global_workspace.broadcast_strength = max_strength
+  end
+end
+```
+
 **Attention Schema Theory** - Each pixel maintains a model of what it's paying attention to and its own state. This comes from Michael Graziano's work on how self-awareness might emerge.
+
+```lua
+function update_attention_schema(pixel)
+  -- Update self-model
+  attention_schema.self_model.position.x = pixel.x
+  attention_schema.self_model.position.y = pixel.y
+  attention_schema.self_model.confidence = min(1, pixel.energy / 100)
+  
+  -- Build attention map of salient objects
+  attention_schema.attention_map = {}
+  
+  -- Add cursor to attention map if aware
+  if cursor_interaction.is_aware then
+    add(attention_schema.attention_map, {
+      x = mouse_cursor.x,
+      y = mouse_cursor.y,
+      intensity = cursor_interaction.attention_level,
+      type = "cursor"
+    })
+  end
+  
+  -- Add energy cubes based on distance and need
+  for cube in all(energy_cubes) do
+    local distance = dist(pixel.x, pixel.y, cube.x, cube.y)
+    local attention_intensity = max(0, 1 - distance / 60)
+    if pixel.energy < 40 then
+      attention_intensity *= 2  -- More attention when hungry
+    end
+    add(attention_schema.attention_map, {
+      x = cube.x, y = cube.y,
+      intensity = attention_intensity,
+      type = "energy"
+    })
+  end
+end
+```
 
 **Predictive Processing** - The pixels try to predict what will happen next (where your cursor is going, energy patterns) and update their expectations. This reflects theories from Andy Clark and others about brains as prediction machines.
 
+```lua
+function predict_cursor_behavior(pixel)
+  if cursor_interaction.is_aware then
+    -- Predict based on recent movement
+    local dx = mouse_cursor.x - cursor_interaction.last_cursor_x
+    local dy = mouse_cursor.y - cursor_interaction.last_cursor_y
+    local predicted_x = mouse_cursor.x + dx
+    local predicted_y = mouse_cursor.y + dy
+    
+    -- Calculate prediction error
+    if cursor_interaction.last_predicted_x then
+      local error_x = abs(mouse_cursor.x - cursor_interaction.last_predicted_x)
+      local error_y = abs(mouse_cursor.y - cursor_interaction.last_predicted_y)
+      local prediction_error = (error_x + error_y) / 2
+      
+      -- Update behavior based on prediction accuracy
+      if prediction_error < 3 then
+        -- Good prediction - increase confidence
+        pixel.personality.curiosity = min(1, pixel.personality.curiosity + 0.005)
+      else
+        -- Poor prediction - become more cautious
+        pixel.personality.timidity = min(1, pixel.personality.timidity + 0.005)
+      end
+      
+      attention_schema.prediction_error = prediction_error
+    end
+    
+    cursor_interaction.last_predicted_x = predicted_x
+    cursor_interaction.last_predicted_y = predicted_y
+  end
+end
+```
+
 **Integrated Information Theory** - The "consciousness level" calculation tries to measure how integrated the pixel's information processing is across different systems (senses, memory, emotions, behavior). Very loosely based on Giulio Tononi's mathematical approach.
+
+```lua
+function calculate_phi(pixel)
+  -- Simplified IIT calculation combining multiple information sources
+  
+  -- Sensory integration (cursor awareness)
+  local sensory = cursor_interaction.attention_level * 0.4
+  
+  -- Memory integration (how much past experience is accessible)
+  local memory = min(#pixel.memories / memory_size, 1) * 0.35
+  
+  -- Emotional integration (current emotional state)
+  local emotional = (pixel.emo_state.happiness + pixel.emo_state.excitement) * 0.15
+  
+  -- Behavioral integration (goal-directed movement)
+  local behavioral = 0
+  if pixel.target_x then
+    local distance_to_goal = abs(pixel.x - pixel.target_x) + abs(pixel.y - pixel.target_y)
+    behavioral = (1 - min(distance_to_goal, 50) / 50) * 0.2
+  end
+  
+  -- Phi = integrated information across all systems
+  local phi = (sensory + memory + emotional + behavioral) / 4
+  return min(phi, 1)  -- Consciousness level between 0 and 1
+end
+```
 
 ### Some papers that influenced this:
 
