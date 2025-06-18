@@ -246,7 +246,7 @@ function find_nearest_energy_cube(pixel)
   local nearest = nil
   local min_dist = 1000
   for cube in all(energy_cubes) do
-    local d = dist(pixel.x, pixel.y, cube.x, cube.y)
+    local d = pixel_dist_to_cube(pixel, cube)
     if d < min_dist then
       min_dist = d
       nearest = cube
@@ -255,8 +255,9 @@ function find_nearest_energy_cube(pixel)
   return nearest
 end
 function update_attention_schema(pixel)
-  attention_schema.self_model.position.x = pixel.x
-  attention_schema.self_model.position.y = pixel.y
+  local px, py = pixel.x, pixel.y
+  attention_schema.self_model.position.x = px
+  attention_schema.self_model.position.y = py
   attention_schema.self_model.confidence = min(1, pixel.energy / 100)
   attention_schema.attention_map = {}
   if cursor_interaction.is_aware then
@@ -268,7 +269,7 @@ function update_attention_schema(pixel)
     })
   end
   for cube in all(energy_cubes) do
-    local distance = dist(pixel.x, pixel.y, cube.x, cube.y)
+    local distance = dist(px, py, cube.x, cube.y)
     local attention_intensity = max(0, 1 - distance / 60)
     if pixel.energy < 40 then
       attention_intensity *= 2
@@ -345,17 +346,22 @@ function calculate_phi(p)
 end
 function update_consciousness()
   for pixel in all(pixels) do
+    local px, py = pixel.x, pixel.y
+    local energy = pixel.energy
+    local consc_level = pixel.consc_level or 0
+    
     update_movement(pixel)
     update_emotions(pixel)
     process_metacognition(pixel)
     update_global_workspace(pixel)
     update_attention_schema(pixel)
     update_predictive_processing(pixel)
-    local old_consciousness = pixel.consc_level or 0
+    
+    local old_consciousness = consc_level
     pixel.consc_level = calculate_phi(pixel)
     if pixel.consc_level > old_consciousness + 0.1 then
     end
-    pixel.energy = max(0, pixel.energy - 0.02)
+    pixel.energy = max(0, energy - 0.02)
     check_energy_sources(pixel)
     form_memories(pixel)
   end
@@ -379,10 +385,11 @@ function update_movement(pixel)
   local move_speed = 0.5
   local nearest_cube = nil
   local min_dist = 1000
+  local px, py = pixel.x, pixel.y
   if pixel.energy < 40 then
     for i=1,#energy_cubes do
       local cube = energy_cubes[i]
-      local d = dist(pixel.x, pixel.y, cube.x, cube.y)
+      local d = dist(px, py, cube.x, cube.y)
       if d < min_dist then
         min_dist = d
         nearest_cube = cube
@@ -404,19 +411,19 @@ function update_movement(pixel)
       pixel.target_x = 20 + rnd(88)
       pixel.target_y = 20 + rnd(88)
     end
-    if pixel.x < 20 then
+    if px < 20 then
       pixel.target_x = max(pixel.target_x, 40 + rnd(40))
-    elseif pixel.x > 108 then
+    elseif px > 108 then
       pixel.target_x = min(pixel.target_x, 48 + rnd(40))
     end
-    if pixel.y < 20 then
+    if py < 20 then
       pixel.target_y = max(pixel.target_y, 40 + rnd(40))
-    elseif pixel.y > 108 then
+    elseif py > 108 then
       pixel.target_y = min(pixel.target_y, 48 + rnd(40))
     end
   end
-  local dx = pixel.target_x - pixel.x
-  local dy = pixel.target_y - pixel.y
+  local dx = pixel.target_x - px
+  local dy = pixel.target_y - py
   local dist_to_target = sqrt(dx*dx + dy*dy)
   if dist_to_target > 2 then
     dx = dx / dist_to_target
@@ -512,9 +519,10 @@ function add_energy_cube()
   })
 end
 function check_energy_sources(pixel)
+  local px, py = pixel.x, pixel.y
   for i=#energy_cubes,1,-1 do
     local cube = energy_cubes[i]
-    if dist(pixel.x, pixel.y, cube.x, cube.y) < (4 + pixel.size) then
+    if dist(px, py, cube.x, cube.y) < (4 + pixel.size) then
       local absorbed_energy = cube.value * pixel.metab_eff
       pixel.energy = min(100, pixel.energy + absorbed_energy)
       sig_event = true
@@ -661,17 +669,23 @@ end
 function update_biological_processes()
   for i = #pixels, 1, -1 do
     local pixel = pixels[i]
+    local energy = pixel.energy
+    local metab_eff = pixel.metab_eff
+    local repro_drive = pixel.repro_drive
+    local div_progress = pixel.div_progress
+    local size = pixel.size
+    
     pixel.age += 1
     pixel.division_timer = max(0, pixel.division_timer - 1)
-    local energy_cost = metabolic_rate * pixel.metab_eff
-    pixel.energy = max(0, pixel.energy - energy_cost)
+    local energy_cost = metabolic_rate * metab_eff
+    pixel.energy = max(0, energy - energy_cost)
     if pixel.energy > div_energy * 0.6 then
-      local growth_amount = pixel.repro_drive * 1.5
-      pixel.div_progress = min(100, pixel.div_progress + growth_amount)
-      pixel.size = min(2.5, pixel.size + 0.02)
+      local growth_amount = repro_drive * 1.5
+      pixel.div_progress = min(100, div_progress + growth_amount)
+      pixel.size = min(2.5, size + 0.02)
     else
-      pixel.div_progress = max(0, pixel.div_progress - 0.2)
-      pixel.size = max(0.5, pixel.size - 0.005)
+      pixel.div_progress = max(0, div_progress - 0.2)
+      pixel.size = max(0.5, size - 0.005)
     end
     if can_divide(pixel) then
       divide_pixel(i)
@@ -701,19 +715,28 @@ function draw_pixel()
   end
 end
 function draw_single_pixel(pixel)
-  local generation_colors = {7, 12, 11, 3, 9, 10, 4, 2, 8, 14, 13, 1, 5, 6, 15}
-  local base_color = generation_colors[pixel.generation] or 7
+  local px, py = pixel.x, pixel.y
+  local generation = pixel.generation
+  local size = pixel.size
   local cursor_attention = pixel.cursor_attention or 0
+  local emo_state = pixel.emo_state
+  local energy = pixel.energy
+  local age = pixel.age
+  local div_progress = pixel.div_progress
+  local stuck_timer = pixel.stuck_timer
+  
+  local generation_colors = {7, 12, 11, 3, 9, 10, 4, 2, 8, 14, 13, 1, 5, 6, 15}
+  local base_color = generation_colors[generation] or 7
   local size_modifier = cursor_attention * 0.5
-  local radius = flr(pixel.size + size_modifier)
+  local radius = flr(size + size_modifier)
   local interaction_color = base_color
   if cursor_attention > 0.3 then
     local heat_level = cursor_interaction.cursor_heat
-    if pixel.emo_state.excitement > 0.6 then
+    if emo_state.excitement > 0.6 then
       interaction_color = 12
-    elseif pixel.emo_state.happiness > 0.6 then
+    elseif emo_state.happiness > 0.6 then
       interaction_color = 11
-    elseif pixel.emo_state.distress > 0.6 then
+    elseif emo_state.distress > 0.6 then
       interaction_color = 8
     else
       if heat_level > 0.7 then
@@ -723,10 +746,10 @@ function draw_single_pixel(pixel)
       end
     end
   end
-  circfill(pixel.x, pixel.y, radius, interaction_color)
+  circfill(px, py, radius, interaction_color)
   if cursor_attention > 0.7 then
-    local pulse = sin(time() * 6 + pixel.x * 0.1) * cursor_attention * 2
-    circ(pixel.x, pixel.y, radius + 1 + pulse, 14)
+    local pulse = sin(time() * 6 + px * 0.1) * cursor_attention * 2
+    circ(px, py, radius + 1 + pulse, 14)
   end
   if cursor_attention > 0.5 then
     local ripple_count = flr(cursor_attention * 3)
@@ -735,45 +758,45 @@ function draw_single_pixel(pixel)
       local ripple_radius = radius + 3 + sin(ripple_phase) * 2
       local ripple_alpha = (1 - (i / ripple_count)) * cursor_attention
       if ripple_alpha > 0.3 then
-        circ(pixel.x, pixel.y, ripple_radius, 13)
+        circ(px, py, ripple_radius, 13)
       end
     end
   end
-  if pixel.div_progress > 50 then
-    local elongation = (pixel.div_progress - 50) / 50
-    oval(pixel.x - radius - elongation, pixel.y - radius, 
-         pixel.x + radius + elongation, pixel.y + radius, interaction_color)
+  if div_progress > 50 then
+    local elongation = (div_progress - 50) / 50
+    oval(px - radius - elongation, py - radius, 
+         px + radius + elongation, py + radius, interaction_color)
   end
   if can_divide(pixel) then
-    local pulse = sin(pixel.age * 0.2) * 0.5 + 0.5
-    circ(pixel.x, pixel.y, radius + 2 + pulse, 11)
+    local pulse = sin(age * 0.2) * 0.5 + 0.5
+    circ(px, py, radius + 2 + pulse, 11)
   end
-  if pixel.stuck_timer and pixel.stuck_timer > 60 then
+  if stuck_timer and stuck_timer > 60 then
     local line_alpha = sin(time() * 4) * 0.3 + 0.7
     local line_color = cursor_attention > 0.3 and 14 or 12
-    line(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y, line_color)
-    local pulse = sin(pixel.age * 0.3) * 1 + 1
-    circ(pixel.x, pixel.y, radius + 3 + pulse, line_color)
+    line(px, py, mouse_cursor.x, mouse_cursor.y, line_color)
+    local pulse = sin(age * 0.3) * 1 + 1
+    circ(px, py, radius + 3 + pulse, line_color)
   end
-  if pixel.energy > div_energy * 0.8 then
+  if energy > div_energy * 0.8 then
     for i=1,3 do
-      circ(pixel.x, pixel.y, radius + i, 7)
+      circ(px, py, radius + i, 7)
     end
-  elseif pixel.energy < death_energy + 10 then
-    circ(pixel.x, pixel.y, radius + 1, 8)
+  elseif energy < death_energy + 10 then
+    circ(px, py, radius + 1, 8)
   end
   local closest_pixel = find_closest_pixel_to_cursor()
   if pixel == closest_pixel and cursor_interaction.is_aware and cursor_interaction.attention_level > 0.3 then
-    local eye_x = pixel.x + cursor_interaction.gaze_offset_x
-    local eye_y = pixel.y + cursor_interaction.gaze_offset_y
+    local eye_x = px + cursor_interaction.gaze_offset_x
+    local eye_y = py + cursor_interaction.gaze_offset_y
     local eye_size = 1 + cursor_interaction.attention_level * 0.5
     circfill(eye_x, eye_y, eye_size, 0)
     local iris_color = 5
-    if pixel.emo_state.excitement > 0.6 then
+    if emo_state.excitement > 0.6 then
       iris_color = 12
-    elseif pixel.emo_state.distress > 0.6 then
+    elseif emo_state.distress > 0.6 then
       iris_color = 8
-    elseif pixel.emo_state.happiness > 0.6 then
+    elseif emo_state.happiness > 0.6 then
       iris_color = 11
     end
     local iris_positions = {
@@ -781,8 +804,8 @@ function draw_single_pixel(pixel)
       {eye_x, eye_y-1}, {eye_x, eye_y+1}
     }
     for pos in all(iris_positions) do
-      if pos[1] >= pixel.x-3 and pos[1] <= pixel.x+3 and 
-         pos[2] >= pixel.y-3 and pos[2] <= pixel.y+3 then
+      if pos[1] >= px-3 and pos[1] <= px+3 and 
+         pos[2] >= py-3 and pos[2] <= py+3 then
         pset(pos[1], pos[2], iris_color)
       end
     end
@@ -790,20 +813,20 @@ function draw_single_pixel(pixel)
       pset(eye_x, eye_y-1, 7)
     end
   end
-  if cursor_attention > 0.4 and (abs(pixel.x - (pixel.last_x or pixel.x)) > 0.5 or 
-                                 abs(pixel.y - (pixel.last_y or pixel.y)) > 0.5) then
+  if cursor_attention > 0.4 and (abs(px - (pixel.last_x or px)) > 0.5 or 
+                                 abs(py - (pixel.last_y or py)) > 0.5) then
     local trail_length = flr(cursor_attention * 3)
     for i = 1, trail_length do
-      local trail_x = pixel.x - (pixel.x - (pixel.last_x or pixel.x)) * i * 0.3
-      local trail_y = pixel.y - (pixel.y - (pixel.last_y or pixel.y)) * i * 0.3
+      local trail_x = px - (px - (pixel.last_x or px)) * i * 0.3
+      local trail_y = py - (py - (pixel.last_y or py)) * i * 0.3
       local trail_alpha = 1 - (i / trail_length)
       if trail_alpha > 0.2 then
         pset(trail_x, trail_y, 13)
       end
     end
   end
-  if pixel.age > 600 then
-    pset(pixel.x, pixel.y - 4, 13)
+  if age > 600 then
+    pset(px, py - 4, 13)
   end
   if pixel == pixels[1] then
     for i=1,#pixel.memories do
@@ -816,9 +839,9 @@ end
 function find_closest_pixel_to_cursor()
   if #pixels == 0 then return nil end
   local closest = pixels[1]
-  local min_dist = dist(closest.x, closest.y, mouse_cursor.x, mouse_cursor.y)
+  local min_dist = pixel_dist_to_cursor(closest)
   for pixel in all(pixels) do
-    local d = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
+    local d = pixel_dist_to_cursor(pixel)
     if d < min_dist then
       min_dist = d
       closest = pixel
@@ -1040,6 +1063,23 @@ function dist(x1, y1, x2, y2)
   local dy = y2 - y1
   return sqrt(dx*dx + dy*dy)
 end
+
+function pixel_dist_to_cursor(pixel)
+  return dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
+end
+
+function pixel_dist_to_cube(pixel, cube)
+  return dist(pixel.x, pixel.y, cube.x, cube.y)
+end
+
+function get_pixel_pos(pixel)
+  return pixel.x, pixel.y
+end
+
+function set_pixel_pos(pixel, x, y)
+  pixel.x = x
+  pixel.y = y
+end
 function load_sounds()
  sound_mode = 1
  sound_timer = 0
@@ -1193,18 +1233,23 @@ function update_cursor_awareness()
   local total_awareness = 0
   local pixels_in_range = 0
   for pixel in all(pixels) do
-    local cursor_distance = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
-    local awareness_range = cursor_interaction.influence_radius + pixel.personality.curiosity * 20
+    local px, py = pixel.x, pixel.y
+    local curiosity = pixel.personality.curiosity
+    local timidity = pixel.personality.timidity
+    local cursor_attention = pixel.cursor_attention or 0
+    
+    local cursor_distance = dist(px, py, mouse_cursor.x, mouse_cursor.y)
+    local awareness_range = cursor_interaction.influence_radius + curiosity * 20
     if cursor_distance < awareness_range then
       pixels_in_range += 1
       local proximity_factor = 1 - (cursor_distance / awareness_range)
       total_awareness += proximity_factor
-      local old_attention = pixel.cursor_attention or 0
+      local old_attention = cursor_attention
       pixel.cursor_attention = min(1, proximity_factor * cursor_interaction.cursor_heat)
       if pixel.cursor_attention > 0.7 and rnd(1) < 0.1 then
         add(cursor_interaction.interaction_particles, {
-          x = pixel.x + (rnd(6) - 3),
-          y = pixel.y + (rnd(6) - 3),
+          x = px + (rnd(6) - 3),
+          y = py + (rnd(6) - 3),
           vx = (rnd(2) - 1) * 0.5,
           vy = (rnd(2) - 1) * 0.5,
           life = 60,
@@ -1214,7 +1259,7 @@ function update_cursor_awareness()
       if cursor_distance < 20 then
         local excitement_boost = 0.03 * cursor_interaction.cursor_heat
         pixel.emo_state.excitement += excitement_boost
-        if pixel.personality.timidity > 0.5 then
+        if timidity > 0.5 then
           pixel.emo_state.distress += 0.02 * cursor_interaction.cursor_heat
           cursor_interaction.retreat_timer += 1
         else
@@ -1229,7 +1274,7 @@ function update_cursor_awareness()
         enhance_cursor_movement_influence(pixel, cursor_distance)
       end
     else
-      pixel.cursor_attention = max(0, (pixel.cursor_attention or 0) - 0.05)
+      pixel.cursor_attention = max(0, cursor_attention - 0.05)
     end
   end
   cursor_interaction.collective_excitement = total_awareness / max(1, pixels_in_range)
@@ -1369,12 +1414,15 @@ end
 function update_collective_cursor_behavior()
   if cursor_interaction.collective_excitement > 0.5 and #pixels > 1 then
     for pixel in all(pixels) do
-      local cursor_distance = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
+      local px, py = pixel.x, pixel.y
+      local target_x, target_y = pixel.target_x, pixel.target_y
+      
+      local cursor_distance = dist(px, py, mouse_cursor.x, mouse_cursor.y)
       if cursor_distance < cursor_interaction.influence_radius then
         local nearby_pixels = {}
         for other_pixel in all(pixels) do
           if other_pixel != pixel then
-            local pixel_distance = dist(pixel.x, pixel.y, other_pixel.x, other_pixel.y)
+            local pixel_distance = dist(px, py, other_pixel.x, other_pixel.y)
             if pixel_distance < 25 then
               add(nearby_pixels, other_pixel)
             end
@@ -1389,15 +1437,15 @@ function update_collective_cursor_behavior()
           avg_x /= #nearby_pixels
           avg_y /= #nearby_pixels
           local cohesion_strength = cursor_interaction.collective_excitement * 0.05
-          pixel.target_x = lerp(pixel.target_x, avg_x, cohesion_strength)
-          pixel.target_y = lerp(pixel.target_y, avg_y, cohesion_strength)
+          pixel.target_x = lerp(target_x, avg_x, cohesion_strength)
+          pixel.target_y = lerp(target_y, avg_y, cohesion_strength)
           local separation_x, separation_y = 0, 0
           local close_count = 0
           for nearby in all(nearby_pixels) do
-            local nearby_distance = dist(pixel.x, pixel.y, nearby.x, nearby.y)
+            local nearby_distance = dist(px, py, nearby.x, nearby.y)
             if nearby_distance < 15 then
-              separation_x += (pixel.x - nearby.x) / nearby_distance
-              separation_y += (pixel.y - nearby.y) / nearby_distance
+              separation_x += (px - nearby.x) / nearby_distance
+              separation_y += (py - nearby.y) / nearby_distance
               close_count += 1
             end
           end
