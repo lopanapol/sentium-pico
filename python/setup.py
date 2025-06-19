@@ -10,22 +10,22 @@ from pathlib import Path
 
 def run_command(cmd, description):
     """Run a shell command with description"""
-    print(f"🔄 {description}...")
+    print(f"Running {description}...")
     try:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         if result.returncode == 0:
-            print(f"✅ {description} completed successfully")
+            print(f"{description} completed successfully")
             return True
         else:
-            print(f"❌ {description} failed: {result.stderr}")
+            print(f"{description} failed: {result.stderr}")
             return False
     except Exception as e:
-        print(f"❌ Error during {description}: {e}")
+        print(f"Error during {description}: {e}")
         return False
 
 def check_python_deps():
     """Check if required Python packages are installed"""
-    print("🔍 Checking Python dependencies...")
+    print("Checking Python dependencies...")
     
     required_packages = ['numpy', 'pandas', 'watchdog']
     missing_packages = []
@@ -33,22 +33,22 @@ def check_python_deps():
     for package in required_packages:
         try:
             __import__(package)
-            print(f"  ✅ {package}")
+            print(f"  Found: {package}")
         except ImportError:
-            print(f"  ❌ {package} (missing)")
+            print(f"  Missing: {package}")
             missing_packages.append(package)
     
     return len(missing_packages) == 0, missing_packages
 
 def setup_bridge():
     """Set up the Python bridge system"""
-    print("🚀 Setting up Sentium Pico Python Bridge")
+    print("Setting up Sentium Pico Python Bridge")
     print("="*50)
     
     # Check if we're in the right directory
     current_dir = Path.cwd()
     if not (current_dir / "data_bridge.py").exists():
-        print("❌ Please run this script from the python/ directory")
+        print("Please run this script from the python/ directory")
         print(f"   Current directory: {current_dir}")
         print(f"   Expected files: data_bridge.py, simple_analyzer.py")
         return False
@@ -56,23 +56,23 @@ def setup_bridge():
     # Check Python dependencies
     deps_ok, missing = check_python_deps()
     if not deps_ok:
-        print(f"\n📦 Installing missing packages: {', '.join(missing)}")
+        print(f"\nInstalling missing packages: {', '.join(missing)}")
         if not run_command("pip install " + " ".join(missing), "Installing dependencies"):
-            print("❌ Failed to install dependencies. Try manually:")
+            print("Failed to install dependencies. Try manually:")
             print(f"   pip install {' '.join(missing)}")
             return False
     
     # Test the data bridge
-    print(f"\n🧪 Testing data bridge system...")
+    print(f"\nTesting data bridge system...")
     if not run_command("python data_bridge.py", "Testing data bridge"):
         return False
     
     # Test the simple analyzer
-    print(f"\n🧠 Testing consciousness analyzer...")
+    print(f"\nTesting consciousness analyzer...")
     if not run_command("python simple_analyzer.py", "Testing analyzer"):
         return False
     
-    print(f"\n🎉 Setup completed successfully!")
+    print(f"\nSetup completed successfully!")
     print(f"\nNext steps:")
     print(f"1. Open your PICO-8 game: sentium-pico.p8")
     print(f"2. Run the game (it will export consciousness data every 3 seconds)")
@@ -84,7 +84,7 @@ def setup_bridge():
 
 def test_system():
     """Test the system with sample data"""
-    print("🧪 Testing system with sample consciousness data...")
+    print("Testing system with sample consciousness data...")
     
     from data_bridge import DataBridge
     from simple_analyzer import SimpleConsciousnessAnalyzer
@@ -98,18 +98,18 @@ def test_system():
     results = analyzer.analyze_consciousness()
     
     if results:
-        print("\n✅ System test successful!")
-        print(f"📊 Analyzed {results['pixel_count']} pixels from generation {results['generation']}")
-        print(f"🧠 Consciousness level: {results['overall_consciousness_level']:.2f}")
-        print(f"🎭 Dominant personality: {results['dominant_personality']}")
+        print("\nSystem test successful!")
+        print(f"Analyzed {results['pixel_count']} pixels from generation {results['generation']}")
+        print(f"Consciousness level: {results['overall_consciousness_level']:.2f}")
+        print(f"Dominant personality: {results['dominant_personality']}")
         return True
     else:
-        print("\n❌ System test failed")
+        print("\nSystem test failed")
         return False
 
 def show_usage():
     """Show usage instructions"""
-    print("🧠 Sentium Pico Python Bridge")
+    print("Sentium Pico Python Bridge")
     print("="*30)
     print("Commands:")
     print("  python setup.py setup  - Set up the bridge system")
@@ -138,6 +138,6 @@ if __name__ == "__main__":
         show_usage()
         sys.exit(0)
     else:
-        print(f"❌ Unknown command: {command}")
+        print(f"Unknown command: {command}")
         show_usage()
         sys.exit(1)

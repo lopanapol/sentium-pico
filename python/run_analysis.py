@@ -13,8 +13,8 @@ class ConsciousnessMonitor(FileSystemEventHandler):
         self.last_analysis = 0
         self.analysis_cooldown = 2  # Minimum seconds between analyses
         
-        print("🔍 Consciousness Monitor initialized")
-        print(f"👁️  Watching: {self.bridge.consciousness_export_file}")
+        print("Consciousness Monitor initialized")
+        print(f"Watching: {self.bridge.consciousness_export_file}")
         
     def on_modified(self, event):
         if event.is_directory:
@@ -28,7 +28,7 @@ class ConsciousnessMonitor(FileSystemEventHandler):
             if current_time - self.last_analysis < self.analysis_cooldown:
                 return
                 
-            print(f"\n🔄 Consciousness data updated at {time.strftime('%H:%M:%S')}")
+            print(f"\nConsciousness data updated at {time.strftime('%H:%M:%S')}")
             
             try:
                 # Perform analysis
@@ -38,14 +38,14 @@ class ConsciousnessMonitor(FileSystemEventHandler):
                     self._print_live_insights(results)
                     self.last_analysis = current_time
                 else:
-                    print("⚠️  No valid consciousness data to analyze")
+                    print("No valid consciousness data to analyze")
                     
             except Exception as e:
-                print(f"❌ Analysis error: {e}")
+                print(f"Analysis error: {e}")
     
     def _print_live_insights(self, results):
         """Print key insights in real-time"""
-        print(f"📊 Generation {results.get('generation', '?')} | "
+        print(f"Generation {results.get('generation', '?')} | "
               f"Pixels: {results.get('pixel_count', 0)} | "
               f"Consciousness: {results.get('overall_consciousness_level', 0):.2f}")
         
@@ -59,17 +59,17 @@ class ConsciousnessMonitor(FileSystemEventHandler):
                 personality_summary.append(f"{count} {ptype}")
             
             if personality_summary:
-                print(f"🎭 Personalities: {', '.join(personality_summary)}")
+                print(f"Personalities: {', '.join(personality_summary)}")
         
         # Show emergence level
         emergence = results.get('emergence_metrics', {}).get('emergence_score', 0)
-        emergence_level = "🌟 High" if emergence > 0.7 else "📈 Moderate" if emergence > 0.4 else "🌱 Low"
-        print(f"🧬 Emergence: {emergence_level} ({emergence:.2f})")
+        emergence_level = "High" if emergence > 0.7 else "Moderate" if emergence > 0.4 else "Low"
+        print(f"Emergence: {emergence_level} ({emergence:.2f})")
         
         # Show top insight
         insights = results.get('session_insights', [])
         if insights:
-            print(f"💡 {insights[0]}")
+            print(f"Key insight: {insights[0]}")
         
         print("-" * 50)
 
@@ -84,40 +84,40 @@ def run_live_monitor():
     
     observer.start()
     
-    print(f"🚀 Live consciousness monitoring started!")
-    print(f"📁 Watching directory: {watch_path}")
-    print("🎮 Start your PICO-8 Sentium Pico simulation to see live analysis")
-    print("⏹️  Press Ctrl+C to stop monitoring\n")
+    print(f"Live consciousness monitoring started!")
+    print(f"Watching directory: {watch_path}")
+    print("Start your PICO-8 Sentium Pico simulation to see live analysis")
+    print("Press Ctrl+C to stop monitoring\n")
     
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
-        print("\n🛑 Consciousness monitoring stopped")
+        print("\nConsciousness monitoring stopped")
     
     observer.join()
 
 def run_single_analysis():
     """Run a single analysis without monitoring"""
-    print("🔬 Running single consciousness analysis...")
+    print("Running single consciousness analysis...")
     
     analyzer = ConsciousnessAnalyzer()
     results = analyzer.analyze_full_consciousness_state()
     
     if results:
         print("\n" + "="*60)
-        print("🧠 CONSCIOUSNESS ANALYSIS REPORT")
+        print("CONSCIOUSNESS ANALYSIS REPORT")
         print("="*60)
         
-        print(f"📅 Generation: {results.get('generation', 'Unknown')}")
-        print(f"👥 Pixel Population: {results.get('pixel_count', 0)}")
-        print(f"🧠 Overall Consciousness Level: {results.get('overall_consciousness_level', 0):.3f}")
-        print(f"🎭 Dominant Personality: {results.get('dominant_personality', 'Unknown')}")
+        print(f"Generation: {results.get('generation', 'Unknown')}")
+        print(f"Pixel Population: {results.get('pixel_count', 0)}")
+        print(f"Overall Consciousness Level: {results.get('overall_consciousness_level', 0):.3f}")
+        print(f"Dominant Personality: {results.get('dominant_personality', 'Unknown')}")
         
         # Detailed emergence metrics
         emergence = results.get('emergence_metrics', {})
-        print(f"\n🧬 EMERGENCE METRICS:")
+        print(f"\nEMERGENCE METRICS:")
         print(f"  • Emergence Score: {emergence.get('emergence_score', 0):.3f}")
         print(f"  • Personality Diversity: {emergence.get('personality_diversity', 0):.3f}")
         print(f"  • Collective Energy: {emergence.get('collective_energy', 0):.1f}")
@@ -126,7 +126,7 @@ def run_single_analysis():
         # Individual pixel analysis
         consciousness_scores = results.get('consciousness_scores', [])
         if consciousness_scores:
-            print(f"\n👤 INDIVIDUAL CONSCIOUSNESS SCORES:")
+            print(f"\nINDIVIDUAL CONSCIOUSNESS SCORES:")
             for score in consciousness_scores:
                 pixel_id = score.get('pixel_id', '?')
                 c_score = score.get('consciousness_score', 0)
@@ -135,14 +135,14 @@ def run_single_analysis():
         # Session insights
         insights = results.get('session_insights', [])
         if insights:
-            print(f"\n💡 SESSION INSIGHTS:")
+            print(f"\nSESSION INSIGHTS:")
             for i, insight in enumerate(insights, 1):
                 print(f"  {i}. {insight}")
         
         print("\n" + "="*60)
         
     else:
-        print("❌ No consciousness data available for analysis")
+        print("No consciousness data available for analysis")
 
 if __name__ == "__main__":
     import sys
@@ -150,7 +150,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "monitor":
         run_live_monitor()
     else:
-        print("🧠 Sentium Pico Consciousness Analyzer")
+        print("Sentium Pico Consciousness Analyzer")
         print("\nOptions:")
         print("  python run_analysis.py        - Run single analysis")
         print("  python run_analysis.py monitor - Start live monitoring")

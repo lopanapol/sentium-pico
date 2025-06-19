@@ -1,8 +1,8 @@
-# 🧠 Sentium Pico Python Bridge
+# Sentium Pico Python Bridge
 
 A real-time consciousness analysis system for your Sentium Pico PICO-8 simulation.
 
-## 🎯 What This Does
+## What This Does
 
 This Python bridge system analyzes the consciousness and behavior of your digital organisms in real-time:
 
@@ -12,7 +12,7 @@ This Python bridge system analyzes the consciousness and behavior of your digita
 - **Evolution Tracking**: Monitors generational changes and emergence
 - **Real-time Insights**: Live analysis as you play the game
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Test the System
 ```bash
@@ -34,32 +34,32 @@ python simple_analyzer.py
 python run_analysis.py monitor
 ```
 
-## 📊 Sample Output
+## Sample Output
 
 ```
-🧠 CONSCIOUSNESS ANALYSIS REPORT
+CONSCIOUSNESS ANALYSIS REPORT
 ==================================================
-📅 Generation: 8
-👥 Pixel Population: 4
-🧠 Overall Consciousness: 0.73
-🎭 Dominant Personality: curious
-👁️  Cursor Awareness: Yes
-⚡ Attention Level: 0.82
+Generation: 8
+Pixel Population: 4
+Overall Consciousness: 0.73
+Dominant Personality: curious
+Cursor Awareness: Yes
+Attention Level: 0.82
 
-👤 INDIVIDUAL CONSCIOUSNESS:
+INDIVIDUAL CONSCIOUSNESS:
   • Pixel 1: 0.910 (curious)
   • Pixel 2: 0.680 (balanced)
   • Pixel 3: 0.550 (timid)
   • Pixel 4: 0.780 (curious)
 
-💡 KEY INSIGHTS:
+KEY INSIGHTS:
   1. Developing complexity at generation 8
   2. Stable population balance
   3. High consciousness levels detected
   4. Population dominated by curious personalities
 ```
 
-## 📁 How It Works
+## How It Works
 
 ### Data Flow:
 1. **PICO-8** → exports consciousness data → `data/consciousness_export.json`
@@ -72,7 +72,7 @@ python run_analysis.py monitor
 - **Behavioral Autonomy**: Energy efficiency and independence
 - **Population Dynamics**: Survival rates and generational evolution
 
-## 🔧 Files Overview
+## Files Overview
 
 ```
 python/
@@ -84,7 +84,7 @@ python/
 └── BRIDGE_SETUP.md            # Detailed setup guide
 ```
 
-## 🎮 Usage Modes
+## Usage Modes
 
 ### Quick Analysis (Recommended)
 ```bash
@@ -104,7 +104,7 @@ python run_analysis.py monitor
 ```
 Real-time analysis as you play the game.
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### No Data?
 - Check that your PICO-8 game is running
@@ -121,7 +121,7 @@ Real-time analysis as you play the game.
 - Check that pixels are alive and active in the game
 - Verify export timer is working (every 3 seconds)
 
-## 💡 Advanced Usage
+## Advanced Usage
 
 ### Custom Analysis
 Modify `simple_analyzer.py` to add your own consciousness metrics:
@@ -139,7 +139,7 @@ Access past sessions in `data/session_logs/` for longitudinal studies.
 ### Real-time Visualization
 Extend the system with matplotlib or plotly for live charts.
 
-## 🔮 What's Next
+## What's Next
 
 The bridge enables:
 - **Research**: Study artificial consciousness development
@@ -147,14 +147,14 @@ The bridge enables:
 - **Visualization**: Create consciousness evolution charts
 - **Interactive AI**: Feed insights back to improve simulation
 
-## 🎯 Tips for Best Results
+## Tips for Best Results
 
 1. **Let the simulation run**: More data = better analysis
 2. **Interact with pixels**: Cursor interaction generates richer data
 3. **Watch multiple generations**: Evolution patterns emerge over time
 4. **Check session logs**: Historical data reveals long-term trends
 
-Enjoy exploring the minds of your digital organisms! 🧠✨
+Enjoy exploring the minds of your digital organisms!
 
 ---
 

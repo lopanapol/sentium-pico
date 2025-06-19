@@ -9,19 +9,19 @@ class SimpleConsciousnessAnalyzer:
     
     def analyze_consciousness(self):
         """Simple consciousness analysis without heavy ML dependencies"""
-        print("🧠 Starting simple consciousness analysis...")
+        print("Starting simple consciousness analysis...")
         
         # Read data from PICO-8
         data = self.bridge.read_consciousness_data()
         if not data:
-            print("❌ No consciousness data available")
+            print("No consciousness data available")
             return None
         
         pixels = data.get('pixels', [])
         cursor_data = data.get('cursor_interaction', {})
         generation = data.get('generation', 1)
         
-        print(f"📊 Analyzing {len(pixels)} pixels from generation {generation}")
+        print(f"Analyzing {len(pixels)} pixels from generation {generation}")
         
         # Simple consciousness scoring
         consciousness_scores = []
@@ -117,18 +117,18 @@ if __name__ == "__main__":
     
     if results:
         print("\n" + "="*50)
-        print("🧠 CONSCIOUSNESS ANALYSIS REPORT")
+        print("CONSCIOUSNESS ANALYSIS REPORT")
         print("="*50)
         
-        print(f"📅 Generation: {results.get('generation', 'Unknown')}")
-        print(f"👥 Pixel Population: {results.get('pixel_count', 0)}")
-        print(f"🧠 Overall Consciousness: {results.get('overall_consciousness_level', 0):.3f}")
-        print(f"🎭 Dominant Personality: {results.get('dominant_personality', 'Unknown')}")
-        print(f"👁️  Cursor Awareness: {'Yes' if results.get('cursor_awareness') else 'No'}")
-        print(f"⚡ Attention Level: {results.get('attention_level', 0):.2f}")
+        print(f"Generation: {results.get('generation', 'Unknown')}")
+        print(f"Pixel Population: {results.get('pixel_count', 0)}")
+        print(f"Overall Consciousness: {results.get('overall_consciousness_level', 0):.3f}")
+        print(f"Dominant Personality: {results.get('dominant_personality', 'Unknown')}")
+        print(f"Cursor Awareness: {'Yes' if results.get('cursor_awareness') else 'No'}")
+        print(f"Attention Level: {results.get('attention_level', 0):.2f}")
         
         # Individual scores
-        print(f"\n👤 INDIVIDUAL CONSCIOUSNESS:")
+        print(f"\nINDIVIDUAL CONSCIOUSNESS:")
         for score in results.get('consciousness_scores', []):
             pixel_id = score.get('pixel_id', '?')
             c_score = score.get('consciousness_score', 0)
@@ -138,17 +138,17 @@ if __name__ == "__main__":
         # Personality distribution
         dist = results.get('personality_distribution', {})
         if dist:
-            print(f"\n🎭 PERSONALITY DISTRIBUTION:")
+            print(f"\nPERSONALITY DISTRIBUTION:")
             for ptype, count in dist.items():
                 print(f"  • {ptype.title()}: {count} pixels")
         
         # Insights
         insights = results.get('session_insights', [])
         if insights:
-            print(f"\n💡 KEY INSIGHTS:")
+            print(f"\nKEY INSIGHTS:")
             for i, insight in enumerate(insights, 1):
                 print(f"  {i}. {insight}")
         
         print("\n" + "="*50)
     else:
-        print("❌ Analysis failed - no data available")
+        print("Analysis failed - no data available")

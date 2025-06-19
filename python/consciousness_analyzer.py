@@ -184,18 +184,18 @@ class ConsciousnessAnalyzer:
     
     def analyze_full_consciousness_state(self):
         """Perform complete consciousness analysis"""
-        print("🧠 Starting consciousness analysis...")
+        print("Starting consciousness analysis...")
         
         # Read data from PICO-8
         data = self.bridge.read_consciousness_data()
         if not data:
-            print("❌ No consciousness data available")
+            print("No consciousness data available")
             return None
         
         pixels = data.get('pixels', [])
         cursor_data = data.get('cursor_interaction', {})
         
-        print(f"📊 Analyzing {len(pixels)} pixels from generation {data.get('generation')}")
+        print(f"Analyzing {len(pixels)} pixels from generation {data.get('generation')}")
         
         # Perform all analyses
         consciousness_scores = self.analyze_pixel_consciousness(pixels)
@@ -225,7 +225,7 @@ class ConsciousnessAnalyzer:
         # Log session data
         self.bridge.log_session_data(data)
         
-        print(f"✅ Analysis complete! Overall consciousness level: {insights['overall_consciousness_level']:.2f}")
+        print(f"Analysis complete! Overall consciousness level: {insights['overall_consciousness_level']:.2f}")
         
         return insights
     
@@ -293,10 +293,10 @@ if __name__ == "__main__":
     results = analyzer.analyze_full_consciousness_state()
     
     if results:
-        print("\n🎯 Key Insights:")
+        print("\nKey Insights:")
         for insight in results.get('session_insights', []):
             print(f"  • {insight}")
         
-        print(f"\n📈 Consciousness Level: {results['overall_consciousness_level']:.2f}")
-        print(f"🎭 Dominant Personality: {results['dominant_personality']}")
-        print(f"🧬 Emergence Score: {results['emergence_metrics']['emergence_score']:.2f}")
+        print(f"\nConsciousness Level: {results['overall_consciousness_level']:.2f}")
+        print(f"Dominant Personality: {results['dominant_personality']}")
+        print(f"Emergence Score: {results['emergence_metrics']['emergence_score']:.2f}")
