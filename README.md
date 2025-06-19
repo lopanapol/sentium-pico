@@ -2,7 +2,7 @@
 
 *An experiment in artificial consciousness within PICO-8's constraints*
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](#)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-Sentium-red.svg)](https://sentium.dev/license.txt)
 [![GitHub](https://img.shields.io/badge/GitHub-lopanapol/sentium--pico--8-white.svg)](https://github.com/lopanapol/sentium-pico-8)
 
@@ -69,7 +69,14 @@ The code implements simplified versions of actual consciousness theories - Globa
 
 ## Recent changes
 
-### v1.1.0 - *Current version*
+### v1.2.0 - *Current version*
+
+- Added Python bridge system for real-time consciousness analysis
+- Updated version to 1.2.0
+- Added advanced consciousness metrics and behavior prediction
+- Created file-based communication between PICO-8 and Python
+
+### v1.1.0 - *Previous version*
 
 - Updated version to 1.1.0
 - Added this more detailed README with research background
