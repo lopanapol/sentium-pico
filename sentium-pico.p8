@@ -1590,6 +1590,9 @@ function export_consciousness_data()
   export_data = export_data .. "  \"energy_cubes\": " .. #energy_cubes .. ",\n"
   export_data = export_data .. "  \"session_duration\": " .. (time() * 60) .. "\n"
   export_data = export_data .. "}"
+  if export_timer == export_interval then
+    printh(export_data, "data/consciousness_export.json")
+  end
 end
 function read_python_insights()
 end
