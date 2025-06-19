@@ -1,54 +1,124 @@
 {
-  "timestamp": 1750319117.9968598,
-  "generation": 5,
-  "pixel_count": 3,
+  "timestamp": 6.1,
+  "generation": 54,
+  "pixel_count": 8,
   "pixels": [
     {
       "id": 1,
-      "x": 64,
-      "y": 64,
-      "curiosity": 0.7,
-      "timidity": 0.3,
-      "energy": 15,
-      "age": 120,
-      "color": 8,
-      "memory": [
-        {
-          "event": "division",
-          "impact": 0.8
-        },
-        {
-          "event": "cursor_approach",
-          "impact": 0.6
-        }
-      ]
+      "x": 99.6411,
+      "y": 20.6397,
+      "curiosity": 1,
+      "timidity": 1,
+      "energy": 27.8942,
+      "age": 2,
+      "color": 7,
+      "generation": 1,
+      "memory": []
     },
     {
       "id": 2,
-      "x": 80,
-      "y": 50,
-      "curiosity": 0.4,
-      "timidity": 0.8,
-      "energy": 12,
-      "age": 90,
-      "color": 12,
-      "memory": [
-        {
-          "event": "energy_found",
-          "impact": 0.5
-        },
-        {
-          "event": "cursor_flee",
-          "impact": -0.4
-        }
-      ]
+      "x": 36.086,
+      "y": 33.4386,
+      "curiosity": 1,
+      "timidity": 1,
+      "energy": 85.4495,
+      "age": 2,
+      "color": 7,
+      "generation": 1,
+      "memory": []
+    },
+    {
+      "id": 3,
+      "x": 94.6205,
+      "y": 20.1767,
+      "curiosity": 1,
+      "timidity": 1,
+      "energy": 0,
+      "age": 2,
+      "color": 8,
+      "generation": 1,
+      "memory": []
+    },
+    {
+      "id": 4,
+      "x": 24.7131,
+      "y": 89.4866,
+      "curiosity": 1,
+      "timidity": 1,
+      "energy": 29.7216,
+      "age": 2,
+      "color": 7,
+      "generation": 1,
+      "memory": []
+    },
+    {
+      "id": 5,
+      "x": 92.3756,
+      "y": 21.2681,
+      "curiosity": 1,
+      "timidity": 1,
+      "energy": 3.7629,
+      "age": 2,
+      "color": 8,
+      "generation": 1,
+      "memory": []
+    },
+    {
+      "id": 6,
+      "x": 95.309,
+      "y": 20.216,
+      "curiosity": 1,
+      "timidity": 1,
+      "energy": 0,
+      "age": 2,
+      "color": 8,
+      "generation": 1,
+      "memory": []
+    },
+    {
+      "id": 0,
+      "x": 97.0957,
+      "y": 73.4407,
+      "curiosity": 1,
+      "timidity": 1,
+      "energy": 0,
+      "age": 2,
+      "color": 8,
+      "generation": 1,
+      "memory": []
+    },
+    {
+      "id": 0,
+      "x": 4.5352,
+      "y": 4.5946,
+      "curiosity": 0,
+      "timidity": 0,
+      "energy": 0,
+      "age": 2,
+      "color": 8,
+      "generation": 0,
+      "memory": []
     }
   ],
   "cursor_interaction": {
     "is_aware": true,
-    "attention_level": 0.6,
-    "collective_excitement": 0.45
+    "attention_level": 0,
+    "collective_excitement": 0.3976
   },
-  "energy_cubes": 5,
-  "session_duration": 300
+  "energy_cubes": 3,
+  "session_duration": 365.9995
 }
+{"timestamp":6.1,"generation":54,"pixel_count":8,"energy_cubes":3}
+{"timestamp":12.1333,"generation":54,"pixel_count":8,"energy_cubes":5}
+{"timestamp":18.1667,"generation":54,"pixel_count":8,"energy_cubes":5}
+{"timestamp":24.2,"generation":54,"pixel_count":8,"energy_cubes":5}
+{"timestamp":6.1,"generation":55,"pixel_count":8,"energy_cubes":4}
+{"timestamp":12.1333,"generation":55,"pixel_count":8,"energy_cubes":5}
+{"timestamp":18.1667,"generation":55,"pixel_count":8,"energy_cubes":5}
+{"timestamp":24.2,"generation":55,"pixel_count":8,"energy_cubes":5}
+{"timestamp":30.2333,"generation":56,"pixel_count":8,"energy_cubes":5}
+{"timestamp":36.2667,"generation":56,"pixel_count":8,"energy_cubes":5}
+{"timestamp":42.3,"generation":56,"pixel_count":8,"energy_cubes":5}
+{"timestamp":48.3333,"generation":57,"pixel_count":8,"energy_cubes":5}
+{"timestamp":54.3667,"generation":57,"pixel_count":8,"energy_cubes":5}
+{"timestamp":60.4,"generation":57,"pixel_count":8,"energy_cubes":5}

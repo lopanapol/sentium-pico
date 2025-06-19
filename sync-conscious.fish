@@ -24,8 +24,8 @@ function sync_consciousness_data
         end
     end
     
-    # Also check PICO-8 carts directory
-    set consciousness_files (find "$PICO_CARTS_DIR" -name "*consciousness*.json" -type f 2>/dev/null)
+    # Also check PICO-8 carts directory for .p8l files (PICO-8 log files)
+    set consciousness_files (find "$PICO_CARTS_DIR" -name "*consciousness*.p8l" -type f 2>/dev/null)
     
     if test (count $consciousness_files) -gt 0
         for file in $consciousness_files
