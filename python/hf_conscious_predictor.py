@@ -1,6 +1,7 @@
 """
-Hugging Face-based Consciousness Predictor
-Uses pre-trained models and consciousness-related datasets from Hugging Face
+Sentium Pico Hugging Face Consciousness Predictor v2.0.0
+Uses pre-trained transformer models and consciousness-related datasets from Hugging Face
+Advanced NLP-based consciousness analysis with sentiment, emotion, and cognitive modeling
 """
 
 import numpy as np

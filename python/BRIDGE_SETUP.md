@@ -1,8 +1,8 @@
-# Sentium Pico Python Bridge Setup Guide
+# Sentium Pico Python Bridge v2.0.0 Setup Guide
 
 ## Overview
 
-The Python bridge system enables real-time consciousness analysis of your Sentium Pico sim## Tips
+The Python bridge system enables real-time AI-powered consciousness analysis of your Sentium Pico simulation using advanced Hugging Face transformer models and neural networks. This version introduces sophisticated natural language processing and machine learning capabilities for deeper consciousness understanding.
 
 1. **Start Simple**: Run single analysis first to test the system
 2. **Live Monitoring**: Best experience when running alongside PICO-8

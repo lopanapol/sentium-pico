@@ -1,3 +1,8 @@
+"""
+Sentium Pico Analysis Runner v2.0.0
+Real-time consciousness analysis and monitoring system
+"""
+
 import time
 import json
 from watchdog.observers import Observer

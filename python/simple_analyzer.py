@@ -1,3 +1,8 @@
+"""
+Sentium Pico Simple Consciousness Analyzer v2.0.0
+Lightweight consciousness analysis without heavy ML dependencies
+"""
+
 import json
 import time
 from datetime import datetime

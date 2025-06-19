@@ -2,7 +2,7 @@
 
 *An experiment in artificial consciousness within PICO-8's constraints*
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](#)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-Sentium-red.svg)](https://sentium.dev/license.txt)
 [![GitHub](https://img.shields.io/badge/GitHub-lopanapol/sentium--pico--8-white.svg)](https://github.com/lopanapol/sentium-pico-8)
 
@@ -69,14 +69,25 @@ The code implements simplified versions of actual consciousness theories - Globa
 
 ## Recent changes
 
-### v1.2.0 - *Current version*
+### v2.0.0 - *Current version*
+
+- Added Hugging Face AI integration for advanced consciousness analysis
+- Implemented LSTM neural network for consciousness prediction
+- Added multi-model NLP analysis (sentiment, emotion, cognitive state)
+- Created comprehensive AI-powered insights and recommendations
+- Renamed files for consistent 'conscious' naming convention
+- Updated Python bridge with advanced machine learning capabilities
+- Added support for pre-trained transformer models
+- Enhanced consciousness scoring with AI-based analysis
+
+### v1.2.0 - *Previous version*
 
 - Added Python bridge system for real-time consciousness analysis
 - Updated version to 1.2.0
 - Added advanced consciousness metrics and behavior prediction
 - Created file-based communication between PICO-8 and Python
 
-### v1.1.0 - *Previous version*
+### v1.1.0 - *Earlier version*
 
 - Updated version to 1.1.0
 - Added this more detailed README with research background

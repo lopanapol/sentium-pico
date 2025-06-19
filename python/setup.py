@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Sentium Pico Python Bridge - Quick Setup and Test
+Sentium Pico Python Bridge v2.0.0 - Quick Setup and Test
+AI-powered consciousness analysis with Hugging Face integration
 """
 
 import subprocess
@@ -109,8 +110,8 @@ def test_system():
 
 def show_usage():
     """Show usage instructions"""
-    print("Sentium Pico Python Bridge")
-    print("="*30)
+    print("Sentium Pico Python Bridge v2.0.0")
+    print("="*35)
     print("Commands:")
     print("  python setup.py setup  - Set up the bridge system")
     print("  python setup.py test   - Test with sample data")

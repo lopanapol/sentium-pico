@@ -1,3 +1,8 @@
+"""
+Sentium Pico Consciousness Analyzer v2.0.0
+Advanced consciousness analysis with machine learning capabilities
+"""
+
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Consciousness Predictor Demo
-Test the LSTM neural network for consciousness prediction
+Sentium Pico Consciousness Predictor Demo v2.0.0
+Test the LSTM neural network and Hugging Face models for consciousness prediction
 """
 
 import sys

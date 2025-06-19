@@ -1,3 +1,8 @@
+"""
+Sentium Pico Consciousness Predictor v2.0.0
+LSTM neural network for consciousness prediction and evolution analysis
+"""
+
 import numpy as np
 import pandas as pd
 import tensorflow as tf

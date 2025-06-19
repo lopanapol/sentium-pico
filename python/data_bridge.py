@@ -1,3 +1,8 @@
+"""
+Sentium Pico Data Bridge v2.0.0
+File-based communication system between PICO-8 and Python analysis modules
+"""
+
 import json
 import time
 import os

@@ -1,16 +1,19 @@
-# Sentium Pico Python Bridge
+# Sentium Pico Python Bridge v2.0.0
 
-A real-time consciousness analysis system for your Sentium Pico PICO-8 simulation.
+A real-time consciousness analysis system with AI-powered insights for your Sentium Pico PICO-8 simulation.
 
 ## What This Does
 
-This Python bridge system analyzes the consciousness and behavior of your digital organisms in real-time:
+This Python bridge system analyzes the consciousness and behavior of your digital organisms using advanced AI models:
 
-- **Consciousness Scoring**: Measures individual pixel consciousness levels
-- **Personality Analysis**: Identifies curious, timid, and balanced personalities  
-- **Behavior Prediction**: Forecasts pixel actions and interactions
-- **Evolution Tracking**: Monitors generational changes and emergence
-- **Real-time Insights**: Live analysis as you play the game
+- **AI-Powered Analysis**: Uses Hugging Face transformer models for consciousness understanding
+- **Consciousness Scoring**: Measures individual pixel consciousness levels with neural networks
+- **NLP Insights**: Converts pixel behavior to natural language descriptions and analysis
+- **Personality Analysis**: AI-powered identification of curious, timid, and balanced personalities  
+- **Behavior Prediction**: LSTM neural networks forecast pixel actions and interactions
+- **Evolution Tracking**: Monitors generational changes and emergence patterns
+- **Real-time Insights**: Live AI analysis as you play the game
+- **Multi-Model Approach**: Combines sentiment, emotion, and cognitive analysis models
 
 ## Quick Start
 
