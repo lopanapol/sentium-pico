@@ -2,7 +2,7 @@ import time
 import json
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from consciousness_analyzer import ConsciousnessAnalyzer
+from conscious_analyzer import ConsciousnessAnalyzer
 from data_bridge import DataBridge
 from pathlib import Path
 
@@ -14,14 +14,14 @@ class ConsciousnessMonitor(FileSystemEventHandler):
         self.analysis_cooldown = 2  # Minimum seconds between analyses
         
         print("Consciousness Monitor initialized")
-        print(f"Watching: {self.bridge.consciousness_export_file}")
+        print(f"Watching: {self.bridge.conscious_export_file}")
         
     def on_modified(self, event):
         if event.is_directory:
             return
             
         # Check if it's our consciousness export file
-        if Path(event.src_path) == self.bridge.consciousness_export_file:
+        if Path(event.src_path) == self.bridge.conscious_export_file:
             current_time = time.time()
             
             # Avoid rapid-fire analysis

@@ -62,7 +62,7 @@ KEY INSIGHTS:
 ## How It Works
 
 ### Data Flow:
-1. **PICO-8** → exports consciousness data → `data/consciousness_export.json`
+1. **PICO-8** → exports consciousness data → `data/conscious_export.json`
 2. **Python** → analyzes data → writes insights → `data/python_insights.json`
 3. **History** → session logs saved → `data/session_logs/`
 
@@ -79,7 +79,7 @@ python/
 ├── setup.py                    # Quick setup and testing
 ├── data_bridge.py              # File I/O communication
 ├── simple_analyzer.py          # Fast analysis (recommended)
-├── consciousness_analyzer.py   # Full ML analysis (slower)
+├── conscious_analyzer.py   # Full ML analysis (slower)
 ├── run_analysis.py            # Live monitoring system
 └── BRIDGE_SETUP.md            # Detailed setup guide
 ```
@@ -94,7 +94,7 @@ Fast analysis with core consciousness metrics.
 
 ### Full ML Analysis
 ```bash
-python consciousness_analyzer.py
+python conscious_analyzer.py
 ```
 Advanced analysis with machine learning clustering and predictions.
 
@@ -108,7 +108,7 @@ Real-time analysis as you play the game.
 
 ### No Data?
 - Check that your PICO-8 game is running
-- Look for `data/consciousness_export.json` file
+- Look for `data/conscious_export.json` file
 - Verify PICO-8 can write files (permissions)
 
 ### Python Errors?

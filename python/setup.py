@@ -118,7 +118,7 @@ def show_usage():
     print()
     print("Analysis commands:")
     print("  python simple_analyzer.py      - Run simple analysis")
-    print("  python consciousness_analyzer.py - Run full ML analysis (slower)")
+    print("  python conscious_analyzer.py - Run full ML analysis (slower)")
     print("  python run_analysis.py monitor  - Live monitoring")
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ The Python bridge system enables real-time consciousness analysis of your Sentiu
 1. **Start Simple**: Run single analysis first to test the system
 2. **Live Monitoring**: Best experience when running alongside PICO-8
 3. **Historical Data**: Check `data/session_logs/` for past sessions
-4. **Customize Analysis**: Modify `consciousness_analyzer.py` for your needs
+4. **Customize Analysis**: Modify `conscious_analyzer.py` for your needs
 5. **Export Frequency**: Adjust `export_interval` in PICO-8 code if needed
 
 ## What's Next
@@ -27,13 +27,13 @@ Enjoy exploring the consciousness of your digital organisms!ile-based communicat
 /Users/lopanapol/Sentium/sentium-pico-8/
 ├── sentium-pico.p8              # Your PICO-8 game (now with export)
 ├── data/                        # Data exchange folder
-│   ├── consciousness_export.json    # PICO-8 writes here
+│   ├── conscious_export.json    # PICO-8 writes here
 │   ├── python_insights.json        # Python writes here
 │   └── session_logs/               # Historical data
 ├── python/                      # Python analysis system
 │   ├── requirements.txt            # Dependencies
 │   ├── data_bridge.py              # File communication
-│   ├── consciousness_analyzer.py   # Main analysis engine
+│   ├── conscious_analyzer.py   # Main analysis engine
 │   └── run_analysis.py            # Entry point
 └── README.md, docs/, etc.
 ```
@@ -64,7 +64,7 @@ python run_analysis.py monitor
 
 1. Open `sentium-pico.p8` in PICO-8
 2. Run the game normally
-3. The game now exports consciousness data every 3 seconds to `data/consciousness_export.json`
+3. The game now exports consciousness data every 3 seconds to `data/conscious_export.json`
 
 ### 4. Start Live Analysis
 
@@ -78,7 +78,7 @@ python run_analysis.py monitor
 ### Live Monitoring Output:
 ```
 Consciousness Monitor initialized
-Watching: /Users/lopanapol/Sentium/sentium-pico-8/data/consciousness_export.json
+Watching: /Users/lopanapol/Sentium/sentium-pico-8/data/conscious_export.json
 Live consciousness monitoring started!
 
 Consciousness data updated at 14:32:15
@@ -100,7 +100,7 @@ Key insight: Developing complexity: Generation 5 building diversity
 ### PICO-8 Side:
 - `export_consciousness_data()` runs every 3 seconds
 - Exports pixel data, personalities, cursor interaction, energy levels
-- Writes JSON to `data/consciousness_export.json`
+- Writes JSON to `data/conscious_export.json`
 - Uses `printh()` function for file output
 
 ### Python Side:
@@ -125,7 +125,7 @@ Continuously monitors and analyzes as you play.
 
 ### Batch Analysis
 ```bash
-python consciousness_analyzer.py
+python conscious_analyzer.py
 ```
 Direct analysis with detailed output.
 
@@ -148,7 +148,7 @@ Direct analysis with detailed output.
 ### No Data Export?
 - Check that PICO-8 can write files (permissions)
 - Verify `printh()` is working in your PICO-8 setup
-- Look for the `consciousness_export.json` file
+- Look for the `conscious_export.json` file
 
 ### Python Errors?
 - Install dependencies: `pip install -r requirements.txt`
@@ -165,7 +165,7 @@ Direct analysis with detailed output.
 1. **Start Simple**: Run single analysis first to test the system
 2. **Live Monitoring**: Best experience when running alongside PICO-8
 3. **Historical Data**: Check `data/session_logs/` for past sessions
-4. **Customize Analysis**: Modify `consciousness_analyzer.py` for your needs
+4. **Customize Analysis**: Modify `conscious_analyzer.py` for your needs
 5. **Export Frequency**: Adjust `export_interval` in PICO-8 code if needed
 
 ## 🔮 What's Next?

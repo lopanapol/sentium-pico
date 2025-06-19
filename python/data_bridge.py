@@ -11,7 +11,7 @@ class DataBridge:
         self.session_logs_path = self.data_path / "session_logs"
         
         # File paths for data exchange
-        self.consciousness_export_file = self.data_path / "consciousness_export.json"
+        self.conscious_export_file = self.data_path / "conscious_export.json"
         self.python_insights_file = self.data_path / "python_insights.json"
         
         # Ensure directories exist
@@ -23,8 +23,8 @@ class DataBridge:
     def read_consciousness_data(self):
         """Read consciousness data exported from PICO-8"""
         try:
-            if self.consciousness_export_file.exists():
-                with open(self.consciousness_export_file, 'r') as f:
+            if self.conscious_export_file.exists():
+                with open(self.conscious_export_file, 'r') as f:
                     data = json.load(f)
                     print(f"Read consciousness data with {len(data.get('pixels', []))} pixels")
                     return data
@@ -110,7 +110,7 @@ class DataBridge:
             "session_duration": 300
         }
         
-        with open(self.consciousness_export_file, 'w') as f:
+        with open(self.conscious_export_file, 'w') as f:
             json.dump(sample_data, f, indent=2)
         
         print("Created sample consciousness export for testing")

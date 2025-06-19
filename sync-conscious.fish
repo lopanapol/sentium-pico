@@ -17,9 +17,9 @@ function sync_consciousness_data
     # Check for consciousness export files in project directory (where PICO-8 writes)
     if test -f "$REPO_DIR/consciousness_live.json"
         # Check if the live file is newer than our target
-        if not test -f "$DATA_DIR/consciousness_export.json" -o "$REPO_DIR/consciousness_live.json" -nt "$DATA_DIR/consciousness_export.json"
+        if not test -f "$DATA_DIR/conscious_export.json" -o "$REPO_DIR/consciousness_live.json" -nt "$DATA_DIR/conscious_export.json"
             echo "Found new consciousness data: consciousness_live.json"
-            cp "$REPO_DIR/consciousness_live.json" "$DATA_DIR/consciousness_export.json"
+            cp "$REPO_DIR/consciousness_live.json" "$DATA_DIR/conscious_export.json"
             echo "Synced consciousness data at "(date)
         end
     end
@@ -29,10 +29,10 @@ function sync_consciousness_data
     
     if test (count $consciousness_files) -gt 0
         for file in $consciousness_files
-            if not test -f "$DATA_DIR/consciousness_export.json" -o "$file" -nt "$DATA_DIR/consciousness_export.json"
+            if not test -f "$DATA_DIR/conscious_export.json" -o "$file" -nt "$DATA_DIR/conscious_export.json"
                 set filename (basename "$file")
                 echo "Found new consciousness data: $filename"
-                cp "$file" "$DATA_DIR/consciousness_export.json"
+                cp "$file" "$DATA_DIR/conscious_export.json"
                 echo "Synced consciousness data at "(date)
             end
         end
