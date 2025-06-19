@@ -349,14 +349,12 @@ function update_consciousness()
     local px, py = pixel.x, pixel.y
     local energy = pixel.energy
     local consc_level = pixel.consc_level or 0
-    
     update_movement(pixel)
     update_emotions(pixel)
     process_metacognition(pixel)
     update_global_workspace(pixel)
     update_attention_schema(pixel)
     update_predictive_processing(pixel)
-    
     local old_consciousness = consc_level
     pixel.consc_level = calculate_phi(pixel)
     if pixel.consc_level > old_consciousness + 0.1 then
@@ -674,7 +672,6 @@ function update_biological_processes()
     local repro_drive = pixel.repro_drive
     local div_progress = pixel.div_progress
     local size = pixel.size
-    
     pixel.age += 1
     pixel.division_timer = max(0, pixel.division_timer - 1)
     local energy_cost = metabolic_rate * metab_eff
@@ -724,7 +721,6 @@ function draw_single_pixel(pixel)
   local age = pixel.age
   local div_progress = pixel.div_progress
   local stuck_timer = pixel.stuck_timer
-  
   local generation_colors = {7, 12, 11, 3, 9, 10, 4, 2, 8, 14, 13, 1, 5, 6, 15}
   local base_color = generation_colors[generation] or 7
   local size_modifier = cursor_attention * 0.5
@@ -1063,19 +1059,15 @@ function dist(x1, y1, x2, y2)
   local dy = y2 - y1
   return sqrt(dx*dx + dy*dy)
 end
-
 function pixel_dist_to_cursor(pixel)
   return dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
 end
-
 function pixel_dist_to_cube(pixel, cube)
   return dist(pixel.x, pixel.y, cube.x, cube.y)
 end
-
 function get_pixel_pos(pixel)
   return pixel.x, pixel.y
 end
-
 function set_pixel_pos(pixel, x, y)
   pixel.x = x
   pixel.y = y
@@ -1237,7 +1229,6 @@ function update_cursor_awareness()
     local curiosity = pixel.personality.curiosity
     local timidity = pixel.personality.timidity
     local cursor_attention = pixel.cursor_attention or 0
-    
     local cursor_distance = dist(px, py, mouse_cursor.x, mouse_cursor.y)
     local awareness_range = cursor_interaction.influence_radius + curiosity * 20
     if cursor_distance < awareness_range then
@@ -1416,7 +1407,6 @@ function update_collective_cursor_behavior()
     for pixel in all(pixels) do
       local px, py = pixel.x, pixel.y
       local target_x, target_y = pixel.target_x, pixel.target_y
-      
       local cursor_distance = dist(px, py, mouse_cursor.x, mouse_cursor.y)
       if cursor_distance < cursor_interaction.influence_radius then
         local nearby_pixels = {}
@@ -1604,34 +1594,25 @@ end
 function update_therapeutic_audio()
  sound_timer += 1
 end
--- consciousness data export for python bridge
 export_timer = 0
-export_interval = 180 -- export every 3 seconds
-
+export_interval = 180
 function export_consciousness_data()
   if export_timer > 0 then
     export_timer -= 1
     return
   end
-  
   export_timer = export_interval
-  
-  -- build consciousness export data
   local export_data = "{\n"
   export_data = export_data .. "  \"timestamp\": " .. time() .. ",\n"
   export_data = export_data .. "  \"generation\": " .. cur_gen .. ",\n"
   export_data = export_data .. "  \"pixel_count\": " .. #pixels .. ",\n"
   export_data = export_data .. "  \"pixels\": [\n"
-  
-  -- export pixel data
   for i = 1, #pixels do
     local pixel = pixels[i]
     local memory_events = ""
-    
-    -- build memory array
     if pixel.memory and #pixel.memory > 0 then
       memory_events = "["
-      for j = 1, min(#pixel.memory, 5) do -- limit to 5 recent memories
+      for j = 1, min(#pixel.memory, 5) do
         local mem = pixel.memory[j]
         memory_events = memory_events .. "{"
         memory_events = memory_events .. "\"event\": \"" .. (mem.event or "unknown") .. "\", "
@@ -1645,7 +1626,6 @@ function export_consciousness_data()
     else
       memory_events = "[]"
     end
-    
     export_data = export_data .. "    {\n"
     export_data = export_data .. "      \"id\": " .. (pixel.number or i) .. ",\n"
     export_data = export_data .. "      \"x\": " .. pixel.x .. ",\n"
@@ -1658,35 +1638,23 @@ function export_consciousness_data()
     export_data = export_data .. "      \"generation\": " .. (pixel.generation or 1) .. ",\n"
     export_data = export_data .. "      \"memory\": " .. memory_events .. "\n"
     export_data = export_data .. "    }"
-    
     if i < #pixels then
       export_data = export_data .. ","
     end
     export_data = export_data .. "\n"
   end
-  
   export_data = export_data .. "  ],\n"
-  
-  -- cursor interaction data
   export_data = export_data .. "  \"cursor_interaction\": {\n"
   export_data = export_data .. "    \"is_aware\": " .. (cursor_interaction.is_aware and "true" or "false") .. ",\n"
   export_data = export_data .. "    \"attention_level\": " .. (cursor_interaction.attention_level or 0) .. ",\n"
   export_data = export_data .. "    \"collective_excitement\": " .. (cursor_interaction.collective_excitement or 0) .. "\n"
   export_data = export_data .. "  },\n"
-  
-  -- additional session data
   export_data = export_data .. "  \"energy_cubes\": " .. #energy_cubes .. ",\n"
   export_data = export_data .. "  \"session_duration\": " .. (time() * 60) .. "\n"
   export_data = export_data .. "}"
-  
-  -- write to file (simulated via printh - python will read this)
   printh(export_data, "data/consciousness_export.json")
 end
-
 function read_python_insights()
-  -- this would read insights back from python
-  -- implementation depends on available pico-8 file i/o
-  -- for now, we'll use a simple approach
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
