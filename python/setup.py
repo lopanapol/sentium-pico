@@ -120,6 +120,8 @@ def show_usage():
     print("  python simple_analyzer.py      - Run simple analysis")
     print("  python conscious_analyzer.py - Run full ML analysis (slower)")
     print("  python run_analysis.py monitor  - Live monitoring")
+    print("  python demo_conscious_ai.py - AI consciousness prediction demo")
+    print("  python conscious_predictor.py - Train AI prediction model")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

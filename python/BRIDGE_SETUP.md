@@ -160,7 +160,7 @@ Direct analysis with detailed output.
 - On some systems, file watching may have delays
 - Try running single analysis instead of monitoring
 
-## 💡 Tips
+## Tips
 
 1. **Start Simple**: Run single analysis first to test the system
 2. **Live Monitoring**: Best experience when running alongside PICO-8

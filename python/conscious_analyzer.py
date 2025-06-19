@@ -8,12 +8,29 @@ import time
 from datetime import datetime
 from data_bridge import DataBridge
 
+# Import consciousness predictor if available
+try:
+    from conscious_predictor import ConsciousnessPredictor
+    PREDICTOR_AVAILABLE = True
+except ImportError:
+    PREDICTOR_AVAILABLE = False
+    print("Consciousness predictor not available (missing TensorFlow). Install with: pip install tensorflow")
+
 class ConsciousnessAnalyzer:
     def __init__(self):
         self.bridge = DataBridge()
         self.personality_clusters = None
         self.behavior_patterns = {}
         self.consciousness_metrics = {}
+        
+        # Initialize AI predictor if available
+        self.predictor = None
+        if PREDICTOR_AVAILABLE:
+            try:
+                self.predictor = ConsciousnessPredictor()
+                print("AI Consciousness Predictor initialized")
+            except Exception as e:
+                print(f"Predictor initialization failed: {e}")
         
     def analyze_pixel_consciousness(self, pixel_data):
         """Analyze individual pixel consciousness metrics"""
@@ -203,6 +220,16 @@ class ConsciousnessAnalyzer:
         behavior_predictions = self.predict_behavior(pixels, cursor_data)
         emergence_metrics = self.calculate_emergence_metrics(data)
         
+        # AI Consciousness Prediction (if available)
+        ai_insights = {}
+        if self.predictor:
+            try:
+                print("Running AI consciousness prediction...")
+                ai_insights = self.predictor.generate_consciousness_insights(data)
+                print("AI prediction complete!")
+            except Exception as e:
+                print(f"AI prediction failed: {e}")
+        
         # Compile comprehensive insights
         insights = {
             "analysis_timestamp": datetime.now().isoformat(),
@@ -218,6 +245,10 @@ class ConsciousnessAnalyzer:
             "dominant_personality": self._get_dominant_personality(personality_clusters),
             "session_insights": self._generate_session_insights(data, emergence_metrics)
         }
+        
+        # Add AI insights if available
+        if ai_insights:
+            insights["ai_consciousness_prediction"] = ai_insights
         
         # Write insights back to PICO-8
         self.bridge.write_insights(insights)
