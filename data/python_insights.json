@@ -1,0 +1,33 @@
+{
+  "analysis_timestamp": "2025-06-19T14:34:12.745806",
+  "generation": 5,
+  "pixel_count": 2,
+  "consciousness_scores": [
+    {
+      "pixel_id": 1,
+      "consciousness_score": 0.91,
+      "personality": "curious"
+    },
+    {
+      "pixel_id": 2,
+      "consciousness_score": 0.88,
+      "personality": "timid"
+    }
+  ],
+  "overall_consciousness_level": 0.895,
+  "dominant_personality": "curious",
+  "personality_distribution": {
+    "curious": 1,
+    "timid": 1
+  },
+  "cursor_awareness": true,
+  "attention_level": 0.6,
+  "session_insights": [
+    "Early evolution stage - generation 5",
+    "Small population in survival mode",
+    "High consciousness levels detected",
+    "Population dominated by curious personalities (1 pixels)"
+  ],
+  "timestamp": 1750318452.7458181,
+  "generated_at": "2025-06-19T14:34:12.745818"
+}

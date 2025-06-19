@@ -1,0 +1,54 @@
+{
+  "timestamp": 1750318261.489581,
+  "generation": 5,
+  "pixel_count": 3,
+  "pixels": [
+    {
+      "id": 1,
+      "x": 64,
+      "y": 64,
+      "curiosity": 0.7,
+      "timidity": 0.3,
+      "energy": 15,
+      "age": 120,
+      "color": 8,
+      "memory": [
+        {
+          "event": "division",
+          "impact": 0.8
+        },
+        {
+          "event": "cursor_approach",
+          "impact": 0.6
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "x": 80,
+      "y": 50,
+      "curiosity": 0.4,
+      "timidity": 0.8,
+      "energy": 12,
+      "age": 90,
+      "color": 12,
+      "memory": [
+        {
+          "event": "energy_found",
+          "impact": 0.5
+        },
+        {
+          "event": "cursor_flee",
+          "impact": -0.4
+        }
+      ]
+    }
+  ],
+  "cursor_interaction": {
+    "is_aware": true,
+    "attention_level": 0.6,
+    "collective_excitement": 0.45
+  },
+  "energy_cubes": 5,
+  "session_duration": 300
+}
