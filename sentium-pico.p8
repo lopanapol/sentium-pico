@@ -1199,7 +1199,6 @@ function update_cursor_awareness()
         pixel.emo_state.excitement += excitement_boost
         if timidity > 0.5 then
           pixel.emo_state.distress += 0.02 * cursor_interaction.cursor_heat
-          cursor_interaction.retreat_timer += 1
         else
           pixel.emo_state.happiness += 0.02 * cursor_interaction.cursor_heat
         end
