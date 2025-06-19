@@ -203,7 +203,7 @@ function predict_cursor_behavior(pixel)
       local error_x = abs(mouse_cursor.x - cursor_interaction.last_predicted_x)
       local error_y = abs(mouse_cursor.y - cursor_interaction.last_predicted_y)
       local prediction_error = (error_x + error_y) / 2
-    
+  
       -- Update behavior based on prediction accuracy
       if prediction_error < 3 then
         -- Good prediction - increase confidence
@@ -212,7 +212,7 @@ function predict_cursor_behavior(pixel)
         -- Poor prediction - become more cautious
         pixel.personality.timidity = min(1, pixel.personality.timidity + 0.005)
       end
-    
+  
       attention_schema.prediction_error = prediction_error
     end
   
@@ -267,5 +267,5 @@ Full license details: [LICENSE](https://sentium.dev/license.txt)
 
 ---
 
-Made by Napol Thanarangkaun (lopanapol@gmail.com)
+Made by Napol Thanarangkaun
 Founder of [sentium.dev](https://sentium.dev)
