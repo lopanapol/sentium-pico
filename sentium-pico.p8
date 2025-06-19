@@ -1539,60 +1539,10 @@ function export_consciousness_data()
     export_timer -= 1
     return
   end
+  printh("exporting gen:" .. cur_gen .. " pixels:" .. #pixels)
+  local export_data = "{\"timestamp\":" .. time() .. ",\"generation\":" .. cur_gen .. ",\"pixel_count\":" .. #pixels .. ",\"energy_cubes\":" .. #energy_cubes .. "}"
+  printh(export_data, "consciousness_live.json")
   export_timer = export_interval
-  local export_data = "{\n"
-  export_data = export_data .. "  \"timestamp\": " .. time() .. ",\n"
-  export_data = export_data .. "  \"generation\": " .. cur_gen .. ",\n"
-  export_data = export_data .. "  \"pixel_count\": " .. #pixels .. ",\n"
-  export_data = export_data .. "  \"pixels\": [\n"
-  for i = 1, #pixels do
-    local pixel = pixels[i]
-    local memory_events = ""
-    if pixel.memory and #pixel.memory > 0 then
-      memory_events = "["
-      for j = 1, min(#pixel.memory, 5) do
-        local mem = pixel.memory[j]
-        memory_events = memory_events .. "{"
-        memory_events = memory_events .. "\"event\": \"" .. (mem.event or "unknown") .. "\", "
-        memory_events = memory_events .. "\"impact\": " .. (mem.emotional_impact or 0)
-        memory_events = memory_events .. "}"
-        if j < min(#pixel.memory, 5) then
-          memory_events = memory_events .. ", "
-        end
-      end
-      memory_events = memory_events .. "]"
-    else
-      memory_events = "[]"
-    end
-    export_data = export_data .. "    {\n"
-    export_data = export_data .. "      \"id\": " .. (pixel.number or i) .. ",\n"
-    export_data = export_data .. "      \"x\": " .. pixel.x .. ",\n"
-    export_data = export_data .. "      \"y\": " .. pixel.y .. ",\n"
-    export_data = export_data .. "      \"curiosity\": " .. (pixel.personality.curiosity or 0.5) .. ",\n"
-    export_data = export_data .. "      \"timidity\": " .. (pixel.personality.timidity or 0.5) .. ",\n"
-    export_data = export_data .. "      \"energy\": " .. pixel.energy .. ",\n"
-    export_data = export_data .. "      \"age\": " .. (pixel.age or 0) .. ",\n"
-    export_data = export_data .. "      \"color\": " .. (pixel.color or 8) .. ",\n"
-    export_data = export_data .. "      \"generation\": " .. (pixel.generation or 1) .. ",\n"
-    export_data = export_data .. "      \"memory\": " .. memory_events .. "\n"
-    export_data = export_data .. "    }"
-    if i < #pixels then
-      export_data = export_data .. ","
-    end
-    export_data = export_data .. "\n"
-  end
-  export_data = export_data .. "  ],\n"
-  export_data = export_data .. "  \"cursor_interaction\": {\n"
-  export_data = export_data .. "    \"is_aware\": " .. (cursor_interaction.is_aware and "true" or "false") .. ",\n"
-  export_data = export_data .. "    \"attention_level\": " .. (cursor_interaction.attention_level or 0) .. ",\n"
-  export_data = export_data .. "    \"collective_excitement\": " .. (cursor_interaction.collective_excitement or 0) .. "\n"
-  export_data = export_data .. "  },\n"
-  export_data = export_data .. "  \"energy_cubes\": " .. #energy_cubes .. ",\n"
-  export_data = export_data .. "  \"session_duration\": " .. (time() * 60) .. "\n"
-  export_data = export_data .. "}"
-  if export_timer == export_interval then
-    printh(export_data, "data/consciousness_export.json")
-  end
 end
 function read_python_insights()
 end
