@@ -233,7 +233,7 @@ function find_nearest_energy_cube(pixel)
   local nearest = nil
   local min_dist = 1000
   for cube in all(energy_cubes) do
-    local d = pixel_dist_to_cube(pixel, cube)
+    local d = dist(pixel.x, pixel.y, cube.x, cube.y)
     if d < min_dist then
       min_dist = d
       nearest = cube
