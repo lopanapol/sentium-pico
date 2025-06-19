@@ -7,19 +7,14 @@ memory_size = 10
 sig_event = false
 event_type = ""
 emotion_impact = 0
-target_x = 64
-target_y = 64
 pixel_counter = 0
 save_timer = 0
 save_text = ""
 max_pixels = 8
-max_gen = 100
 div_energy = 25
-death_energy = 0
 div_cooldown = 30
 mutation_rate = 0.05
 metabolic_rate = 0.2
-growth_rate = 1.2
 cur_gen = 1
 gen_timer = 0
 gen_interval = 600
@@ -29,21 +24,13 @@ mouse_cursor = {x = 64, y = 64, visible = false}
 cursor_interaction = {
   is_aware = false,
   attention_level = 0,
-  curiosity_triggered = false,
   last_distance = 1000,
-  approach_timer = 0,
-  retreat_timer = 0,
-  gaze_offset_x = 0,
-  gaze_offset_y = 0,
   last_cursor_x = 64,
   last_cursor_y = 64,
   stillness_timer = 0,
   max_stillness_threshold = 300,
-  last_predicted_x = nil,
-  last_predicted_y = nil,
   particle_trail = {},
   influence_radius = 60,
-  magnetism_strength = 0.3,
   collective_excitement = 0,
   cursor_heat = 0,
   interaction_particles = {},
@@ -289,17 +276,6 @@ function make_predictions()
     local dy = mouse_cursor.y - cursor_interaction.last_cursor_y
     local predicted_x = mouse_cursor.x + dx
     local predicted_y = mouse_cursor.y + dy
-    if cursor_interaction.last_predicted_x then
-      local error_x = abs(mouse_cursor.x - cursor_interaction.last_predicted_x)
-      local error_y = abs(mouse_cursor.y - cursor_interaction.last_predicted_y)
-      local new_error = (error_x + error_y) / 2
-      if new_error < 3 and attention_schema.prediction_error > 5 then
-        sfx(5)
-      end
-      attention_schema.prediction_error = new_error
-    end
-    cursor_interaction.last_predicted_x = predicted_x
-    cursor_interaction.last_predicted_y = predicted_y
   end
 end
 function update_predictive_processing(pixel)
@@ -566,8 +542,6 @@ function interact_with_pixel(pixel)
     pixel.personality.timidity = min(1, pixel.personality.timidity + 0.005)
   end
   cursor_interaction.attention_level = min(1, cursor_interaction.attention_level + 0.3)
-  cursor_interaction.approach_timer = 0
-  cursor_interaction.retreat_timer = 0
   sig_event = true
   emotion_impact = emotional_impact
   sfx(0)
@@ -640,12 +614,11 @@ function kill_pixel(pixel_index)
   if not dying_pixel then
     return
   end
-  local decomp_energy = flr(dying_pixel.energy * 0.3)
-  if decomp_energy > 5 then
-    for i = 1, min(3, flr(decomp_energy / 8)) do
-      local cube_x = clamp(dying_pixel.x + rnd(16) - 8, 8, 120)
-      local cube_y = clamp(dying_pixel.y + rnd(16) - 8, 8, 120)
-      add(energy_cubes, {
+  local decomp_energy = flr(dying_pixel.energy * 0.3)    if decomp_energy > 5 then
+      for i = 1, min(3, flr(decomp_energy / 8)) do
+        local cube_x = mid(8, dying_pixel.x + rnd(16) - 8, 120)
+        local cube_y = mid(8, dying_pixel.y + rnd(16) - 8, 120)
+        add(energy_cubes, {
         x = cube_x,
         y = cube_y,
         value = 8 + rnd(7)
@@ -783,10 +756,8 @@ function draw_single_pixel(pixel)
   end
   local closest_pixel = find_closest_pixel_to_cursor()
   if pixel == closest_pixel and cursor_interaction.is_aware and cursor_interaction.attention_level > 0.3 then
-    local eye_x = px + cursor_interaction.gaze_offset_x
-    local eye_y = py + cursor_interaction.gaze_offset_y
     local eye_size = 1 + cursor_interaction.attention_level * 0.5
-    circfill(eye_x, eye_y, eye_size, 0)
+    circfill(px, py, eye_size, 0)
     local iris_color = 5
     if emo_state.excitement > 0.6 then
       iris_color = 12
@@ -795,18 +766,9 @@ function draw_single_pixel(pixel)
     elseif emo_state.happiness > 0.6 then
       iris_color = 11
     end
-    local iris_positions = {
-      {eye_x-1, eye_y}, {eye_x+1, eye_y}, 
-      {eye_x, eye_y-1}, {eye_x, eye_y+1}
-    }
-    for pos in all(iris_positions) do
-      if pos[1] >= px-3 and pos[1] <= px+3 and 
-         pos[2] >= py-3 and pos[2] <= py+3 then
-        pset(pos[1], pos[2], iris_color)
-      end
-    end
+    pset(px, py, iris_color)
     if cursor_interaction.attention_level > 0.8 then
-      pset(eye_x, eye_y-1, 7)
+      pset(px, py-1, 7)
     end
   end
   if cursor_attention > 0.4 and (abs(px - (pixel.last_x or px)) > 0.5 or 
@@ -835,9 +797,9 @@ end
 function find_closest_pixel_to_cursor()
   if #pixels == 0 then return nil end
   local closest = pixels[1]
-  local min_dist = pixel_dist_to_cursor(closest)
+  local min_dist = dist(closest.x, closest.y, mouse_cursor.x, mouse_cursor.y)
   for pixel in all(pixels) do
-    local d = pixel_dist_to_cursor(pixel)
+    local d = dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
     if d < min_dist then
       min_dist = d
       closest = pixel
@@ -1059,22 +1021,7 @@ function dist(x1, y1, x2, y2)
   local dy = y2 - y1
   return sqrt(dx*dx + dy*dy)
 end
-function pixel_dist_to_cursor(pixel)
-  return dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y)
-end
-function pixel_dist_to_cube(pixel, cube)
-  return dist(pixel.x, pixel.y, cube.x, cube.y)
-end
-function get_pixel_pos(pixel)
-  return pixel.x, pixel.y
-end
-function set_pixel_pos(pixel, x, y)
-  pixel.x = x
-  pixel.y = y
-end
 function load_sounds()
- sound_mode = 1
- sound_timer = 0
 end
 function save_game_state()
   if #pixels == 0 then return end
@@ -1255,11 +1202,9 @@ function update_cursor_awareness()
           cursor_interaction.retreat_timer += 1
         else
           pixel.emo_state.happiness += 0.02 * cursor_interaction.cursor_heat
-          cursor_interaction.approach_timer += 1
         end
       elseif cursor_distance < 35 then
         pixel.emo_state.excitement += 0.01 * cursor_interaction.cursor_heat
-        cursor_interaction.curiosity_triggered = true
       end
       if cursor_interaction.stillness_timer <= cursor_interaction.max_stillness_threshold then
         enhance_cursor_movement_influence(pixel, cursor_distance)
@@ -1299,12 +1244,7 @@ function update_cursor_awareness()
   else
     cursor_interaction.is_aware = false
     cursor_interaction.attention_level = max(0, cursor_interaction.attention_level - 0.02)
-    cursor_interaction.curiosity_triggered = false
-    cursor_interaction.approach_timer = max(0, cursor_interaction.approach_timer - 1)
-    cursor_interaction.retreat_timer = max(0, cursor_interaction.retreat_timer - 1)
     cursor_interaction.stillness_timer = 0
-    cursor_interaction.gaze_offset_x *= 0.9
-    cursor_interaction.gaze_offset_y *= 0.9
   end
   for i = #cursor_interaction.interaction_particles, 1, -1 do
     local particle = cursor_interaction.interaction_particles[i]
@@ -1346,7 +1286,7 @@ end
 function enhance_cursor_movement_influence(pixel, cursor_distance)
   local attention_level = pixel.cursor_attention or 0
   local heat_factor = cursor_interaction.cursor_heat
-  local magnetic_force = cursor_interaction.magnetism_strength * attention_level * heat_factor
+  local magnetic_force = 0.3 * attention_level * heat_factor
   if pixel.personality.curiosity > 0.5 and cursor_distance > 10 and cursor_distance < cursor_interaction.influence_radius then
     local attraction_strength = (pixel.personality.curiosity - 0.5) * 2 * magnetic_force
     local dx = mouse_cursor.x - pixel.x
@@ -1592,7 +1532,6 @@ function draw_large_text(text, x, y, color)
   end
 end
 function update_therapeutic_audio()
- sound_timer += 1
 end
 export_timer = 0
 export_interval = 180
