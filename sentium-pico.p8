@@ -751,7 +751,7 @@ function draw_single_pixel(pixel)
     for i=1,3 do
       circ(px, py, radius + i, 7)
     end
-  elseif energy < death_energy + 10 then
+  elseif energy < 10 then
     circ(px, py, radius + 1, 8)
   end
   local closest_pixel = find_closest_pixel_to_cursor()
