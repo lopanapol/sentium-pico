@@ -4,6 +4,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-Sentium-red.svg)](https://sentium.dev/license.txt)
+[![GitHub](https://img.shields.io/badge/GitHub-lopanapol/sentium--pico--8-white.svg)](https://github.com/lopanapol/sentium-pico-8)
 
 ## What is this?
 
@@ -189,13 +190,13 @@ function predict_cursor_behavior(pixel)
     local dy = mouse_cursor.y - cursor_interaction.last_cursor_y
     local predicted_x = mouse_cursor.x + dx
     local predicted_y = mouse_cursor.y + dy
-    
+  
     -- Calculate prediction error
     if cursor_interaction.last_predicted_x then
       local error_x = abs(mouse_cursor.x - cursor_interaction.last_predicted_x)
       local error_y = abs(mouse_cursor.y - cursor_interaction.last_predicted_y)
       local prediction_error = (error_x + error_y) / 2
-      
+    
       -- Update behavior based on prediction accuracy
       if prediction_error < 3 then
         -- Good prediction - increase confidence
@@ -204,10 +205,10 @@ function predict_cursor_behavior(pixel)
         -- Poor prediction - become more cautious
         pixel.personality.timidity = min(1, pixel.personality.timidity + 0.005)
       end
-      
+    
       attention_schema.prediction_error = prediction_error
     end
-    
+  
     cursor_interaction.last_predicted_x = predicted_x
     cursor_interaction.last_predicted_y = predicted_y
   end
