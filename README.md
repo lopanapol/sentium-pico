@@ -50,6 +50,16 @@ Pretty simple:
 
 That's it. The rest is just observation.
 
+## Micro-Game Modules
+
+To explore the core concepts of Sentium Pico in a more focused way, you can try the included micro-games.
+
+### Pixel Herder
+
+A fast-paced challenge where you must guide friendly pixels to a safe zone while avoiding a predator. It's a direct test of the "attraction" and "danger avoidance" mechanics.
+
+Find it in the `modules/pixel_herder/` directory.
+
 ## The technical stuff
 
 I'm pretty amazed this works at all given PICO-8's limitations:
