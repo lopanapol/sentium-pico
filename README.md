@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-Sentium-red.svg)](https://sentium.dev/license.txt)
-[![GitHub](https://img.shields.io/badge/GitHub-lopanapol/sentium--pico--8-white.svg)](https://github.com/lopanapol/sentium-pico-8)
+[![GitHub](https://img.shields.io/badge/GitHub-lopanapol/sentium--pico-white.svg)](https://github.com/lopanapol/sentium-pico)
 
 ## What is this?
 

@@ -24,7 +24,7 @@ Enjoy exploring the consciousness of your digital organisms!ile-based communicat
 ## File Structure
 
 ```
-/Users/lopanapol/Sentium/sentium-pico-8/
+/Users/lopanapol/Sentium/sentium-pico/
 ├── sentium-pico.p8              # Your PICO-8 game (now with export)
 ├── data/                        # Data exchange folder
 │   ├── conscious_export.json    # PICO-8 writes here
@@ -43,7 +43,7 @@ Enjoy exploring the consciousness of your digital organisms!ile-based communicat
 ### 1. Install Python Dependencies
 
 ```bash
-cd /Users/lopanapol/Sentium/sentium-pico-8/python
+cd /Users/lopanapol/Sentium/sentium-pico/python
 pip install -r requirements.txt
 ```
 
@@ -78,7 +78,7 @@ python run_analysis.py monitor
 ### Live Monitoring Output:
 ```
 Consciousness Monitor initialized
-Watching: /Users/lopanapol/Sentium/sentium-pico-8/data/conscious_export.json
+Watching: /Users/lopanapol/Sentium/sentium-pico/data/conscious_export.json
 Live consciousness monitoring started!
 
 Consciousness data updated at 14:32:15

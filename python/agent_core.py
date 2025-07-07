@@ -1,7 +1,7 @@
 import subprocess
 
 class AgentCore:
-    def __init__(self, workspace_path="/Users/lopanapol/git-repo/sentium-pico-8"):
+    def __init__(self, workspace_path="/Users/lopanapol/git-repo/sentium-pico"):
         self.workspace_path = workspace_path
 
     def run_fish_command(self, command):
