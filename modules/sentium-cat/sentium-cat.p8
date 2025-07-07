@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
--- crazy-cat-conscious.p8
+-- sentium-cat-conscious.p8
 -- version 2.0.0
 
 --[[
@@ -115,7 +115,7 @@ function _draw()
   draw_cursor()
 end
 
--- Sentium Pico Functions (adapted for crazy-cat)
+-- Sentium Pico Functions (adapted for sentium-cat)
 
 function create_pixel(x, y, personality)
   return {
