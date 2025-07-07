@@ -8,22 +8,43 @@ import time
 import os
 from datetime import datetime
 from pathlib import Path
+from state_manager import StateManager
+from agent_core import AgentCore
 
 class DataBridge:
     def __init__(self, workspace_path="/Users/lopanapol/Sentium/sentium-pico-8"):
         self.workspace_path = Path(workspace_path)
         self.data_path = self.workspace_path / "data"
         self.session_logs_path = self.data_path / "session_logs"
+        self.state_manager = StateManager()
+        self.agent_core = AgentCore(workspace_path=str(self.workspace_path))
         
         # File paths for data exchange
         self.conscious_export_file = self.data_path / "conscious_export.json"
         self.python_insights_file = self.data_path / "python_insights.json"
+        self.storage_path = self.data_path / "storage"
         
         # Ensure directories exist
         self.data_path.mkdir(exist_ok=True)
         self.session_logs_path.mkdir(exist_ok=True)
+        self.storage_path.mkdir(exist_ok=True)
         
         print(f"Data bridge initialized at: {self.data_path}")
+    
+    def get_state(self, key):
+        return self.state_manager.get_state(key)
+
+    def update_state(self, key, state):
+        self.state_manager.update_state(key, state)
+
+    def get_version(self):
+        return self.state_manager.get_version()
+
+    def set_version(self, version):
+        self.state_manager.set_version(version)
+
+    def process_agent_command(self, command):
+        return self.agent_core.process_command(command)
     
     def read_consciousness_data(self):
         """Read consciousness data exported from PICO-8"""
@@ -68,6 +89,17 @@ class DataBridge:
             return True
         except Exception as e:
             print(f"Error logging session data: {e}")
+            return False
+
+    def store_data(self, key, value):
+        try:
+            filename = self.storage_path / f"{key.replace(':', '-')}.json"
+            with open(filename, 'w') as f:
+                json.dump(value, f, indent=2)
+            print(f"Stored data for key {key} in {filename}")
+            return True
+        except Exception as e:
+            print(f"Error storing data: {e}")
             return False
     
     def create_sample_export(self):
