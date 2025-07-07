@@ -363,7 +363,7 @@ function update_movement(pixel)
   -- Update dx, dy, f, d for wander.p8's original drawing logic
   pixel.dx = dx * move_speed
   pixel.dy = dy * move_speed
-  pixel.f = (pixel.f + sqrt(pixel.dx*pixel.dx + pixel.dy*pixel.dy)*0.3) % 4
+  pixel.f = (pixel.f + sqrt(pixel.dx*pixel.dx + pixel.dy*pixel.dy)*0.5) % 4
   if (sqrt(pixel.dx*pixel.dx + pixel.dy*pixel.dy) < 0.3) pixel.f=0
   if pixel.dx < 0 then pixel.d = -1 else pixel.d = 1 end
 end
