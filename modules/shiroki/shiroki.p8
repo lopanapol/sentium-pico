@@ -45,6 +45,7 @@ predictive_processing = {}
 
 function _init()
   poke(0x5f2d, 1) -- enable mouse
+  cartdata("shiroki_save")
 
   player = create_pixel(64, 64, { -- Initial x,y, centered on the first screen
     curiosity = 0.9,
@@ -72,6 +73,7 @@ function _init()
     learning_rate = 0.01
   }
   cookie = {x = 0, y = 0, visible = false, spawn_timer = 150}
+  load_game_state()
 end
 
 function _draw()
@@ -160,7 +162,11 @@ function _update()
       sig_event = true
       event_type = "cookie_collected"
       emotion_impact = 0.4
+      save_game_state()
     end
+  end
+  if btnp(5) then
+    save_game_state()
   end
 end
 
@@ -175,7 +181,7 @@ function create_pixel(x, y, personality)
     color = 8,
     energy = 100,
     memories = {},
-    consc_level = 0,
+    qcf_resonance = 0,
     last_x = x,
     last_y = y,
     age = 0,
@@ -206,7 +212,7 @@ function update_consciousness()
   update_attention_schema(player)
   update_predictive_processing(player)
   
-  player.consc_level = calculate_phi(player)
+  player.qcf_resonance = calculate_qcf_resonance(player)
   player.energy = max(0, player.energy - 0.05)
   form_memories(player)
 end
@@ -337,7 +343,7 @@ function update_predictive_processing(pixel)
   end
 end
 
-function calculate_phi(p)
+function calculate_qcf_resonance(p)
   local s = cursor_interaction.attention_level * 0.4
   local m = min(#p.memories / memory_size, 1) * 0.35
   local e = (p.emo_state.happiness + p.emo_state.excitement) * 0.15
@@ -414,7 +420,6 @@ function update_movement(pixel)
   else
     pixel.f = 0
   end
-  if (sqrt(pixel.dx*pixel.dx + pixel.dy*pixel.dy) < 0.3) pixel.f=0
   if pixel.dx < 0 then pixel.d = -1 else pixel.d = 1 end
 end
 
@@ -498,10 +503,10 @@ function influence_movement_by_cursor(pixel, cursor_distance)
 end
 
 function draw_ui()
-  -- Happiness level
-  print("happiness", 4, 110, 7)
-  local happiness_bar_width = min(30, flr(player.emo_state.happiness * 30))
-  rectfill(4, 120, 4 + happiness_bar_width, 122, 11)
+  -- QCF Resonance level
+  print("hapiness", 4, 110, 7)
+  local qcf_bar_width = min(30, flr(player.qcf_resonance * 30))
+  rectfill(4, 120, 4 + qcf_bar_width, 122, 11)
   rect(3, 119, 34, 123, 5)
 
   -- Energy level
@@ -569,6 +574,30 @@ end
 function sqrt(n) return n^0.5 end
 function dist(x1, y1, x2, y2) return sqrt((x2-x1)^2 + (y2-y1)^2) end
 function lerp(a, b, t) return a + (b - a) * t end
+
+function save_game_state()
+  dset(0, player.x)
+  dset(1, player.y)
+  dset(2, player.energy)
+  dset(3, score)
+  dset(4, player.personality.curiosity)
+  dset(5, player.personality.timidity)
+  dset(6, player.emo_state.happiness)
+  dset(7, player.qcf_resonance)
+end
+
+function load_game_state()
+  if dget(0) != nil then
+    player.x = dget(0)
+    player.y = dget(1)
+    player.energy = dget(2)
+    score = dget(3)
+    player.personality.curiosity = dget(4)
+    player.personality.timidity = dget(5)
+    player.emo_state.happiness = dget(6)
+    player.qcf_resonance = dget(7)
+  end
+end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00660066006600660066006600660066000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
