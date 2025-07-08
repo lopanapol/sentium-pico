@@ -237,7 +237,7 @@ function update_global_workspace(pixel)
 
     add(processes, {
       type = "cookie_seeking",
-      strength = (urgency * 0.5) + (proximity_factor * 0.5), -- Balance urgency and proximity
+      strength = (urgency * 0.3) + (proximity_factor * 0.7), -- Reduced urgency, increased proximity
       content = {x = cookie.x, y = cookie.y, energy_level = pixel.energy}
     })
   end
@@ -346,7 +346,7 @@ end
 function calculate_qcf_resonance(p)
   local s = cursor_interaction.attention_level * 0.4
   local m = min(#p.memories / memory_size, 1) * 0.35
-  local e = (p.emo_state.happiness + p.emo_state.excitement) * 0.15
+  local e = (p.emo_state.happiness + p.emo_state.excitement) * 0.3 -- Increased emotional impact
   local b = p.target_x and 1 - min(abs(p.x - p.target_x) + abs(p.y - p.target_y), 50) / 50 * 0.2 or 0
   return min((s + m + e + b) / 4, 1)
 end
@@ -371,7 +371,7 @@ function update_movement(pixel)
   
   -- Default behavior: shiroki
   if (global_workspace.current_focus == nil) then
-    if rnd(1) < 0.01 then
+    if rnd(1) < 0.05 then -- Increased frequency of random exploration
       pixel.target_x = 20 + rnd(88)
       pixel.target_y = 20 + rnd(88)
     end
