@@ -37,6 +37,10 @@ global_workspace = {}
 attention_schema = {}
 predictive_processing = {}
 
+function time()
+  return stat(30) / 30 -- PICO-8 frames / 30 frames per second
+end
+
 function _init()
   poke(0x5f2d, 1) -- enable mouse
   cartdata("shiroki_save")
@@ -678,9 +682,6 @@ function draw_simple_symbol(x, y, color)
   line(x+3, y+19, x+8, y+19, color)
   line(x+3, y+18, x+8, y+18, color)
   line(x+3, y+17, x+8, y+17, color)
-end
-function time()
-  return stat(30) / 30 -- PICO-8 frames / 30 frames per second
 end
 
 -- Utility functions
