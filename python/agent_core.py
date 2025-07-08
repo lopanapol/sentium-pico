@@ -1,7 +1,9 @@
 import subprocess
+from dotenv import load_dotenv
 
 class AgentCore:
     def __init__(self, workspace_path="/Users/lopanapol/git-repo/sentium-pico"):
+        load_dotenv() # Load environment variables from .env file
         self.workspace_path = workspace_path
 
     def run_fish_command(self, command):
