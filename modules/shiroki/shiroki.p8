@@ -14,12 +14,6 @@ score = 0
 game_state = "splash"
 splash_timer = 0
 
--- IMPORTANT: Set this to the top-left sprite number of your cat
--- For example, if your cat starts at sprite 68, set this to 68.
-local cat_sprite_idle = 0
-local cat_sprite_walk1 = 0 -- First frame of walking animation (32x32 sprite)
-local cat_sprite_walk2 = 2 -- Second frame of walking animation (32x32 sprite)
-
 -- Sentium Pico consciousness variables
 memory_size = 10
 sig_event = false
