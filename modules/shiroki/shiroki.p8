@@ -69,7 +69,7 @@ function _init()
   predictive_processing = {
     learning_rate = 0.01
   }
-  cherry = {x = 0, y = 0, visible = false, spawn_timer = 150}
+  cookie = {x = 0, y = 0, visible = false, spawn_timer = 150}
 end
 
 function _draw()
@@ -92,8 +92,8 @@ function _draw()
   -- Draw UI
   draw_ui()
   draw_cursor()
-  if cherry.visible then
-    spr(4, cherry.x, cherry.y)
+  if cookie.visible then
+    spr(4, cookie.x, cookie.y)
   end
 end
 
@@ -117,32 +117,32 @@ function _update()
   local player_tile_x = flr(player.x / 8)
   local player_tile_y = flr(player.y / 8)
 
-  -- Cherry spawning and collection logic
-  if not cherry.visible then
-    cherry.spawn_timer -= 1
-    if cherry.spawn_timer <= 0 then
-      -- Spawn cherry at a random visible location
+  -- cookie spawning and collection logic
+  if not cookie.visible then
+    cookie.spawn_timer -= 1
+    if cookie.spawn_timer <= 0 then
+      -- Spawn cookie at a random visible location
       local spawn_x, spawn_y
       repeat
         spawn_x = flr(rnd(128) / 8) * 8
         spawn_y = flr(rnd(128) / 8) * 8
       until mget(flr(spawn_x/8), flr(spawn_y/8)) == 0 -- Ensure it's on an empty tile
-      cherry.x = spawn_x
-      cherry.y = spawn_y
-      cherry.visible = true
-      cherry.spawn_timer = 150 -- Reset timer for next spawn
+      cookie.x = spawn_x
+      cookie.y = spawn_y
+      cookie.visible = true
+      cookie.spawn_timer = 150 -- Reset timer for next spawn
     end
   else
     -- Check for collision with player
-    if dist(player.x, player.y, cherry.x, cherry.y) < 8 then
-      cherry.visible = false
+    if dist(player.x, player.y, cookie.x, cookie.y) < 8 then
+      cookie.visible = false
       sfx(0) -- Play sound effect
       score += 1
       player.energy = min(100, player.energy + 50)
       player.emo_state.happiness = min(1, player.emo_state.happiness + 0.5)
       player.emo_state.excitement = min(1, player.emo_state.excitement + 0.3)
       sig_event = true
-      event_type = "cherry_collected"
+      event_type = "cookie_collected"
       emotion_impact = 0.4
     end
   end
@@ -207,16 +207,16 @@ function update_global_workspace(pixel)
     })
   end
   
-  -- Cherry seeking
-  if cherry.visible then
-    local dist_to_cherry = dist(pixel.x, pixel.y, cherry.x, cherry.y)
-    local proximity_factor = max(0, 1 - (dist_to_cherry / 128)) -- Max distance is 128 (screen size)
+  -- cookie seeking
+  if cookie.visible then
+    local dist_to_cookie = dist(pixel.x, pixel.y, cookie.x, cookie.y)
+    local proximity_factor = max(0, 1 - (dist_to_cookie / 128)) -- Max distance is 128 (screen size)
     local urgency = (80 - pixel.energy) / 80 -- Still consider energy for urgency
 
     add(processes, {
-      type = "cherry_seeking",
+      type = "cookie_seeking",
       strength = (urgency * 0.5) + (proximity_factor * 0.5), -- Balance urgency and proximity
-      content = {x = cherry.x, y = cherry.y, energy_level = pixel.energy}
+      content = {x = cookie.x, y = cookie.y, energy_level = pixel.energy}
     })
   end
   
@@ -284,13 +284,13 @@ function update_attention_schema(pixel)
   -- We can make the player more attentive to areas where apples might be,
   -- or where they recently collected one. For now, I'll omit direct apple attention.
   
-  -- Add cherry to attention map
-  if cherry.visible then
+  -- Add cookie to attention map
+  if cookie.visible then
     add(attention_schema.attention_map, {
-      x = cherry.x,
-      y = cherry.y,
+      x = cookie.x,
+      y = cookie.y,
       intensity = 0.8, -- Cherries are highly attention-grabbing
-      type = "cherry"
+      type = "cookie"
     })
   end
 end
@@ -356,10 +356,10 @@ function update_movement(pixel)
   else
     -- Conscious behavior
     local focus = global_workspace.current_focus
-    if focus.type == "cherry_seeking" then
+    if focus.type == "cookie_seeking" then
         pixel.target_x = focus.content.x
         pixel.target_y = focus.content.y
-        move_speed = 1.5 -- Increase speed when seeking cherry
+        move_speed = 1.5 -- Increase speed when seeking cookie
     elseif focus.type == "cursor_attention" then
       -- Defer to cursor influence functions
     elseif focus.type == "emo_state" then
@@ -410,14 +410,14 @@ end
 
 function process_metacognition(pixel)
   if #pixel.memories > 5 then
-    local cherry_mem_count = 0
+    local cookie_mem_count = 0
     for i=max(1, #pixel.memories-4), #pixel.memories do
-      if pixel.memories[i].type == "cherry_collected" then
-        cherry_mem_count += 1
+      if pixel.memories[i].type == "cookie_collected" then
+        cookie_mem_count += 1
       end
     end
-    if cherry_mem_count > 2 then
-      -- Reinforce cherry-seeking behavior
+    if cookie_mem_count > 2 then
+      -- Reinforce cookie-seeking behavior
       pixel.personality.curiosity = min(1, pixel.personality.curiosity + 0.05)
       sig_event = true
       event_type = "self_reflection"
@@ -525,13 +525,13 @@ function sqrt(n) return n^0.5 end
 function dist(x1, y1, x2, y2) return sqrt((x2-x1)^2 + (y2-y1)^2) end
 function lerp(a, b, t) return a + (b - a) * t end
 __gfx__
-0000000000000000000000000000000000000b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000700070007000700070007000700070000b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000777777007777700077777770777770088b8800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-77071770700707707007077070071770088888780000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-70077707700777077007770770077707088888880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-07766e6007766e6007766e6007766e6008e888880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-07777770077777700777777007777770008e88800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-07007060070607067060070670607060000888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00660066006600660066006600660066000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00077777000777770007777700077777000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+7707077077070770770707707707077000eeee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+7007770770077707700777077007770700e88e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+077eeee0077eeee0077eeee0077eeee000eeee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+07777770077777700777777007777770008888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+07007060070007067060070007007060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
 300830072705000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
