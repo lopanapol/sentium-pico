@@ -11,6 +11,8 @@ dot = {
   size = 4
 }
 score = 0
+game_state = "splash"
+splash_timer = 0
 
 -- IMPORTANT: Set this to the top-left sprite number of your cat
 -- For example, if your cat starts at sprite 68, set this to 68.
@@ -73,6 +75,10 @@ function _init()
 end
 
 function _draw()
+  if game_state == "splash" then
+    draw_splash_screen()
+    return
+  end
   cls(e)
   
   -- move camera to current room
@@ -98,6 +104,16 @@ function _draw()
 end
 
 function _update()
+  if game_state == "splash" then
+    splash_timer += 1
+    if stat(36) > 0 then
+      game_state = "game"
+    end
+    if splash_timer > 180 then
+      game_state = "game"
+    end
+    return
+  end
   local mx = stat(32)
   local my = stat(33)
   mouse_cursor.visible = true
@@ -519,6 +535,47 @@ function draw_cursor()
       circ(mouse_cursor.x, mouse_cursor.y, 8 + cursor_interaction.attention_level * 4, 13)
     end
   end
+end
+function draw_splash_screen()
+  cls(14)
+  local symbol_x = 64
+  local symbol_y = 40
+  if flr(splash_timer / 30) % 2 == 0 then
+    draw_simple_symbol(symbol_x, symbol_y, 0)
+  end
+  local title = "sentium"
+  local title_width = #title * 4
+  local anim_progress = min(splash_timer / 60, 1)
+  local start_x = -title_width
+  local end_x = (128 - title_width) / 2
+  local title_x = start_x + (end_x - start_x) * anim_progress
+  print(title, title_x, 65, 0)
+  local subtitle = "shiroki: a conscious dog"
+  local sub_width = #subtitle * 4
+  local sub_x = (128 - sub_width) / 2
+  print(subtitle, sub_x, 80, 0)
+  local instruction = "v1.0.0"
+  local inst_width = #instruction * 4
+  local inst_x = (128 - inst_width) / 2
+  print(instruction, inst_x, 95, 0)
+end
+
+function draw_simple_symbol(x, y, color)
+  circfill(x, y, 12, color)
+  circfill(x, y, 7, 14)
+  line(x-2, y-20, x-2, y+20, color)
+  line(x-1, y-20, x-1, y+20, color)
+  line(x, y-20, x, y+20, color)
+  line(x+1, y-20, x+1, y+20, color)
+  line(x+2, y-20, x+2, y+20, color)
+  line(x-8, y-20, x-3, y-20, color)
+  line(x-8, y-19, x-3, y-19, color)
+  line(x-8, y-18, x-3, y-18, color)
+  line(x-8, y-17, x-3, y-17, color)
+  line(x+3, y+20, x+8, y+20, color)
+  line(x+3, y+19, x+8, y+19, color)
+  line(x+3, y+18, x+8, y+18, color)
+  line(x+3, y+17, x+8, y+17, color)
 end
 -- Utility functions
 function sqrt(n) return n^0.5 end
