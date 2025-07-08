@@ -447,6 +447,14 @@ function update_movement(pixel)
     end
   end
 
+  -- New behavior: move away if cursor is still and Shiroki is aware
+  if cursor_interaction.is_aware and cursor_interaction.stillness_timer > 60 then -- 60 frames = 1 second
+    if rnd(1) < 0.1 then -- Small chance to trigger random movement
+      pixel.target_x = pixel.x + (rnd(40) - 20) -- Move up to 20 pixels away
+      pixel.target_y = pixel.y + (rnd(40) - 20)
+    end
+  end
+
   -- Let cursor override movement
   influence_movement_by_cursor(pixel, dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y))
 
