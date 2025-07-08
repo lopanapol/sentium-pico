@@ -420,7 +420,7 @@ end
 
 function update_emotions(pixel)
   pixel.emo_state.excitement *= 0.985
-  pixel.emo_state.happiness *= 0.99
+  pixel.emo_state.happiness *= 0.999
   if pixel.energy < 30 then
     pixel.emo_state.distress = (30 - pixel.energy) / 30
   else
@@ -466,6 +466,9 @@ function update_cursor_awareness()
     cursor_interaction.is_aware = true
     local proximity_factor = 1 - (cursor_dist / awareness_range)
     cursor_interaction.attention_level = min(1, proximity_factor * cursor_interaction.cursor_heat)
+    if cursor_dist < 10 then
+      player.emo_state.happiness = min(1, player.emo_state.happiness + 0.01)
+    end
   else
     cursor_interaction.is_aware = false
     cursor_interaction.attention_level = max(0, cursor_interaction.attention_level - 0.05)
@@ -495,10 +498,10 @@ function influence_movement_by_cursor(pixel, cursor_distance)
 end
 
 function draw_ui()
-  -- Consciousness level
-  print("conscious", 4, 110, 7)
-  local phi_bar_width = min(30, flr(player.consc_level * 30))
-  rectfill(4, 120, 4 + phi_bar_width, 122, 11)
+  -- Happiness level
+  print("happiness", 4, 110, 7)
+  local happiness_bar_width = min(30, flr(player.emo_state.happiness * 30))
+  rectfill(4, 120, 4 + happiness_bar_width, 122, 11)
   rect(3, 119, 34, 123, 5)
 
   -- Energy level
@@ -506,25 +509,6 @@ function draw_ui()
   local energy_bar_width = min(30, player.energy/100 * 30)
   rectfill(44, 120, 40 + energy_bar_width, 122, 11)
   rect(43, 119, 70, 123, 5)
-
-  -- Dominant Emotion
-  local emo_x = 80
-  local emo_y = 110
-  local dominant_emotion = get_dominant_emotion(player)
-  local emo_color = 7
-  if dominant_emotion == "excitement" then emo_color = 14
-  elseif dominant_emotion == "happiness" then emo_color = 11
-  elseif dominant_emotion == "distress" then emo_color = 8
-  end
-  print(dominant_emotion, emo_x, emo_y, emo_color)
-
-  -- Current Focus
-  if global_workspace.current_focus then
-    local focus_text = global_workspace.current_focus.type
-    print("focus: "..focus_text, 4, 100, 12)
-  else
-    print("focus: diffuse", 4, 100, 6)
-  end
 end
 
 function draw_cursor()
