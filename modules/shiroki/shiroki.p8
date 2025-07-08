@@ -66,6 +66,15 @@ function _init()
   predictive_processing = {
     learning_rate = 0.01
   }
+  obstacle = {
+    x = 64,
+    y = 64,
+    size = 16,
+    speed = 0.5,
+    direction = 1, -- 1 for right, -1 for left
+    min_x = 32,
+    max_x = 96
+  }
   cookie = {x = 0, y = 0, visible = false, spawn_timer = 150}
   load_game_state()
 end
@@ -94,6 +103,7 @@ function _draw()
   -- Draw UI
   draw_ui()
   draw_cursor()
+  _draw_obstacle()
   if cookie.visible then
     spr(4, cookie.x, cookie.y)
   end
@@ -120,6 +130,7 @@ function _update()
 
   update_consciousness()
   update_cursor_awareness()
+  _update_obstacle()
 
   update_movement(player)
 
@@ -164,6 +175,25 @@ function _update()
   end
 end
 
+function _update_obstacle()
+  obstacle.x += obstacle.speed * obstacle.direction
+  if obstacle.x > obstacle.max_x or obstacle.x < obstacle.min_x then
+    obstacle.direction *= -1 -- Reverse direction
+  end
+
+  -- Collision detection with player
+  if dist(player.x, player.y, obstacle.x, obstacle.y) < (player.size/2 + obstacle.size/2) then
+    player.emo_state.distress = min(1, player.emo_state.distress + 0.1) -- Increase distress
+    player.energy = max(0, player.energy - 5) -- Lose energy
+    sig_event = true
+    event_type = "obstacle_collision"
+    emotion_impact = 0.5
+  end
+end
+
+function _draw_obstacle()
+  rectfill(obstacle.x - obstacle.size/2, obstacle.y - obstacle.size/2, obstacle.x + obstacle.size/2, obstacle.y + obstacle.size/2, 8) -- Draw as a red square
+end
 
 -- Sentium Pico Functions (adapted for shiroki.p8)
 
@@ -243,6 +273,16 @@ function update_global_workspace(pixel)
       type = "emo_state",
       strength = max_emotion * 0.6,
       content = {dominant_emotion = get_dominant_emotion(pixel)}
+    })
+  end
+
+  -- Obstacle awareness
+  local dist_to_obstacle = dist(pixel.x, pixel.y, obstacle.x, obstacle.y)
+  if dist_to_obstacle < 60 then -- If obstacle is within a certain range
+    add(processes, {
+      type = "obstacle_awareness",
+      strength = (1 - (dist_to_obstacle / 60)) * 0.8, -- Stronger awareness closer to obstacle
+      content = {x = obstacle.x, y = obstacle.y, size = obstacle.size}
     })
   end
 
@@ -335,6 +375,19 @@ function update_predictive_processing(pixel)
     cursor_interaction.last_predicted_x = predicted_x
     cursor_interaction.last_predicted_y = predicted_y
   end
+
+  -- Predict obstacle behavior
+  local predicted_obstacle_x = obstacle.x + obstacle.speed * obstacle.direction
+  if predicted_obstacle_x > obstacle.max_x or predicted_obstacle_x < obstacle.min_x then
+    predicted_obstacle_x = obstacle.x - obstacle.speed * obstacle.direction -- Predict bounce
+  end
+
+  local obstacle_prediction_error = abs(obstacle.x - predicted_obstacle_x)
+  if obstacle_prediction_error < 1 then -- If prediction is accurate
+    pixel.personality.timidity = max(0, pixel.personality.timidity - 0.002) -- Reduce timidity
+  else
+    pixel.personality.timidity = min(1, pixel.personality.timidity + 0.002) -- Increase timidity
+  end
 end
 
 function calculate_qcf_resonance(p)
@@ -384,6 +437,13 @@ function update_movement(pixel)
         pixel.target_x += (rnd(4) - 2)
         pixel.target_y += (rnd(4) - 2)
       end
+    elseif focus.type == "obstacle_awareness" then
+      -- Move away from the obstacle
+      local flee_x = pixel.x + (pixel.x - focus.content.x) * 0.5
+      local flee_y = pixel.y + (pixel.y - focus.content.y) * 0.5
+      pixel.target_x = lerp(pixel.target_x, flee_x, 0.2)
+      pixel.target_y = lerp(pixel.target_y, flee_y, 0.2)
+      move_speed = 1.0 -- Increase speed when fleeing
     end
   end
 
