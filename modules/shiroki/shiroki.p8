@@ -16,7 +16,7 @@ score = 0
 -- For example, if your cat starts at sprite 68, set this to 68.
 local cat_sprite_idle = 0
 local cat_sprite_walk1 = 0 -- First frame of walking animation (32x32 sprite)
-local cat_sprite_walk2 = 4 -- Second frame of walking animation (32x32 sprite)
+local cat_sprite_walk2 = 2 -- Second frame of walking animation (32x32 sprite)
 
 -- Sentium Pico consciousness variables
 memory_size = 10
@@ -43,7 +43,7 @@ predictive_processing = {}
 function _init()
   poke(0x5f2d, 1) -- enable mouse
 
-  player = create_pixel(24*8-4, 24*8-4, { -- Initial x,y from shiroki.p8, converted to pixels
+  player = create_pixel(64, 64, { -- Initial x,y, centered on the first screen
     curiosity = 0.9,
     timidity = 0.1,
     energy_cons = 0.5
@@ -68,6 +68,7 @@ function _init()
   predictive_processing = {
     learning_rate = 0.01
   }
+  cherry = {x = 0, y = 0, visible = false, spawn_timer = 150}
 end
 
 function _draw()
@@ -88,9 +89,11 @@ function _draw()
   )
 
   -- Draw UI
-  print("score: "..score, 8, 8, 7)
   draw_ui()
   draw_cursor()
+  if cherry.visible then
+    spr(4, cherry.x, cherry.y)
+  end
 end
 
 function _update()
@@ -113,16 +116,34 @@ function _update()
   local player_tile_x = flr(player.x / 8)
   local player_tile_y = flr(player.y / 8)
 
-  if (mget(player_tile_x, player_tile_y) == 10) then
-    mset(player_tile_x, player_tile_y, 14)
-    sfx(0)
-    score += 1
-    player.energy = min(100, player.energy + 50)
-    player.emo_state.happiness = min(1, player.emo_state.happiness + 0.5)
-    player.emo_state.excitement = min(1, player.emo_state.excitement + 0.3)
-    sig_event = true
-    event_type = "apple_collected"
-    emotion_impact = 0.4
+  -- Cherry spawning and collection logic
+  if not cherry.visible then
+    cherry.spawn_timer -= 1
+    if cherry.spawn_timer <= 0 then
+      -- Spawn cherry at a random visible location
+      local spawn_x, spawn_y
+      repeat
+        spawn_x = flr(rnd(128) / 8) * 8
+        spawn_y = flr(rnd(128) / 8) * 8
+      until mget(flr(spawn_x/8), flr(spawn_y/8)) == 0 -- Ensure it's on an empty tile
+      cherry.x = spawn_x
+      cherry.y = spawn_y
+      cherry.visible = true
+      cherry.spawn_timer = 150 -- Reset timer for next spawn
+    end
+  else
+    -- Check for collision with player
+    if dist(player.x, player.y, cherry.x, cherry.y) < 8 then
+      cherry.visible = false
+      sfx(0) -- Play sound effect
+      score += 1
+      player.energy = min(100, player.energy + 50)
+      player.emo_state.happiness = min(1, player.emo_state.happiness + 0.5)
+      player.emo_state.excitement = min(1, player.emo_state.excitement + 0.3)
+      sig_event = true
+      event_type = "cherry_collected"
+      emotion_impact = 0.4
+    end
   end
 end
 
@@ -185,17 +206,16 @@ function update_global_workspace(pixel)
     })
   end
   
-  -- Apple seeking (replaces dot seeking)
-  -- For shiroki.p8, we don't have a specific "apple" object with x,y.
-  -- The player collects apples by moving over tiles.
-  -- So, this part needs to be adapted or removed.
-  -- For now, I'll keep it but it won't directly influence movement towards a specific apple.
-  if pixel.energy < 80 then
-    local urgency = (80 - pixel.energy) / 80
+  -- Cherry seeking
+  if cherry.visible then
+    local dist_to_cherry = dist(pixel.x, pixel.y, cherry.x, cherry.y)
+    local proximity_factor = max(0, 1 - (dist_to_cherry / 128)) -- Max distance is 128 (screen size)
+    local urgency = (80 - pixel.energy) / 80 -- Still consider energy for urgency
+
     add(processes, {
-      type = "apple_seeking", 
-      strength = urgency * 0.9,
-      content = {energy_level = pixel.energy}
+      type = "cherry_seeking",
+      strength = (urgency * 0.5) + (proximity_factor * 0.5), -- Balance urgency and proximity
+      content = {x = cherry.x, y = cherry.y, energy_level = pixel.energy}
     })
   end
   
@@ -262,6 +282,16 @@ function update_attention_schema(pixel)
   -- Apple attention (no specific apple object, so this will be less direct)
   -- We can make the player more attentive to areas where apples might be,
   -- or where they recently collected one. For now, I'll omit direct apple attention.
+  
+  -- Add cherry to attention map
+  if cherry.visible then
+    add(attention_schema.attention_map, {
+      x = cherry.x,
+      y = cherry.y,
+      intensity = 0.8, -- Cherries are highly attention-grabbing
+      type = "cherry"
+    })
+  end
 end
 
 function update_predictive_processing(pixel)
@@ -325,11 +355,10 @@ function update_movement(pixel)
   else
     -- Conscious behavior
     local focus = global_workspace.current_focus
-    if focus.type == "apple_seeking" then
-      -- Since there's no specific apple object, this will make the player
-      -- shiroki more purposefully, perhaps towards areas where apples are common.
-      -- For now, it will just increase movement speed.
-      move_speed = 1
+    if focus.type == "cherry_seeking" then
+        pixel.target_x = focus.content.x
+        pixel.target_y = focus.content.y
+        move_speed = 1.5 -- Increase speed when seeking cherry
     elseif focus.type == "cursor_attention" then
       -- Defer to cursor influence functions
     elseif focus.type == "emo_state" then
@@ -380,14 +409,14 @@ end
 
 function process_metacognition(pixel)
   if #pixel.memories > 5 then
-    local apple_mem_count = 0
+    local cherry_mem_count = 0
     for i=max(1, #pixel.memories-4), #pixel.memories do
-      if pixel.memories[i].type == "apple_collected" then
-        apple_mem_count += 1
+      if pixel.memories[i].type == "cherry_collected" then
+        cherry_mem_count += 1
       end
     end
-    if apple_mem_count > 2 then
-      -- Reinforce apple-seeking behavior
+    if cherry_mem_count > 2 then
+      -- Reinforce cherry-seeking behavior
       pixel.personality.curiosity = min(1, pixel.personality.curiosity + 0.05)
       sig_event = true
       event_type = "self_reflection"
@@ -452,10 +481,10 @@ function draw_ui()
   rect(3, 119, 34, 123, 5)
 
   -- Energy level
-  print("energy", 40, 110, 7)
+  print("energy", 44, 110, 7)
   local energy_bar_width = min(30, player.energy/100 * 30)
-  rectfill(40, 120, 40 + energy_bar_width, 122, 11)
-  rect(39, 119, 70, 123, 5)
+  rectfill(44, 120, 40 + energy_bar_width, 122, 11)
+  rect(43, 119, 70, 123, 5)
 
   -- Dominant Emotion
   local emo_x = 80
