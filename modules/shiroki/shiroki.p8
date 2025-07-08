@@ -24,7 +24,7 @@ sig_event = false
 event_type = ""
 emotion_impact = 0
 mouse_cursor = {x = 64, y = 64, visible = false}
-cursor_interaction = {
+  cursor_interaction = {
   is_aware = false,
   attention_level = 0,
   last_distance = 1000,
@@ -34,7 +34,8 @@ cursor_interaction = {
   max_stillness_threshold = 300,
   influence_radius = 60,
   cursor_heat = 0,
-  force_lines = {}
+  force_lines = {},
+  was_aware = false
 }
 global_workspace = {}
 attention_schema = {}
@@ -442,6 +443,9 @@ function update_cursor_awareness()
   local awareness_range = cursor_interaction.influence_radius + player.personality.curiosity * 20
 
   if cursor_dist < awareness_range then
+    if not cursor_interaction.is_aware then
+      sfx(1) -- Play sound effect when cursor contacts dog
+    end
     cursor_interaction.is_aware = true
     local proximity_factor = 1 - (cursor_dist / awareness_range)
     cursor_interaction.attention_level = min(1, proximity_factor * cursor_interaction.cursor_heat)
