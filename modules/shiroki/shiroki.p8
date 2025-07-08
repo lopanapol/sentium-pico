@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 19
 __lua__
--- wander demo
+-- shiroki demo
 -- by zep
 
 player = {}
@@ -43,7 +43,7 @@ predictive_processing = {}
 function _init()
   poke(0x5f2d, 1) -- enable mouse
 
-  player = create_pixel(24*8-4, 24*8-4, { -- Initial x,y from wander.p8, converted to pixels
+  player = create_pixel(24*8-4, 24*8-4, { -- Initial x,y from shiroki.p8, converted to pixels
     curiosity = 0.9,
     timidity = 0.1,
     energy_cons = 0.5
@@ -127,7 +127,7 @@ function _update()
 end
 
 
--- Sentium Pico Functions (adapted for wander.p8)
+-- Sentium Pico Functions (adapted for shiroki.p8)
 
 function create_pixel(x, y, personality)
   return {
@@ -153,10 +153,10 @@ function create_pixel(x, y, personality)
     target_y = y,
     stuck_timer = 0,
     is_moving = false,
-    dx = 0, -- Added for wander.p8 player
-    dy = 0, -- Added for wander.p8 player
-    f = 0,  -- Added for wander.p8 player
-    d = 1   -- Added for wander.p8 player
+    dx = 0, -- Added for shiroki.p8 player
+    dy = 0, -- Added for shiroki.p8 player
+    f = 0,  -- Added for shiroki.p8 player
+    d = 1   -- Added for shiroki.p8 player
   }
 end
 
@@ -186,7 +186,7 @@ function update_global_workspace(pixel)
   end
   
   -- Apple seeking (replaces dot seeking)
-  -- For wander.p8, we don't have a specific "apple" object with x,y.
+  -- For shiroki.p8, we don't have a specific "apple" object with x,y.
   -- The player collects apples by moving over tiles.
   -- So, this part needs to be adapted or removed.
   -- For now, I'll keep it but it won't directly influence movement towards a specific apple.
@@ -316,7 +316,7 @@ end
 function update_movement(pixel)
   local move_speed = 0.5
   
-  -- Default behavior: wander
+  -- Default behavior: shiroki
   if (global_workspace.current_focus == nil) then
     if rnd(1) < 0.01 then
       pixel.target_x = 20 + rnd(88)
@@ -327,7 +327,7 @@ function update_movement(pixel)
     local focus = global_workspace.current_focus
     if focus.type == "apple_seeking" then
       -- Since there's no specific apple object, this will make the player
-      -- wander more purposefully, perhaps towards areas where apples are common.
+      -- shiroki more purposefully, perhaps towards areas where apples are common.
       -- For now, it will just increase movement speed.
       move_speed = 1
     elseif focus.type == "cursor_attention" then
@@ -360,7 +360,7 @@ function update_movement(pixel)
     pixel.is_moving = false
   end
 
-  -- Update dx, dy, f, d for wander.p8's original drawing logic
+  -- Update dx, dy, f, d for shiroki.p8's original drawing logic
   pixel.dx = dx * move_speed
   pixel.dy = dy * move_speed
   pixel.f = (pixel.f + sqrt(pixel.dx*pixel.dx + pixel.dy*pixel.dy)*0.5) % 4
