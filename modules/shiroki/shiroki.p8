@@ -443,7 +443,6 @@ function update_cursor_awareness()
   local awareness_range = cursor_interaction.influence_radius + player.personality.curiosity * 20
 
   if cursor_dist < awareness_range then
-    sfx(1) -- Play bell sound effect when cursor contacts dog
     cursor_interaction.is_aware = true
     local proximity_factor = 1 - (cursor_dist / awareness_range)
     cursor_interaction.attention_level = min(1, proximity_factor * cursor_interaction.cursor_heat)
@@ -536,4 +535,3 @@ __gfx__
 07007060070607067060070670607060000888000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
 3007300730073007000000000000000000000000000000000000000000000000
-5007500750075007000000000000000000000000000000000000000000000000
