@@ -37,10 +37,6 @@ global_workspace = {}
 attention_schema = {}
 predictive_processing = {}
 
-function time()
-  return stat(30) / 30 -- PICO-8 frames / 30 frames per second
-end
-
 function _init()
   poke(0x5f2d, 1) -- enable mouse
   cartdata("shiroki_save")
@@ -198,12 +194,7 @@ function create_pixel(x, y, personality)
     dx = 0, -- Added for shiroki.p8 player
     dy = 0, -- Added for shiroki.p8 player
     f = 0,  -- Added for shiroki.p8 player
-    d = 1,   -- Added for shiroki.p8 player
-    is_resting = false,
-    resting_timer = 0,
-    last_visited_tiles = {},
-    -- New personality trait
-    playfulness = 0.5
+    d = 1   -- Added for shiroki.p8 player
   }
 end
 
@@ -321,10 +312,7 @@ function update_attention_schema(pixel)
 end
 
 function update_predictive_processing(pixel)
-  -- Postulate 4: The Illusion of Subjective Experience (The "Maya")
-  -- The brain (Shiroki's consciousness system) constantly predicts and interprets.
-  -- Prediction error reflects the discrepancy between expectation and reality,
-  -- influencing the clarity of the "Maya" and the brain's "tuning."
+  -- Predict cursor behavior
   if cursor_interaction.is_aware then
     local dx = mouse_cursor.x - cursor_interaction.last_cursor_x
     local dy = mouse_cursor.y - cursor_interaction.last_cursor_y
@@ -334,21 +322,14 @@ function update_predictive_processing(pixel)
     if cursor_interaction.last_predicted_x then
       local error_x = abs(mouse_cursor.x - cursor_interaction.last_predicted_x)
       local error_y = abs(mouse_cursor.y - cursor_interaction.last_predicted_y)
-      local current_prediction_error = (error_x + error_y) / 2
+      local prediction_error = (error_x + error_y) / 2
   
-      -- Update attention_schema's prediction_error
-      attention_schema.prediction_error = current_prediction_error
-
-      -- Influence personality based on prediction accuracy
-      if current_prediction_error < 3 then
-        -- Accurate prediction: reinforces curiosity, reduces timidity
+      if prediction_error < 3 then
         pixel.personality.curiosity = min(1, pixel.personality.curiosity + 0.005)
-        pixel.personality.timidity = max(0, pixel.personality.timidity - 0.002)
       else
-        -- Inaccurate prediction: increases timidity, reduces curiosity
         pixel.personality.timidity = min(1, pixel.personality.timidity + 0.005)
-        pixel.personality.curiosity = max(0, pixel.personality.curiosity - 0.002)
       end
+      attention_schema.prediction_error = prediction_error
     end
   
     cursor_interaction.last_predicted_x = predicted_x
@@ -357,21 +338,11 @@ function update_predictive_processing(pixel)
 end
 
 function calculate_qcf_resonance(p)
-  -- Postulate 2: The Brain as a Quantum Resonator
-  -- Resonance is enhanced by focused attention and accurate prediction,
-  -- and diminished by distress (noise/distortion).
-  local attention_factor = cursor_interaction.attention_level * 0.5
-  local prediction_accuracy_factor = 1 - attention_schema.prediction_error -- Lower error = higher accuracy
-  prediction_accuracy_factor = max(0, prediction_accuracy_factor) * 0.3 -- Scale and cap
-
-  -- Memory coherence (placeholder for now, can be developed further)
-  local memory_coherence_factor = min(#p.memories / memory_size, 1) * 0.1
-
-  -- Emotional state: distress reduces resonance
-  local emotional_noise_factor = p.emo_state.distress * 0.5 -- Higher distress, higher noise
-
-  local raw_resonance = (attention_factor + prediction_accuracy_factor + memory_coherence_factor) - emotional_noise_factor
-  return mid(0, raw_resonance, 1) -- Clamp between 0 and 1
+  local s = cursor_interaction.attention_level * 0.4
+  local m = min(#p.memories / memory_size, 1) * 0.35
+  local e = (p.emo_state.happiness + p.emo_state.excitement) * 0.3 -- Increased emotional impact
+  local b = p.target_x and 1 - min(abs(p.x - p.target_x) + abs(p.y - p.target_y), 50) / 50 * 0.2 or 0
+  return min((s + m + e + b) / 4, 1)
 end
 
 function form_memories(pixel)
@@ -391,52 +362,12 @@ end
 
 function update_movement(pixel)
   local move_speed = 0.5
-  local current_tile_x = flr(pixel.x / 8)
-  local current_tile_y = flr(pixel.y / 8)
-
-  -- Update last visited tiles
-  pixel.last_visited_tiles[tostring(current_tile_x) .. "," .. tostring(current_tile_y)] = time()
-
-  -- Resting state logic
-  if pixel.energy < 20 and not pixel.is_resting then
-    pixel.is_resting = true
-    pixel.resting_timer = 0
-    pixel.target_x = pixel.x -- Stop movement
-    pixel.target_y = pixel.y
-  elseif pixel.is_resting then
-    pixel.resting_timer += 1
-    if pixel.energy > 50 and pixel.resting_timer > 180 then -- Rest for at least 3 seconds
-      pixel.is_resting = false
-    end
-    pixel.is_moving = false
-    pixel.f = 0 -- Idle animation
-    return -- Don't move if resting
-  end
-
-  -- Energy influences base movement speed
-  move_speed = 0.5 + (pixel.energy / 100) * 0.5 -- Faster when energetic
-
+  
   -- Default behavior: shiroki
   if (global_workspace.current_focus == nil) then
-    if rnd(1) < 0.02 then -- Reduced frequency of random exploration
-      -- Intelligent exploration: find less visited areas
-      local best_target_x, best_target_y
-      local min_visit_time = time() + 99999 -- A very large number
-
-      for i=1, 5 do -- Try a few random spots
-        local rx = 20 + rnd(88)
-        local ry = 20 + rnd(88)
-        local tile_key = tostring(flr(rx/8)) .. "," .. tostring(flr(ry/8))
-        local last_visit = pixel.last_visited_tiles[tile_key] or 0
-
-        if last_visit < min_visit_time then
-          min_visit_time = last_visit
-          best_target_x = rx
-          best_target_y = ry
-        end
-      end
-      pixel.target_x = best_target_x or (20 + rnd(88))
-      pixel.target_y = best_target_y or (20 + rnd(88))
+    if rnd(1) < 0.05 then -- Increased frequency of random exploration
+      pixel.target_x = 20 + rnd(88)
+      pixel.target_y = 20 + rnd(88)
     end
   else
     -- Conscious behavior
@@ -456,10 +387,8 @@ function update_movement(pixel)
     end
   end
 
-  -- Let cursor override movement, but consider resting state
-  if not pixel.is_resting then
-    influence_movement_by_cursor(pixel, dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y))
-  end
+  -- Let cursor override movement
+  influence_movement_by_cursor(pixel, dist(pixel.x, pixel.y, mouse_cursor.x, mouse_cursor.y))
 
   local dx = pixel.target_x - pixel.x
   local dy = pixel.target_y - pixel.y
@@ -489,9 +418,6 @@ function update_movement(pixel)
 end
 
 function update_emotions(pixel)
-  -- Emotions as part of the "Maya" (Postulate 4)
-  -- Emotional states are a product of the brain's interpretation
-  -- and can influence the brain's resonance with the QCF.
   pixel.emo_state.excitement *= 0.985
   pixel.emo_state.happiness *= 0.999
   if pixel.energy < 30 then
@@ -499,16 +425,9 @@ function update_emotions(pixel)
   else
     pixel.emo_state.distress *= 0.95
   end
-
-  -- Influence QCF resonance based on emotional state
-  -- Positive emotions (happiness, excitement) can enhance resonance
-  -- Negative emotions (distress) can reduce resonance
-  local emotional_qcf_influence = (pixel.emo_state.happiness + pixel.emo_state.excitement) * 0.1 - pixel.emo_state.distress * 0.1
-  pixel.qcf_resonance = mid(0, pixel.qcf_resonance + emotional_qcf_influence, 1)
 end
 
 function process_metacognition(pixel)
-  -- Metacognition as a way to refine the "Maya" and potentially connect deeper with QCF
   if #pixel.memories > 5 then
     local cookie_mem_count = 0
     for i=max(1, #pixel.memories-4), #pixel.memories do
@@ -523,15 +442,6 @@ function process_metacognition(pixel)
       event_type = "self_reflection"
       emotion_impact = 0.1
     end
-  end
-
-  -- Self-reflection based on prediction error and emotional state
-  -- If prediction error is consistently low (clear Maya) and emotions are positive,
-  -- it suggests a more harmonious reception of the QCF signal.
-  if attention_schema.prediction_error < 5 and pixel.emo_state.happiness > 0.7 then
-    pixel.qcf_resonance = min(1, pixel.qcf_resonance + 0.01) -- Increase resonance
-  elseif attention_schema.prediction_error > 10 or pixel.emo_state.distress > 0.5 then
-    pixel.qcf_resonance = max(0, pixel.qcf_resonance - 0.01) -- Decrease resonance
   end
 end
 
@@ -557,16 +467,10 @@ function update_cursor_awareness()
     cursor_interaction.attention_level = min(1, proximity_factor * cursor_interaction.cursor_heat)
     if cursor_dist < 10 then
       player.emo_state.happiness = min(1, player.emo_state.happiness + 0.01)
-      -- If cursor is close and active, increase playfulness
-      if cursor_moved then
-        player.personality.playfulness = min(1, player.personality.playfulness + 0.001)
-      end
     end
   else
     cursor_interaction.is_aware = false
     cursor_interaction.attention_level = max(0, cursor_interaction.attention_level - 0.05)
-    -- If cursor is far, decrease playfulness slowly
-    player.personality.playfulness = max(0, player.personality.playfulness - 0.0005)
   end
 end
 
@@ -575,25 +479,8 @@ function influence_movement_by_cursor(pixel, cursor_distance)
   
   local influence_strength = cursor_interaction.attention_level * 0.5
   
-  -- Calculate cursor speed
-  local cursor_speed = dist(mouse_cursor.x, mouse_cursor.y, cursor_interaction.last_cursor_x, cursor_interaction.last_cursor_y)
-
-  -- Playfulness: chase or playfully interact with cursor
-  if pixel.personality.playfulness > 0.5 then
-    local play_factor = (pixel.personality.playfulness - 0.5) * 2
-    if cursor_speed > 2 and cursor_distance > 10 then -- Cursor is moving, and not too close
-      -- Playful chase
-      pixel.target_x = lerp(pixel.target_x, mouse_cursor.x, influence_strength * play_factor * 0.2)
-      pixel.target_y = lerp(pixel.target_y, mouse_cursor.y, influence_strength * play_factor * 0.2)
-    elseif cursor_distance < 20 and cursor_speed < 1 then -- Cursor is still and close
-      -- Playful sniff/investigate (slight random movement around cursor)
-      pixel.target_x = lerp(pixel.target_x, mouse_cursor.x + (rnd(10) - 5), influence_strength * play_factor * 0.05)
-      pixel.target_y = lerp(pixel.target_y, mouse_cursor.y + (rnd(10) - 5), influence_strength * play_factor * 0.05)
-    end
-  end
-
-  -- Curiosity: approach cursor (less aggressive if playful)
-  if pixel.personality.curiosity > 0.6 and cursor_distance > 15 and pixel.personality.playfulness < 0.7 then
+  -- Curiosity: approach cursor
+  if pixel.personality.curiosity > 0.6 and cursor_distance > 15 then
     local approach_factor = (pixel.personality.curiosity - 0.6) * 2.5
     pixel.target_x = lerp(pixel.target_x, mouse_cursor.x, influence_strength * approach_factor * 0.1)
     pixel.target_y = lerp(pixel.target_y, mouse_cursor.y, influence_strength * approach_factor * 0.1)
@@ -611,7 +498,7 @@ end
 
 function draw_ui()
   -- QCF Resonance level
-  print("qcf", 4, 110, 7)
+  print("hapiness", 4, 110, 7)
   local qcf_bar_width = min(30, flr(player.qcf_resonance * 30))
   rectfill(4, 120, 4 + qcf_bar_width, 122, 11)
   rect(3, 119, 34, 123, 5)
@@ -621,12 +508,6 @@ function draw_ui()
   local energy_bar_width = min(30, player.energy/100 * 30)
   rectfill(44, 120, 40 + energy_bar_width, 122, 11)
   rect(43, 119, 70, 123, 5)
-
-  -- Playfulness level
-  print("play", 84, 110, 7)
-  local play_bar_width = min(30, flr(player.personality.playfulness * 30))
-  rectfill(84, 120, 80 + play_bar_width, 122, 11)
-  rect(83, 119, 110, 123, 5)
 end
 
 function draw_cursor()
@@ -683,7 +564,6 @@ function draw_simple_symbol(x, y, color)
   line(x+3, y+18, x+8, y+18, color)
   line(x+3, y+17, x+8, y+17, color)
 end
-
 -- Utility functions
 function sqrt(n) return n^0.5 end
 function dist(x1, y1, x2, y2) return sqrt((x2-x1)^2 + (y2-y1)^2) end
@@ -698,8 +578,6 @@ function save_game_state()
   dset(5, player.personality.timidity)
   dset(6, player.emo_state.happiness)
   dset(7, player.qcf_resonance)
-  dset(8, player.personality.playfulness)
-  dset(9, player.is_resting and 1 or 0) -- Save boolean as 1 or 0
 end
 
 function load_game_state()
@@ -712,8 +590,6 @@ function load_game_state()
     player.personality.timidity = dget(5)
     player.emo_state.happiness = dget(6)
     player.qcf_resonance = dget(7)
-    player.personality.playfulness = dget(8) or 0.5 -- Default if not saved
-    player.is_resting = (dget(9) == 1) -- Load boolean from 1 or 0
   end
 end
 __gfx__
