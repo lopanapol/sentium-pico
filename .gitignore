@@ -29,6 +29,10 @@ MANIFEST
 *.log
 data/session_logs/
 
+# Data files
+data/conscious_export.json
+data/python_insights.json
+
 .env
 .venv
 env/
