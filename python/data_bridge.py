@@ -12,7 +12,7 @@ from state_manager import StateManager
 from agent_core import AgentCore
 
 class DataBridge:
-    def __init__(self, workspace_path="/Users/lopanapol/Sentium/sentium-pico"):
+    def __init__(self, workspace_path="/Users/lopanapol/git-repo/sentium-pico"):
         self.workspace_path = Path(workspace_path)
         self.data_path = self.workspace_path / "data"
         self.session_logs_path = self.data_path / "session_logs"

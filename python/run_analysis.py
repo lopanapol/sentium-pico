@@ -155,15 +155,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "monitor":
         run_live_monitor()
     else:
-        print("Sentium Pico Consciousness Analyzer")
-        print("\nOptions:")
-        print("  python run_analysis.py        - Run single analysis")
-        print("  python run_analysis.py monitor - Start live monitoring")
-        print()
-        
-        choice = input("Choose mode (single/monitor): ").strip().lower()
-        
-        if choice in ['monitor', 'm']:
-            run_live_monitor()
-        else:
-            run_single_analysis()
+        run_single_analysis()

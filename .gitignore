@@ -3,7 +3,7 @@
 export/
 
 # Python specific
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.so
@@ -24,7 +24,11 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Log files
 *.log
+data/session_logs/
+
 .env
 .venv
 env/
